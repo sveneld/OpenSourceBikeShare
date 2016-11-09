@@ -1,0 +1,20 @@
+# Group Authentication
+App auth
+
+# Auth [/api/auth/]
+
+## Login [POST /api/auth/authenticate]
++ Request (application/json)
+    + Headers
+    	Accept: application/json
+    + Body
+		{
+			"phone_number": "+4210944244393",
+			"password": "password"
+		}
++ Response 200 (application/json)
+
+    + Body
+    	{
+    		"token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIVzI1NiJ9.eyJpc3MiOiJodHRwOi8vd2hpdGViaWtlcy5kZXYvYXBpL2F1dGgvYXV0aGVudGljYXRlIiwiaWF0IjoxNDc1Mzk0MjM5LCJuYmYiOjE0NzUzOTQyMzksImp0aSI6Ijk1MzAzZDczMmYzYzBhYjJlYzU4N2MxZTA2YzU4YjA4Iiwic3ViIjoxfQ.Z0_EkP4GfutCUBraCL_FhGotPoKDswuZ6baMJY3_0Os"
+    	}

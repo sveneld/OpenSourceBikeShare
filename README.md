@@ -4,11 +4,14 @@ Open Source Bike Share
 
 Bottom-up bicycle sharing system suitable for smaller communities or areas such as campuses, companies etc.
 
-Website: [OpenSourceBikeShare.com](http://opensourcebikeshare.com)
-
-NOTE: Undergoing complete rewrite!
 ---------
 Use *fully functional* ["breakthrough" version](https://github.com/mmmaly/OpenSourceBikeShare/tree/breakthrough) in the meantime.
+=======
+
+Website: [OpenSourceBikeShare.com](http://opensourcebikeshare.com)
+
+NOTE: Undergoing complete rewrite in Laravel framework.
+---------
 
 Features
 ----------
@@ -67,4 +70,7 @@ We will talk to you about the expectations, situation, bicycle theft, potential 
 
 First consultation is free, **get in touch**: [consult@opensourcebikeshare.com](mailto:consult@opensourcebikeshare.com)
 
+<<<<<<< HEAD
+Follow us on Twitter: [@OpenBikeShare](https://twitter.com/OpenBikeshare)
+=======
 Follow us on Twitter: [@OpenBikeShare](https://twitter.com/OpenBikeshare)
