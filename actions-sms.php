@@ -605,7 +605,7 @@ function last($number, $bike)
 function revert($number, $bikeNum)
 {
     $userId = getUser($number);
-
+    $bikeNum = intval($bikeNum);
     $result = R::getAll("SELECT currentUser FROM bikes WHERE bikeNum=:bikeNum AND currentUser<>'NULL'", [':bikeNum' => $bikeNum]);
     if (count($result) == 0) {
            sendSMS($number, _('Bike')." ".$bikeNum." "._('is not rented right now. Revert not successful!'));
