@@ -10,7 +10,7 @@
 	<link href="style.css" type="text/css" rel="stylesheet" />
     </head>
 <body>
-<h2>Stands Statistics Report</h2>
+<h2>User Count Statistics</h2>
 
 <?php
 
