@@ -127,8 +127,7 @@ $countrycode=""; // international dialing code (country code prefix), no plus si
 
                 @if($isloggedin && $isadmin)
                     <li>
-                        {{-- TODO: link --}}
-                        <a href="admin.php"><span class="glyphicon glyphicon-cog"></span>{{  __('Admin') }}</a>
+                        <a href="/admin/dashboard"><span class="glyphicon glyphicon-cog"></span>{{  __('Admin') }}</a>
                     </li>
                 @endif
 
@@ -147,8 +146,10 @@ $countrycode=""; // international dialing code (country code prefix), no plus si
                     </li>
                 @endif
 
+                @if($isloggedin)
                 <li><a href="command.php?action=logout" id="logout">
                         <span class="glyphicon glyphicon-log-out"></span> {{ __('Log out')}} </a></li>
+                @endif
             </ul>
         </div>
         <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
