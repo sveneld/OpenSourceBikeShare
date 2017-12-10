@@ -35,11 +35,6 @@ Api::version('v1', ['namespace' => 'BikeShare\Http\Controllers\Api\v1'], functio
             Api::get('rents/active', 'MeController@getActiveRents')->name('api.me.rents.active');
         });
 
-        Api::group(['prefix' => 'stands', 'namespace' => 'Stands'], function () {
-            Api::get('', 'StandsController@index')->name('api.stands.index');
-            Api::get('{uuid}', 'StandsController@show')->name('api.stands.show');
-        });
-
         Api::group(['prefix' => 'rents'], function () {
             Api::group(['prefix' => 'qrscan', 'namespace' => 'QrCodes'], function () {
                 Api::post('bikes/{bikeNum}', 'QrCodesController@rentBike');
@@ -107,11 +102,14 @@ Api::version('v1', ['namespace' => 'BikeShare\Http\Controllers\Api\v1'], functio
     Api::group(['prefix' => 'sms', 'namespace' => 'Sms'], function () {
         Api::match(['get', 'post'],'/receive', 'SmsController@receive')->name('api.sms.receive');
     });
+
+    // Stands can be loaded without logging
+    Api::group(['prefix' => 'stands', 'namespace' => 'Stands'], function () {
+        Api::get('', 'StandsController@index')->name('api.stands.index');
+        Api::get('{uuid}', 'StandsController@show')->name('api.stands.show');
+    });
 });
 
-Route::group(['middleware' => 'auth:api'], function () {
-
-});
 
 Route::get('/user', function (Request $request) {
     return $request->user();

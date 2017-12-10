@@ -15,7 +15,7 @@ html, body {
    left: 0;
    background-color: rgba(0,0,0,0.4);
    background-size: 100% 60%;
-   background-image: url(../img/loading.svg);
+   background-image: url(../../img/loading.svg);
    background-repeat: no-repeat;
    z-index: 1000;
    color: white;
@@ -23,7 +23,7 @@ html, body {
 
 @media screen {
    .icondesc {
-      background: url(../img/icon.png);
+      background: url(../../img/icon.png);
       background-position: 0 0;
       background-size: 60px 60px;
       background-repeat: none;
@@ -32,7 +32,7 @@ html, body {
       width: 60px;
    }
    .none {
-      background: url(../img/icon-none.png);
+      background: url(../../img/icon-none.png);
       background-position: 0 0;
       background-size: 60px 60px;
       background-repeat: none;

@@ -22,12 +22,9 @@ class StandsController extends Controller
 
     public function index()
     {
-
-        $stands = Stand::first();
-
-        dd($stands->getTopPosition());
-
-        //$stands = $this->standRepo->all();
+        $stands = $this->standRepo
+            ->withCount('bikes as bikes_count')
+            ->all();
 
         return $this->response->collection($stands, new StandTransformer());
     }

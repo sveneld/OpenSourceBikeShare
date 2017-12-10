@@ -30,9 +30,9 @@ class StandTransformer extends TransformerAbstract
             'place_name' => $stand->place_name,
             'status' => $stand->status,
             'distance' => $stand->distance ? round($stand->distance * 1000) : null,
+            'bikes_count' => $stand->bikes_count ?? null
         ];
     }
-
 
     public function includeBikes(Stand $stand)
     {

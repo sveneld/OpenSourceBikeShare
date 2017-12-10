@@ -14,23 +14,16 @@ class MapController extends Controller
      */
     private $appConfig;
 
-    /**
-     * @var User
-     */
-    private $user;
-
-
-    public function __construct(User $user)
+    public function __construct()
     {
         $this->appConfig = app(AppConfig::class);
-        $this->user = $user;
     }
 
     public function index()
     {
-        $user = $this->user;
+        $user = auth()->user();
         $isloggedin = Auth::check();
-        $isadmin = $isloggedin && $this->user->hasRole('admin');
+        $isadmin = $user && $isloggedin && $user->hasRole('admin');
         $iscreditenabled = $this->appConfig->isCreditEnabled();
         $issmssystemenabled = $this->appConfig->isSmsEnabled();
         $systemlat="48.148154"; // default map center point - latitude

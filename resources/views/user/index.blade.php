@@ -122,7 +122,7 @@ $countrycode=""; // international dialing code (country code prefix), no plus si
                 <li><a href="{{ $systemrules }}">
                         <span
                                 class="glyphicon glyphicon-question-sign"></span>
-                        {{ __('Help') }}></a>
+                        {{ __('Help') }}</a>
                 </li>
 
                 @if($isloggedin && $isadmin)
@@ -162,7 +162,7 @@ $countrycode=""; // international dialing code (country code prefix), no plus si
         </div>
     </div>
 
-    @if($isloggedin)
+    @if(!$isloggedin)
     <div id="loginform">
         <h1>Log in</h1>
 

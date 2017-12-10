@@ -60,4 +60,14 @@ class SmsParsing extends TestCase
             self::assertEquals($expectedOutput, SmsUtils::parseNoteFromSms($input, "note"), $input);
         }
     }
+
+
+    /** @test */
+    public function temp_bcrypt()
+    {
+        $x = bcrypt('password123');
+        self::assertEquals("111", $x);
+
+
+    }
 }
