@@ -7,7 +7,6 @@ use BikeShare\Domain\Bike\Bike;
 use BikeShare\Domain\Bike\BikePermissions;
 use BikeShare\Domain\Bike\BikesRepository;
 use BikeShare\Domain\Rent\MethodType;
-use BikeShare\Domain\Rent\ReturnMethod;
 use BikeShare\Domain\Stand\Stand;
 use BikeShare\Domain\Stand\StandsRepository;
 use BikeShare\Http\Services\Rents\Exceptions\BikeNotFreeException;

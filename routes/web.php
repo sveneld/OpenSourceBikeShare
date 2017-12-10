@@ -1,8 +1,6 @@
 <?php
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'User\Map\MapController@index');
 
 Route::get('/docs', function () {
     return view('docs.index');
