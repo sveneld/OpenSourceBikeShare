@@ -2,7 +2,6 @@
 
 namespace BikeShare\Http\Controllers\User\Map;
 
-use BikeShare\Domain\User\User;
 use BikeShare\Http\Controllers\Controller;
 use BikeShare\Http\Services\AppConfig;
 use Illuminate\Http\Request;
@@ -36,8 +35,10 @@ class MapController extends Controller
 
         $currency = $this->appConfig->getCreditCurrency();
 
-        // TODO: 0/1/2 depending on result
-        $error = 0;
+        // 0 OK
+        // 1 user/pass error
+        // 2 session expired
+        $error = $request->session()->get('auth_error') ?? 0;
 
         return view('user.index',
             compact(
@@ -71,9 +72,10 @@ class MapController extends Controller
             ]);
             return back()->cookie('token', $apiResponse['token']);
         } catch (HttpException $exception){
-            if ($exception->getStatusCode() === 401){
-                return "unauthenticated";
+            if ($exception->getStatusCode() === 401) {
+                $request->session()->flash('auth_error', 1);
             }
+            return back();
         }
     }
 
