@@ -1,6 +1,10 @@
 <?php
 
-Route::get('/', 'User\Map\MapController@index');
+Route::get('/', 'User\Map\MapController@index')
+    ->middleware('jwt.check');
+
+Route::post('/old/login', 'User\Map\MapController@login');
+Route::get('/old/logout', 'User\Map\MapController@logout');
 
 Route::get('/docs', function () {
     return view('docs.index');

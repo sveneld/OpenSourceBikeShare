@@ -62,6 +62,7 @@ $countrycode=""; // international dialing code (country code prefix), no plus si
     <meta charset="utf-8">
     <title>{{ $systemname }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="js/old/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/old/viewportDetect.js"></script>
@@ -147,7 +148,7 @@ $countrycode=""; // international dialing code (country code prefix), no plus si
                 @endif
 
                 @if($isloggedin)
-                <li><a href="command.php?action=logout" id="logout">
+                <li><a href="/old/logout" id="logout">
                         <span class="glyphicon glyphicon-log-out"></span> {{ __('Log out')}} </a></li>
                 @endif
             </ul>
@@ -180,7 +181,8 @@ $countrycode=""; // international dialing code (country code prefix), no plus si
                 </h3>
             </div>
         @endif
-        <form method="POST" action="command.php?action=login">
+        <form method="POST" action="/old/login">
+            {{ csrf_field() }}
             <div class="row">
                 <div class="col-lg-12">
                     <label for="number" class="control-label">

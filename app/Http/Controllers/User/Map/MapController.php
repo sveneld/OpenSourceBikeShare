@@ -5,7 +5,9 @@ namespace BikeShare\Http\Controllers\User\Map;
 use BikeShare\Domain\User\User;
 use BikeShare\Http\Controllers\Controller;
 use BikeShare\Http\Services\AppConfig;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class MapController extends Controller
 {
@@ -19,7 +21,7 @@ class MapController extends Controller
         $this->appConfig = app(AppConfig::class);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         $isloggedin = Auth::check();
@@ -51,5 +53,31 @@ class MapController extends Controller
                 'systemlat',
                 'systemlong',
                 'systemzoom'));
+    }
+
+    public function login(Request $request){
+
+        $request->validate([
+            'number' => 'required',
+            'password' => 'required',
+        ]);
+
+        $dispatcher = app('Dingo\Api\Dispatcher');
+
+        try {
+            $apiResponse = $dispatcher->post('api/auth/authenticate', [
+                'phone_number' => $request->number,
+                'password' => $request->password
+            ]);
+            return back()->cookie('token', $apiResponse['token']);
+        } catch (HttpException $exception){
+            if ($exception->getStatusCode() === 401){
+                return "unauthenticated";
+            }
+        }
+    }
+
+    public function logout(Request $request){
+        return back()->cookie('token');
     }
 }

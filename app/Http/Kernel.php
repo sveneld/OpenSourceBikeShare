@@ -32,7 +32,7 @@ class Kernel extends HttpKernel
             \BikeShare\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
-            // \Illuminate\Session\Middleware\AuthenticateSession::class,
+            \Illuminate\Session\Middleware\AuthenticateSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \BikeShare\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
@@ -61,6 +61,7 @@ class Kernel extends HttpKernel
         'role'        => \BikeShare\Http\Middleware\RoleMiddleware::class,
         'jwt.auth'    => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
         'jwt.refresh' => \Tymon\JWTAuth\Http\Middleware\RefreshToken::class,
+        'jwt.check' => \Tymon\JWTAuth\Http\Middleware\Check::class,
 
         'admin' => \BikeShare\Http\Middleware\AuthenticateAdmin::class,
         'admin.guest' => \BikeShare\Http\Middleware\RedirectIfAdminAuthenticated::class,
