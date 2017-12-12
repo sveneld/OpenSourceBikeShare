@@ -68,7 +68,39 @@ $countrycode=""; // international dialing code (country code prefix), no plus si
     <script type="text/javascript" src="js/old/viewportDetect.js"></script>
     <script type="text/javascript" src="js/old/leaflet.js"></script>
     <script type="text/javascript" src="js/old/L.Control.Sidebar.js"></script>
-    <script type="text/javascript" src="js/old/translations.php"></script>
+    <script type="text/javascript">
+        _select_stand = "{{__('Select stand')}}";
+        _bicycle = "{{__('bicycle')}}";
+        _bicycles = "{{__('bicycles')}}";
+        _no_bicycles = "{{__('No bicycles')}}";
+        _open_map = "{{__('Open a map with directions to the selected stand from your current location.')}}";
+        _walking_directions = "{{__('walking directions')}}";
+        _display_photo = "{{__('Display photo of the stand.')}}";
+        _photo = "{{__('photo')}}";
+        _currently_rented = "{{__('You have this bicycle currently rented. The current lock code is displayed below the bike number.')}}";
+        _reported_problem = "{{__('Reported problem on this bicycle:')}}";
+
+        _sms_code = "{{__('SMS code is in AB 123456 format.')}}";
+        _enter_sms_code = "{{__('Please, enter SMS code received to your phone.')}}";
+        _enter_names = "{{__('Please, enter your firstname and lastname.')}}";
+        _email_incorrect = "{{__('Email address is incorrect.')}}";
+        _enter_email = "{{__('Please, enter your email.')}}";
+        _passwords_nomatch = "{{__('Passwords do not match.')}}";
+        _enter_password = "{{__('Please, enter your password.')}}";
+        _existing_user = "{{__('Existing user password change')}}";
+        _step2 = "{{__('Step 2 - Change password')}}";
+        _set_password = "{{__('Set password')}}";
+
+        _user = "{{__('User')}}";
+        _privileges = "{{__('Privileges')}}";
+        _limit = "{{__('Limit')}}";
+        _credit = "{{__('Credit')}}";
+
+        _coupon = "{{__('Coupon')}}";
+        _value = "{{__('Value')}}";
+        _status = "{{__('Status')}}";
+        _set_sold = "{{__('Mark as sold')}}";
+    </script>
     <script type="text/javascript" src="js/old/functions.js"></script>
     <?php
     //if (isset($geojson))
