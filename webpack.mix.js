@@ -11,6 +11,11 @@ let mix = require('laravel-mix');
  |
  */
 
+// SPA - frontend js
+mix.js('resources/spa/js/app.js', 'public/js/frontend.js')
+    .sass('resources/spa/sass/app.scss', 'public/css/frontend.css');
+
+// JS for backend application
 mix.js('resources/assets/js/app.js', 'public/js')
     .sass('resources/assets/sass/app.scss', 'public/css');
 
