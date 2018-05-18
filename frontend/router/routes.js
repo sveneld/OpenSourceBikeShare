@@ -16,15 +16,11 @@ export default [
         name: 'login',
         component: Login,
         beforeEnter(routeTo, routeFrom, next) {
-            // TODO: enable automatic redirect when user already has valid token
-            // If the user is already logged in
-            // if (store.getters['auth/loggedIn']) {
-            //     // Redirect to the home page instead
-            //     next({ name: 'home' })
-            // } else {
-                // Continue to the login page
+            if (store.getters['auth/loggedIn']) {
+                next({ name: 'home' })
+            } else {
                 next()
-            // }
+            }
         },
     },
     {
@@ -72,11 +68,14 @@ export default [
         },
         beforeEnter(routeTo, routeFrom, next) {
             store.dispatch('auth/logOut')
-            const authRequiredOnPreviousRoute = routeFrom.matched.some(
-                route => route.meta.authRequired
-            )
+            next({ name: 'login' })
+            // TODO enable routing to previous page
+            // const authRequiredOnPreviousRoute = routeFrom.matched.some(
+            //     route => route.meta.authRequired
+            // )
+            // console.log('logging out, previous route required auth:' + authRequiredOnPreviousRoute)
             // Navigate back to previous page, or home as a fallback
-            next(authRequiredOnPreviousRoute ? { name: 'home' } : { ...routeFrom })
+            // next(authRequiredOnPreviousRoute ? { name: 'login' } : { ...routeFrom })
         },
     },
     {

@@ -21143,8 +21143,6 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _store = __webpack_require__(69);
 
 var _store2 = _interopRequireDefault(_store);
@@ -21171,15 +21169,11 @@ exports.default = [{
     name: 'login',
     component: _login2.default,
     beforeEnter: function beforeEnter(routeTo, routeFrom, next) {
-        // TODO: enable automatic redirect when user already has valid token
-        // If the user is already logged in
-        // if (store.getters['auth/loggedIn']) {
-        //     // Redirect to the home page instead
-        //     next({ name: 'home' })
-        // } else {
-        // Continue to the login page
-        next();
-        // }
+        if (_store2.default.getters['auth/loggedIn']) {
+            next({ name: 'home' });
+        } else {
+            next();
+        }
     }
 }, {
     path: '/profile',
@@ -21231,11 +21225,14 @@ exports.default = [{
     },
     beforeEnter: function beforeEnter(routeTo, routeFrom, next) {
         _store2.default.dispatch('auth/logOut');
-        var authRequiredOnPreviousRoute = routeFrom.matched.some(function (route) {
-            return route.meta.authRequired;
-        });
+        next({ name: 'login' });
+        // TODO enable routing to previous page
+        // const authRequiredOnPreviousRoute = routeFrom.matched.some(
+        //     route => route.meta.authRequired
+        // )
+        // console.log('logging out, previous route required auth:' + authRequiredOnPreviousRoute)
         // Navigate back to previous page, or home as a fallback
-        next(authRequiredOnPreviousRoute ? { name: 'home' } : _extends({}, routeFrom));
+        // next(authRequiredOnPreviousRoute ? { name: 'login' } : { ...routeFrom })
     }
 }, {
     path: '/404',
