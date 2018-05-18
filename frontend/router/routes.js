@@ -9,24 +9,22 @@ export default [
         meta: {
             authRequired: true,
         },
-        // component: () => lazyLoadView(require('@views/home')),
-        // component: () => Home,
         component: Home,
     },
     {
         path: '/login',
         name: 'login',
-        // component: () => lazyLoadView(require('@views/login')),
         component: Login,
         beforeEnter(routeTo, routeFrom, next) {
+            // TODO: enable automatic redirect when user already has valid token
             // If the user is already logged in
-            if (store.getters['auth/loggedIn']) {
-                // Redirect to the home page instead
-                next({ name: 'home' })
-            } else {
+            // if (store.getters['auth/loggedIn']) {
+            //     // Redirect to the home page instead
+            //     next({ name: 'home' })
+            // } else {
                 // Continue to the login page
                 next()
-            }
+            // }
         },
     },
     {

@@ -3,6 +3,6 @@
 // Using CommonJS instead of ES2015+ export, because we also need to
 // provide this object to Webpack in vue.config.js.
 export default {
-    title: 'My Project',
-    description: 'This is a project!',
+    title: 'WhiteBikes',
+    description: 'WhiteBikes - Bratislava shared bikes system',
 }

@@ -29,12 +29,12 @@ export default {
         password: this.password,
       })
         .then(token => {
-          this.tryingToLogIn = false
-          this.$router.push({ name: 'home' })
+            this.tryingToLogIn = false
+            this.$router.push({ name: 'home' })
         })
         .catch(error => {
-          this.tryingToLogIn = false
-          this.authError = error
+            this.tryingToLogIn = false
+            this.authError = error
         })
     },
   },
@@ -60,7 +60,7 @@ export default {
                         name="sync"
                         spin />
 
-                <span v-else>Log in</span>
+                <span v-else>Sign in</span>
             </button>
 
             <p v-if="authError">
@@ -70,54 +70,10 @@ export default {
             <p class="mt-5 mb-3 text-muted">&copy; 2017-2018</p>
         </form>
     </div>
-
-
-  <!--<Layout>-->
-    <!--<form-->
-      <!--:class="$style.form"-->
-      <!--@submit.prevent="tryToLogIn">-->
-
-      <!--<BaseInput-->
-        <!--v-model="username"-->
-        <!--name="username" />-->
-
-      <!--<BaseInput-->
-        <!--v-model="password"-->
-        <!--name="password"-->
-        <!--type="password" />-->
-
-      <!--<BaseButton-->
-        <!--:disabled="tryingToLogIn"-->
-        <!--type="submit" >-->
-
-        <!--<BaseIcon-->
-          <!--v-if="tryingToLogIn"-->
-          <!--name="sync"-->
-          <!--spin />-->
-
-        <!--<span v-else>Log in</span>-->
-      <!--</BaseButton>-->
-
-      <!--<p v-if="authError">-->
-        <!--There was an error logging in to your account.-->
-      <!--</p>-->
-    <!--</form>-->
-  <!--</Layout>-->
 </template>
 
 <style lang="scss" scoped>
-/*@import '@design';*/
 @import 'frontend/design/index.scss';
-
-/*body {*/
-    /*display: -ms-flexbox;*/
-    /*display: flex;*/
-    /*-ms-flex-align: center;*/
-    /*align-items: center;*/
-    /*padding-top: 40px;*/
-    /*padding-bottom: 40px;*/
-    /*background-color: #f5f5f5;*/
-/*}*/
 
 .flex-container {
     display: flex;
@@ -155,6 +111,4 @@ export default {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
-
-
 </style>

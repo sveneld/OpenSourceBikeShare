@@ -47,6 +47,7 @@ router.beforeEach((routeTo, routeFrom, next) => {
     if (store.getters['auth/loggedIn']) {
         // Validate the local user token...
         return store.dispatch('auth/validate').then(validUser => {
+            console.log('checking if user logged in, result: ' + validUser)
             // Then continue if the token still represents a valid user,
             // otherwise redirect to login.
             validUser ? next() : redirectToLogin()
