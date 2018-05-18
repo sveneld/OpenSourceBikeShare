@@ -1,4 +1,5 @@
 let mix = require('laravel-mix');
+const path = require('path')
 
 /*
  |--------------------------------------------------------------------------
@@ -12,8 +13,29 @@ let mix = require('laravel-mix');
  */
 
 // SPA - frontend js
-mix.js('resources/spa/js/app.js', 'public/js/frontend.js')
-    .sass('resources/spa/sass/app.scss', 'public/css/frontend.css');
+mix.react('frontend/main.js', 'public/js/frontend.js')
+    // .sass('resources/spa/sass/app.scss', 'public/css/frontend.css');
+
+mix.webpackConfig({
+    resolve: {
+        alias: {
+            '@src': path.resolve(__dirname, 'frontend/'),
+            '@router': path.resolve(__dirname, 'frontend/router'),
+            '@views': path.resolve(__dirname, 'frontend/router/views'),
+            '@layouts': path.resolve(__dirname, 'frontend/router/layouts'),
+            '@components': path.resolve(__dirname, 'frontend/components'),
+            '@assets': path.resolve(__dirname, 'frontend/assets'),
+            '@utils': path.resolve(__dirname, 'frontend/utils'),
+            '@state': path.resolve(__dirname, 'frontend/state'),
+            '@design': path.resolve(__dirname, 'frontend/design/index.scss'),
+        }
+    }
+});
+
+// to ProvidePlugin
+mix.autoload({
+    "React": "react",
+});
 
 // JS for backend application
 mix.js('resources/assets/js/app.js', 'public/js')
@@ -22,17 +44,10 @@ mix.js('resources/assets/js/app.js', 'public/js')
 mix.js('resources/assets/js/user/base.js', 'public/js')
     .sass('resources/assets/sass/user/base.scss', 'public/css');
 
-
 // Copy bootstrap and AdminLTE CSS files to public directory
-// mix.copy('bower_components/AdminLTE/bootstrap/css/bootstrap.css', 'public/css/libs/bootstrap.css');
 mix.copy('bower_components/AdminLTE/dist/css/AdminLTE.css', 'public/css/libs/admin-lte.css');
 mix.copy('bower_components/AdminLTE/dist/css/skins/_all-skins.css', 'public/css/libs/admin-lte-skin.css');
 mix.copy('bower_components/AdminLTE/dist/js/adminlte.js', 'public/js/libs/admin-lte.js');
-// mix.copy('bower_components/AdminLTE/plugins/jQuery/jquery-2.2.3.min.js', 'public/js/libs/jquery.js');
-
-
-// Copy fonts from Glypicons
-// mix.copy('bower_components/AdminLTE/bootstrap/fonts', 'public/css/fonts');
 
 // Font Awesome
 mix.copy('bower_components/font-awesome/css/font-awesome.css', 'public/css/libs/font-awesome.css');
@@ -51,7 +66,6 @@ mix.copy('bower_components/select2/dist/js/select2.full.js', 'public/js/libs/sel
 mix.copy('bower_components/remodal/dist/remodal.css', 'public/css/libs/remodal.css');
 mix.copy('bower_components/remodal/dist/remodal-default-theme.css', 'public/css/libs/remodal-default-theme.css');
 mix.copy('bower_components/remodal/dist/remodal.js', 'public/js/libs/remodal.js');
-
 
 // data table
 mix.copy('bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css', 'public/css/libs/dataTables.css');

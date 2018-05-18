@@ -4,6 +4,9 @@
             <div class="col-md-12">
                 <div class="google-map" :id="mapName"></div>
             </div>
+            <div class="col-md-12">
+                {{ stands }}
+            </div>
         </div>
     </div>
 </template>
@@ -15,6 +18,8 @@
         data: function () {
             return {
                 mapName: this.name + "-map",
+                stands: [],
+                map: null
             }
         },
         mounted() {
@@ -25,9 +30,23 @@
                 center: new google.maps.LatLng(51.501527,-0.1921837)
             };
 
-            const map = new google.maps.Map(element, options);
+            this.map = new google.maps.Map(element, options);
+            axios.get('http://bikeshare.press/api/stands2')
+                .then(response => (this.stands = response));
+        },
+        watch: {
+            stands: function (stands) {
+                const map = this.map;
+                stands.forEach((stand) => {
+                    const position = new google.maps.LatLng(coord.latitude, coord.longitude);
+                    const marker = new google.maps.Marker({
+                        position,
+                        map
+                    });
+                });
+            }
         }
-    };
+    }
 </script>
 
 <style scoped>

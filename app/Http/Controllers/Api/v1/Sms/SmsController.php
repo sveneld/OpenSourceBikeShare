@@ -93,11 +93,11 @@ class SmsController extends Controller
         try {
             switch($command)
             {
-                case "HELP":
+                case 'HELP':
                     $smsCommand->help();
                     break;
 
-                case "CREDIT":
+                case 'CREDIT':
                     if (!$this->appConfig->isCreditEnabled()){
                         $smsCommand->unknown($command);
                     } else {
@@ -105,11 +105,11 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "FREE":
+                case 'FREE':
                     $smsCommand->free();
                     break;
 
-                case "RENT":
+                case 'RENT':
                     if (count($args) < 2){
                         $smsCommand->invalidArguments("with bike number: RENT 47");
                     } else {
@@ -117,7 +117,7 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "FORCERENT":
+                case 'FORCERENT':
                     if (count($args) < 2){
                         $smsCommand->invalidArguments("with bike number: FORCERENT 47");
                     } else {
@@ -125,7 +125,7 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "RETURN":
+                case 'RETURN':
                     if (count($args) < 3){
                         $smsCommand->invalidArguments( "with bike number and stand name: RENT 47 RACKO");
                     } else {
@@ -137,7 +137,7 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "FORCERETURN":
+                case 'FORCERETURN':
                     if (count($args) < 3){
                         $smsCommand->invalidArguments( "with bike number and stand name: FORCERETURN 47 RACKO");
                     } else {
@@ -149,8 +149,8 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "WHERE":
-                case "WHO":
+                case 'WHERE':
+                case 'WHO':
                     if (count($args) < 2) {
                         $smsCommand->invalidArguments( "with bike number: WHERE 47");
                     } else {
@@ -158,7 +158,7 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "INFO":
+                case 'INFO':
                     if (count($args) < 2) {
                         $smsCommand->invalidArguments( "with stand name: INFO RACKO");
                     } else {
@@ -166,7 +166,7 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "NOTE":
+                case 'NOTE':
                     if (count($args) < 2) {
                         $smsCommand->invalidArguments( 'with bike number/stand name and problem description: NOTE 47 Flat tire on front wheel');
                     } else {
@@ -177,7 +177,7 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "TAG":
+                case 'TAG':
                     if (count($args) < 2) {
                         $smsCommand->invalidArguments( 'with stand name and problem description: TAG MAINSQUARE vandalism');
                     } else {
@@ -188,7 +188,7 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "DELNOTE":
+                case 'DELNOTE':
                     if (count($args) < 2) {
                         $smsCommand->invalidArguments( "with bike number/stand name and optional pattern. All messages or notes matching pattern will be deleted: DELNOTE 47 wheel");
                     } else {
@@ -200,7 +200,7 @@ class SmsController extends Controller
                     break;
 
 
-                case "UNTAG":
+                case 'UNTAG':
                     if (count($args) < 2) {
                         $smsCommand->invalidArguments( "with stand name and optional pattern. All notes matching pattern will be deleted for all bikes on that stand: UNTAG SAFKO1 pohoda");
                     } else {
@@ -208,7 +208,7 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "LIST":
+                case 'LIST':
                     if (count($args) < 2) {
                         $smsCommand->invalidArguments( "with stand name: LIST RACKO");
                     } else {
@@ -216,14 +216,14 @@ class SmsController extends Controller
                     }
                     break;
 
-                case "REVERT":
+                case 'REVERT':
                     if (count($args) < 2) {
                         $smsCommand->invalidArguments( "with bike number: REVERT 47");
                     } else {
                         $smsCommand->revert($this->bikeRepo->getBikeOrFail($args[1]));
                     }
                     break;
-                case "LAST":
+                case 'LAST':
                     if (count($args) < 2) {
                         $smsCommand->invalidArguments( "with bike number: LAST 47");
                     } else {

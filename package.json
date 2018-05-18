@@ -11,6 +11,8 @@
   },
   "devDependencies": {
     "axios": "^0.16.2",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-preset-react": "^6.24.1",
     "bootstrap-sass": "^3.3.7",
     "cross-env": "^5.0.1",
     "jquery": "^3.1.1",
@@ -20,11 +22,22 @@
     "vue-router": "^3.0.1"
   },
   "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.8",
+    "@fortawesome/fontawesome-free-solid": "^5.0.13",
+    "@fortawesome/vue-fontawesome": "^0.0.22",
+    "babel-helper-vue-jsx-merge-props": "^2.0.3",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-plugin-transform-vue-jsx": "^3.7.0",
+    "babel-preset-env": "^1.7.0",
     "bootstrap": "^4.0.0-beta",
     "dropzone": "^4.3.0",
+    "normalize.css": "^8.0.0",
+    "nprogress": "^0.2.0",
     "popper.js": "^1.12.5",
     "tether": "^1.4.0",
+    "vue-meta": "^1.5.0",
     "vue-select": "github:sagalbot/vue-select",
-    "vue2-google-maps": "^0.8.4"
+    "vue2-google-maps": "^0.8.4",
+    "vuex": "^3.0.1"
   }
 }
