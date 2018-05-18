@@ -4,14 +4,13 @@
             <div class="col-md-12">
                 <div class="google-map" :id="mapName"></div>
             </div>
-            <div class="col-md-12">
-                {{ stands }}
-            </div>
         </div>
     </div>
 </template>
 
 <script>
+    import axios from 'axios'
+
     export default {
         name: 'google-map',
         props: ['name'],
@@ -26,19 +25,25 @@
             console.log('Google Map mounted.');
             const element = document.getElementById(this.mapName);
             const options = {
-                zoom: 14,
-                center: new google.maps.LatLng(51.501527,-0.1921837)
+                zoom: 13,
+                center: new google.maps.LatLng(48.14816, 17.10674)
             };
 
             this.map = new google.maps.Map(element, options);
-            axios.get('http://bikeshare.press/api/stands2')
-                .then(response => (this.stands = response));
+
+
+
+            // TODO move data from component to store
+            axios.get('/api/stands?include=bikes')
+                .then(response => (
+                    this.stands = response.data.data
+                ));
         },
         watch: {
             stands: function (stands) {
                 const map = this.map;
                 stands.forEach((stand) => {
-                    const position = new google.maps.LatLng(coord.latitude, coord.longitude);
+                    const position = new google.maps.LatLng(stand.latitude, stand.longitude);
                     const marker = new google.maps.Marker({
                         position,
                         map
