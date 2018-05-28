@@ -1,5 +1,6 @@
 let mix = require('laravel-mix');
 const path = require('path')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 /*
  |--------------------------------------------------------------------------
@@ -14,7 +15,6 @@ const path = require('path')
 
 // SPA - frontend js
 mix.react('frontend/main.js', 'public/js/frontend.js')
-    // .sass('resources/spa/sass/app.scss', 'public/css/frontend.css');
 
 mix.webpackConfig({
     resolve: {
@@ -29,7 +29,20 @@ mix.webpackConfig({
             '@state': path.resolve(__dirname, 'frontend/state'),
             '@design': path.resolve(__dirname, 'frontend/design/index.scss'),
         }
-    }
+    },
+    module: {
+        rules: [
+            // ... other rules
+            // {
+            //     test: /\.vue$/,
+            //     loader: 'vue-loader'
+            // }
+        ]
+    },
+    plugins: [
+        // make sure to include the plugin!
+        new VueLoaderPlugin()
+    ]
 });
 
 // to ProvidePlugin

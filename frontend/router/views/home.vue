@@ -1,33 +1,101 @@
 <script>
-import appConfig from '@src/app.config'
-import Layout from '@layouts/main'
-import GoogleMap from "../../components/google-map.vue";
+    import appConfig from '@src/app.config'
+    import Layout from '@layouts/main'
+    import GoogleMap from "../../components/google-map.vue";
 
-export default {
-  page: {
-    title: 'Map',
-    meta: [{ name: 'description', content: appConfig.description }],
-  },
-  components: {
-      GoogleMap,
-      Layout },
-  created() {
-  },
-  mounted() {
-  }
 
-}
+    export default {
+        page: {
+            title: 'Map',
+            meta: [{ name: 'description', content: appConfig.description }],
+        },
+        components: {
+            GoogleMap,
+            Layout
+        },
+        name: 'Reveal',
+        data: () => ({
+            menuVisible: false
+        })
+    }
 </script>
 
+
+<!--<template>-->
+  <!--<Layout>-->
+    <!--<h1>Home Page</h1>-->
+    <!--&lt;!&ndash;<img&ndash;&gt;-->
+      <!--&lt;!&ndash;src="@assets/images/logo.png"&ndash;&gt;-->
+      <!--&lt;!&ndash;alt="Logo"&ndash;&gt;-->
+    <!--&lt;!&ndash;&gt;&ndash;&gt;-->
+
+    <!--<google-map></google-map>-->
+
+  <!--</Layout>-->
+<!--</template>-->
+
 <template>
-  <Layout>
-    <h1>Home Page</h1>
-    <!--<img-->
-      <!--src="@assets/images/logo.png"-->
-      <!--alt="Logo"-->
-    <!--&gt;-->
+  <div class="page-container">
+    <md-app md-mode="reveal">
+      <md-app-toolbar class="md-primary">
+        <md-button class="md-icon-button" @click="menuVisible = !menuVisible">
+          <md-icon>menu</md-icon>
+        </md-button>
+        <span class="md-title">Whitebikes Bratislava</span>
+      </md-app-toolbar>
 
-    <google-map></google-map>
+      <md-app-drawer :md-active.sync="menuVisible">
+        <md-toolbar class="md-transparent" md-elevation="0">Navigation</md-toolbar>
 
-  </Layout>
+        <md-list>
+          <md-list-item>
+            <md-icon>move_to_inbox</md-icon>
+            <span class="md-list-item-text">Inbox</span>
+          </md-list-item>
+
+          <md-list-item>
+            <md-icon>send</md-icon>
+            <span class="md-list-item-text">Sent Mail</span>
+          </md-list-item>
+
+          <md-list-item>
+            <md-icon>delete</md-icon>
+            <span class="md-list-item-text">Trash</span>
+          </md-list-item>
+
+          <md-list-item>
+            <md-icon>error</md-icon>
+            <span class="md-list-item-text">Spam</span>
+          </md-list-item>
+        </md-list>
+      </md-app-drawer>
+
+      <md-app-content>
+          <google-map></google-map>
+      </md-app-content>
+    </md-app>
+  </div>
 </template>
+
+<style lang="scss" scoped>
+  .md-app {
+    /*max-height: 400px;*/
+    border: 1px solid rgba(#000, .12);
+  }
+
+  .page-container, .md-app {
+      height: 100%;
+  }
+
+  .md-app-content {
+      padding: 0;
+      height: 100%;
+  }
+
+  // Demo purposes only
+  .md-drawer {
+    width: 230px;
+    max-width: calc(100vw - 125px);
+  }
+</style>
+

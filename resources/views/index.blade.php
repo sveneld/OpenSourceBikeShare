@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Whitebikes</title>
 
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
     <script
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCE7wnWtm1R56jjoUmJq_0IYepHrt6ulUk">
     </script>

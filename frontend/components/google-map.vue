@@ -1,11 +1,12 @@
 <template>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="google-map" :id="mapName"></div>
-            </div>
-        </div>
-    </div>
+    <div class="google-map" :id="mapName"></div>
+    <!--<div class="container">-->
+        <!--<div class="row">-->
+            <!--<div class="col-md-12">-->
+
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
 </template>
 
 <script>
@@ -56,9 +57,10 @@
 
 <style scoped>
     .google-map {
-        width: 800px;
-        height: 600px;
-        margin: 0 auto;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
         background: gray;
     }
 </style>

@@ -1,6 +1,7 @@
 import store from '@state/store'
 import Home from '@views/home'
 import Login from '@views/login'
+import Login2 from '@views/login2'
 
 export default [
     {
@@ -16,11 +17,12 @@ export default [
         name: 'login',
         component: Login,
         beforeEnter(routeTo, routeFrom, next) {
-            if (store.getters['auth/loggedIn']) {
-                next({ name: 'home' })
-            } else {
+            // TODO make login work
+            // if (store.getters['auth/loggedIn']) {
+            //     next({ name: 'home' })
+            // } else {
                 next()
-            }
+            // }
         },
     },
     {

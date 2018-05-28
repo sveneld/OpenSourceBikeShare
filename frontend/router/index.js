@@ -50,7 +50,12 @@ router.beforeEach((routeTo, routeFrom, next) => {
             console.log('checking if user logged in, result: ' + validUser)
             // Then continue if the token still represents a valid user,
             // otherwise redirect to login.
-            validUser ? next() : redirectToLogin()
+            if (validUser) {
+                next()
+            } else {
+                store.commit('SET_CURRENT_USER_TOKEN', null)
+                redirectToLogin()
+            }
         })
     }
 
@@ -59,6 +64,7 @@ router.beforeEach((routeTo, routeFrom, next) => {
     redirectToLogin()
 
     function redirectToLogin() {
+        console.log("redirecting to login")
         next({ name: 'login' })
     }
 })

@@ -36,10 +36,11 @@
     // Design variables and utilities from src/design.
     /*@import '@design';*/
     @import 'frontend/design/index.scss';
-    @import 'design/bootstrap.min.css';
+    /*@import 'design/bootstrap.min.css';*/
 
-    html, body {
+    html, body, #app{
         height: 100%;
+        width: 100%;
     }
     body {
         margin: 0;

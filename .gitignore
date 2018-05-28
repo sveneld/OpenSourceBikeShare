@@ -18,3 +18,7 @@ storage/logs/
 /storage/app/backups/dotenv-editor/
 npm-debug.log
 yarn-error.log
+public/js/frontend.js
+public/js/base.js
+public/js/app.js
+public/js/min.js
