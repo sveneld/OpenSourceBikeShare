@@ -1,7 +1,6 @@
 import store from '@state/store'
 import Home from '@views/home'
 import Login from '@views/login'
-import Login2 from '@views/login2'
 
 export default [
     {
