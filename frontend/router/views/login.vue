@@ -19,11 +19,8 @@
         },
         methods: {
             ...authMethods,
-            // Try to log the user in with the username
-            // and password they provided.
             tryToLogIn() {
                 this.tryingToLogIn = true
-                // Reset the authError if it existed.
                 this.authError = null
                 return this.logIn({
                     username: this.username,
@@ -84,8 +81,7 @@
         display: flex;
         text-align: center;
         flex-direction: column;
-        height: 100vh; /*new*/
-        /*background-color: #f5f5f5;*/
+        height: 100vh;
     }
 
     .form-signin {

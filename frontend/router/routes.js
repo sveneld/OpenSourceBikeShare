@@ -34,6 +34,15 @@ export default [
         props: route => ({ user: store.state.auth.currentUser }),
     },
     {
+        path: '/stand/:uuid',
+        name: 'stand',
+        component: () => lazyLoadView(require('@views/stand-detail')),
+        meta: {
+            authRequired: true,
+        },
+        props: route => ({ uuid: route.params.uuid }),
+    },
+    {
         path: '/profile/:username',
         name: 'username-profile',
         component: () => lazyLoadView(require('@views/profile')),

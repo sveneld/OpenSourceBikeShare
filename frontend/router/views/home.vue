@@ -3,7 +3,6 @@
     import Layout from '@layouts/main'
     import GoogleMap from "../../components/google-map.vue";
 
-
     export default {
         page: {
             title: 'Map',
@@ -19,20 +18,6 @@
         })
     }
 </script>
-
-
-<!--<template>-->
-  <!--<Layout>-->
-    <!--<h1>Home Page</h1>-->
-    <!--&lt;!&ndash;<img&ndash;&gt;-->
-      <!--&lt;!&ndash;src="@assets/images/logo.png"&ndash;&gt;-->
-      <!--&lt;!&ndash;alt="Logo"&ndash;&gt;-->
-    <!--&lt;!&ndash;&gt;&ndash;&gt;-->
-
-    <!--<google-map></google-map>-->
-
-  <!--</Layout>-->
-<!--</template>-->
 
 <template>
   <div class="page-container">
@@ -79,7 +64,6 @@
 
 <style lang="scss" scoped>
   .md-app {
-    /*max-height: 400px;*/
     border: 1px solid rgba(#000, .12);
   }
 
@@ -92,7 +76,6 @@
       height: 100%;
   }
 
-  // Demo purposes only
   .md-drawer {
     width: 230px;
     max-width: calc(100vw - 125px);
