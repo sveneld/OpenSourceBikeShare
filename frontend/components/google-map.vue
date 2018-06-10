@@ -110,7 +110,6 @@
             }
         },
         mounted() {
-            console.log('Google Map mounted.');
             const element = document.getElementById(this.mapName);
             const options = {
                 zoom: 13,
@@ -122,7 +121,7 @@
             axios.get('/api/stands?include=bikes')
                 .then(response => (
                     this.stands = response.data.data
-                ));
+                ))
         },
         watch: {
             stands: function (stands) {
@@ -134,7 +133,7 @@
 
                     google.maps.event.addListener(marker, 'click', function(event, stand) {
                         that.$router.push({ name: 'stand', params: { uuid: stand.uuid }})
-                    });
+                    })
                 });
             }
         }

@@ -177,3 +177,7 @@ Route::group(['middleware' => 'admin'], function () {
     });
 
 });
+
+Route::get('/', function (){
+    return redirect()->route('admin.auth.login');
+});

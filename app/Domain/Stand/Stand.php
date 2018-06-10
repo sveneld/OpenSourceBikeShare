@@ -12,8 +12,9 @@ use Spatie\MediaLibrary\Media;
 
 class Stand extends Model implements HasMediaConversions
 {
-
     use LogsActivity, HasMediaTrait;
+
+    const STAND_MEDIA_COLLECTION = 'stand';
 
     public $table = 'stands';
 

@@ -5,6 +5,7 @@ namespace BikeShare\Http\Controllers\Admin\Stands;
 use BikeShare\Domain\Bike\BikeStatus;
 use BikeShare\Domain\Stand\Requests\CreateStandRequest;
 use BikeShare\Domain\Stand\Requests\UpdateStandRequest;
+use BikeShare\Domain\Stand\Stand;
 use BikeShare\Domain\Stand\StandsRepository;
 use BikeShare\Domain\Stand\StandStatus;
 use BikeShare\Http\Controllers\Controller;
@@ -13,8 +14,6 @@ use Illuminate\Http\Request;
 
 class StandsController extends Controller
 {
-    const STAND_MEDIA_COLLECTION = 'stand';
-
     protected $standRepo;
 
     public function __construct(StandsRepository $repository)
@@ -71,7 +70,7 @@ class StandsController extends Controller
 
         if (isset($request->images)) {
             foreach ($request->images as $image) {
-                $stand->addMedia($image)->toMediaCollection(self::STAND_MEDIA_COLLECTION);
+                $stand->addMedia($image)->toMediaCollection(Stand::STAND_MEDIA_COLLECTION);
             }
         }
 
@@ -97,12 +96,10 @@ class StandsController extends Controller
             },
         ])->where('status', BikeStatus::FREE)->get();
 
-        //$img = $stand->getMedia(self::STAND_MEDIA_COLLECTION)[0];
-
         return view('admin.stands.show', [
             'stand' => $stand,
             'bikes' => $bikes,
-            'media' => $stand->getMedia(self::STAND_MEDIA_COLLECTION)
+            'media' => $stand->getMedia(Stand::STAND_MEDIA_COLLECTION)
         ]);
     }
 
@@ -143,7 +140,7 @@ class StandsController extends Controller
 
         if ($request->images){
             foreach ($request->images as $image) {
-                $stand->addMedia($image)->toMediaCollection(self::STAND_MEDIA_COLLECTION);
+                $stand->addMedia($image)->toMediaCollection(Stand::STAND_MEDIA_COLLECTION);
             }
         }
 

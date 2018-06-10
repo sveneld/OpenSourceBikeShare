@@ -20,12 +20,13 @@ class StandTransformer extends TransformerAbstract
 
     public function transform(Stand $stand)
     {
+        $photo = $stand->getMedia(Stand::STAND_MEDIA_COLLECTION)->first();
         return [
             'uuid' => (string)$stand->uuid,
             'name' => $stand->name,
             'latitude' => $stand->latitude,
             'longitude' => $stand->longitude,
-            'photo' => $stand->photo,
+            'photo' => $photo ? $photo->getUrl() : null,
             'description' => $stand->description,
             'place_name' => $stand->place_name,
             'status' => $stand->status,

@@ -1,6 +1,8 @@
 import store from '@state/store'
 import Home from '@views/home'
 import Login from '@views/login'
+import StandDetail from '@views/stand-detail'
+import axios from 'axios'
 
 export default [
     {
@@ -36,11 +38,25 @@ export default [
     {
         path: '/stand/:uuid',
         name: 'stand',
-        component: () => lazyLoadView(require('@views/stand-detail')),
+        component: StandDetail,
         meta: {
             authRequired: true,
         },
-        props: route => ({ uuid: route.params.uuid }),
+        beforeEnter(routeTo, routeFrom, next) {
+            let uuid = routeTo.params.uuid
+            axios.get('/api/stands/' + uuid + '?include=bikes')
+                .then(response => {
+                    routeTo.params.stand = response.data
+                    next();
+                })
+                .catch(() => {
+                    next({ name: '404', params: { resource: 'Stand' } })
+                })
+        },
+        props: route => ({
+            uuid: route.params.uuid,
+            stand: route.params.stand
+        }),
     },
     {
         path: '/profile/:username',
@@ -54,15 +70,10 @@ export default [
             // Try to fetch the user's information by their username
                 .dispatch('users/fetchUser', { username: routeTo.params.username })
                 .then(user => {
-                    // Add the user to the route params, so that it can
-                    // be provided as a prop for the view component below.
                     routeTo.params.user = user
-                    // Continue to the route.
                     next()
                 })
                 .catch(() => {
-                    // If a user with the provided username could not be
-                    // found, redirect to the 404 page.
                     next({ name: '404', params: { resource: 'User' } })
                 })
         },
