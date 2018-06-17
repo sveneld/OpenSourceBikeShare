@@ -23,8 +23,7 @@ class CreateRentRequest extends Request
     public function rules()
     {
         return [
-            'bike' => 'required',
-            'test' => 'string',
+            'bike' => 'required'
         ];
     }
 

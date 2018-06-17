@@ -53,6 +53,7 @@ Api::version('v1', ['namespace' => 'BikeShare\Http\Controllers\Api\v1'], functio
             });
         });
 
+        // TODO check admin rights are return some error
         Api::group(['middleware' => 'role:admin'], function () {
             Api::group(['prefix' => 'rents', 'namespace' => 'Rents'], function () {
                 Api::get('', 'RentsController@index')->name('api.rents.index');
@@ -107,10 +108,6 @@ Api::version('v1', ['namespace' => 'BikeShare\Http\Controllers\Api\v1'], functio
     Api::group(['prefix' => 'sms', 'namespace' => 'Sms'], function () {
         Api::match(['get', 'post'],'/receive', 'SmsController@receive')->name('api.sms.receive');
     });
-});
-
-Route::group(['middleware' => 'auth:api'], function () {
-
 });
 
 Route::get('/user', function (Request $request) {

@@ -22,12 +22,17 @@ use Illuminate\Http\Request;
 
 class RentsController extends Controller
 {
-    protected $rentRepo;
+    private $rentRepo;
 
-    public function __construct(RentsRepository $repository)
+    private $bikesRepo;
+
+    private $rentService;
+
+    public function __construct(RentsRepository $rentsRepository, BikesRepository $bikesRepository)
     {
-        $this->rentRepo = $repository;
+        $this->rentRepo = $rentsRepository;
         $this->rentService = app(RentService::class, ['methodType' => MethodType::APP]);
+        $this->bikesRepo = $bikesRepository;
     }
 
     /**
@@ -62,20 +67,18 @@ class RentsController extends Controller
      *
      * @param CreateRentRequest|Request $request
      *
-     * @param RentService $rentService
-     *
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateRentRequest $request, RentService $rentService)
+    public function store(CreateRentRequest $request)
     {
-        if (! $bike = app(BikesRepository::class)->findByUuid($request->get('bike'))) {
-            $this->response->errorNotFound('Bike not found!');
+        if (!$bike = $this->bikesRepo->findByUuid($request->get('bike'))) {
+            $this->response->errorBadRequest('Bike not found!');
         }
 
         $rent = null;
         try {
             // TODO check too many, i don't understand yet
-            $rent = $rentService->rentBike($this->user, $bike);
+            $rent = $this->rentService->rentBike($this->user, $bike);
         }
         catch (LowCreditException $e)
         {
@@ -96,10 +99,6 @@ class RentsController extends Controller
         catch (NotRentableStandException $e)
         {
             $this->response->errorBadRequest($e->getMessage());
-        }
-        catch (RentException $e)
-        {
-            throw $e;
         }
         return $this->response->item($rent, new RentTransformer());
     }
