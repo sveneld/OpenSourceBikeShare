@@ -13,7 +13,7 @@ if (getprivileges($_COOKIE["loguserid"])<=0) exit(_('You need admin privileges t
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title><?php echo $systemname; ?> <?php echo _('administration'); ?></title>
+<title><? echo $systemname; ?> <?php echo _('administration'); ?></title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
@@ -166,7 +166,7 @@ if (iscreditenabled()):
   <div class="panel-body">
     <i class="glyphicon glyphicon-copyright-mark"></i> <? echo date("Y"); ?> <a href="<?php echo $systemURL; ?>"><?php echo $systemname; ?></a>
   </div>
-  <div class="panel-footer"><strong><?php echo _('Privacy policy:'); ?></strong> <?php echo _('We will use your details for'); echo $systemname,'-'; echo _('related activities only'); ?>.</div>
+  <div class="panel-footer"><strong>Privacy policy:</strong> We will use your details for <?php echo $systemname; ?>-related activities only.</div>
    </div>
 
     </div><!-- /.container -->

@@ -11,7 +11,8 @@ $args=preg_split("/\s+/",$sms->ProcessedText());//preg_split must be used instea
 
 if(!validateNumber($sms->Number()))
    {
-   sendSMS($sms->Number(),_('Your number is not registered.'));
+   ####
+   #sendSMS($sms->Number(),_('Your number is not registered.'));
    }
 else
    {

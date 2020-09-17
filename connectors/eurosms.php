@@ -14,7 +14,7 @@ class SMSConnector
       if (isset($_GET["sender"])) $this->number=$_GET["sender"];
       if (isset($_GET["sms_uuid"])) $this->uuid=$_GET["sms_uuid"];
       if (isset($_GET["receive_time"])) $this->time=$_GET["receive_time"];
-      $this->ipaddress=$_SERVER['REMOTE_ADDR'];
+      if (isset($_SERVER['REMOTE_ADDR'])) $this->ipaddress=$_SERVER['REMOTE_ADDR'];
       }
 
    function CheckConfig()
