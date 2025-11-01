@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\Rent;
 
-use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
 use BikeShare\Db\DbResultInterface;
 use BikeShare\Enum\Action;
@@ -35,13 +34,15 @@ class RentalFeeCalculatorTest extends TestCase
 
         $clock = $this->createMock(ClockInterface::class);
 
-        $watchesConfig = [
-            'freetime' => 15,
-        ];
+        $longRental = 0;
+        $freeTime = 15;
+        $flatPriceCycle = 0;
+        $doublePriceCycle = 0;
+        $doublePriceCycleCap = 0;
 
-        $calculator = new RentalFeeCalculator($db, $clock, $watchesConfig, 2.0, 5.0, 0);
+        $calculator = new RentalFeeCalculator($db, $clock, $longRental, $freeTime, $flatPriceCycle, $doublePriceCycle, $doublePriceCycleCap, 2.0, 5.0, 0);
 
-        self::assertNull($calculator->changeCreditEndRental(1, 2));
+        $this->assertNull($calculator->changeCreditEndRental(1, 2));
     }
 
     public function testCalculatesChargesAndPersistsHistory(): void
@@ -92,15 +93,13 @@ class RentalFeeCalculatorTest extends TestCase
         $clock = $this->createMock(ClockInterface::class);
         $clock->method('now')->willReturn($now);
 
-        $watchesConfig = [
-            'freetime' => 0,
-            'flatpricecycle' => 30,
-            'doublepricecycle' => 30,
-            'doublepricecyclecap' => 3,
-            'longrental' => 2,
-        ];
+        $longRental = 2;
+        $freeTime = 0;
+        $flatPriceCycle = 30;
+        $doublePriceCycle = 30;
+        $doublePriceCycleCap = 3;
 
-        $calculator = new RentalFeeCalculator($db, $clock, $watchesConfig, 2.0, 5.0, 2);
+        $calculator = new RentalFeeCalculator($db, $clock, $longRental, $freeTime, $flatPriceCycle, $doublePriceCycle, $doublePriceCycleCap, 2.0, 5.0, 2);
         $result = $calculator->changeCreditEndRental(7, 5);
         $this->assertSame(47.0, $result['creditChange']);
         $this->assertSame('rerent-2;overfree-2;double-2;double-4;double-8;double-8;double-8;double-8;longrent-5;', $result['changeLog']);

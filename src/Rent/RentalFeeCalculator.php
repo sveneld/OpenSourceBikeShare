@@ -17,7 +17,11 @@ class RentalFeeCalculator
     public function __construct(
         private readonly DbInterface $db,
         private readonly ClockInterface $clock,
-        private readonly array $watchesConfig,
+        private readonly int $longRental,
+        private readonly int $freeTime,
+        private readonly int $flatPriceCycle,
+        private readonly int $doublePriceCycle,
+        private readonly int $doublePriceCycleCap,
         private readonly float $rentalFee,
         private readonly float $longRentalFee,
         private readonly int $priceCycle,
@@ -80,26 +84,26 @@ class RentalFeeCalculator
             }
         }
 
-        if ($timeDiff > $this->watchesConfig['freetime'] * 60) {
+        if ($timeDiff > $this->freeTime * 60) {
             $creditChange += $this->rentalFee;
             $changeLog .= 'overfree-' . $this->rentalFee . ';';
         }
 
-        $freeTime = $this->watchesConfig['freetime'] == 0 ? 1 : $this->watchesConfig['freetime'];
+        $freeTime = $this->freeTime == 0 ? 1 : $this->freeTime;
 
         if ($this->priceCycle && $timeDiff > $freeTime * 60 * 2) {
             $tempTimeDiff = $timeDiff - ($freeTime * 60 * 2);
             if ($this->priceCycle == 1) {
-                $cycles = (int) ceil($tempTimeDiff / ($this->watchesConfig['flatpricecycle'] * 60));
+                $cycles = (int) ceil($tempTimeDiff / ($this->flatPriceCycle * 60));
                 $creditChange += $this->rentalFee * $cycles;
                 $changeLog .= 'flat-' . $this->rentalFee * $cycles . ';';
             } elseif ($this->priceCycle == 2) {
-                $cycles = (int) ceil($tempTimeDiff / ($this->watchesConfig['doublepricecycle'] * 60));
+                $cycles = (int) ceil($tempTimeDiff / ($this->doublePriceCycle * 60));
                 $tempCreditRent = $this->rentalFee;
                 for ($i = 1; $i <= $cycles; $i++) {
                     $multiplier = $i;
-                    if ($multiplier > $this->watchesConfig['doublepricecyclecap']) {
-                        $multiplier = $this->watchesConfig['doublepricecyclecap'];
+                    if ($multiplier > $this->doublePriceCycleCap) {
+                        $multiplier = $this->doublePriceCycleCap;
                     }
 
                     if ($tempCreditRent == 1) {
@@ -112,7 +116,7 @@ class RentalFeeCalculator
             }
         }
 
-        if ($timeDiff > $this->watchesConfig['longrental'] * 3600) {
+        if ($timeDiff > $this->longRental * 3600) {
             $creditChange += $this->longRentalFee;
             $changeLog .= 'longrent-' . $this->longRentalFee . ';';
         }

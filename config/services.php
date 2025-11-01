@@ -16,6 +16,7 @@ use BikeShare\Mail\MailSenderInterface;
 use BikeShare\Mail\PHPMailerMailSender;
 use BikeShare\Purifier\PhonePurifier;
 use BikeShare\Purifier\PhonePurifierInterface;
+use BikeShare\Rent\RentalFeeCalculator;
 use BikeShare\Rent\RentSystemInterface;
 use BikeShare\Sms\SmsSender;
 use BikeShare\Sms\SmsSenderInterface;
@@ -157,24 +158,20 @@ return static function (ContainerConfigurator $container): void {
         ->bind('$isEnabled', env('bool:CREDIT_SYSTEM_ENABLED'))
         ->bind('$creditCurrency', env('CREDIT_SYSTEM_CURRENCY'))
         ->bind('$minBalanceCredit', env('float:CREDIT_SYSTEM_MIN_BALANCE'))
-        ->bind('$rentalFee', env('float:CREDIT_SYSTEM_RENTAL_FEE')) #deprecated
-        ->bind('$longRentalFee', env('float:CREDIT_SYSTEM_LONG_RENTAL_FEE')) #deprecated
         ->bind('$limitIncreaseFee', env('float:CREDIT_SYSTEM_LIMIT_INCREASE_FEE'))
         ->bind('$violationFee', env('float:CREDIT_SYSTEM_VIOLATION_FEE'));
 
+
     $services->load('BikeShare\\Rent\\', '../src/Rent')
-        ->bind(
-            '$watchesConfig',
-            [
-                'longrental' => env('int:WATCHES_LONG_RENTAL'),
-                'freetime' => env('int:WATCHES_FREE_TIME'),
-                'flatpricecycle' => env('int:WATCHES_FLAT_PRICE_CYCLE'),
-                'doublepricecycle' => env('int:WATCHES_DOUBLE_PRICE_CYCLE'),
-                'doublepricecyclecap' => env('int:WATCHES_DOUBLE_PRICE_CYCLE_CAP'),
-            ]
-        )
         ->bind('$watchStack', env('bool:WATCHES_STACK'))
-        ->bind('$forceStack', env('bool:FORCE_STACK'))
+        ->bind('$forceStack', env('bool:FORCE_STACK'));
+
+    $services->get(RentalFeeCalculator::class)
+        ->bind('$longRental', env('int:WATCHES_LONG_RENTAL'))
+        ->bind('$freeTime', env('int:WATCHES_FREE_TIME'))
+        ->bind('$flatPriceCycle', env('int:WATCHES_FLAT_PRICE_CYCLE'))
+        ->bind('$doublePriceCycle', env('int:WATCHES_DOUBLE_PRICE_CYCLE'))
+        ->bind('$doublePriceCycleCap', env('int:WATCHES_DOUBLE_PRICE_CYCLE_CAP'))
         ->bind('$rentalFee', env('float:CREDIT_SYSTEM_RENTAL_FEE'))
         ->bind('$longRentalFee', env('float:CREDIT_SYSTEM_LONG_RENTAL_FEE'))
         ->bind('$priceCycle', env('int:CREDIT_SYSTEM_PRICE_CYCLE'));
