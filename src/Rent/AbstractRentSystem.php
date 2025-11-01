@@ -29,6 +29,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
         protected readonly BikeRepository $bikeRepository,
         protected readonly DbInterface $db,
         protected readonly CreditSystemInterface $creditSystem,
+        protected readonly RentalFeeCalculator $rentalFeeCalculator,
         protected readonly User $user,
         protected readonly EventDispatcherInterface $eventDispatcher,
         protected readonly AdminNotifier $adminNotifier,
@@ -36,9 +37,9 @@ abstract class AbstractRentSystem implements RentSystemInterface
         protected readonly StandRepository $standRepository,
         protected readonly ClockInterface $clock,
         protected readonly TranslatorInterface $translator,
-        protected array $watchesConfig,
         protected readonly bool $isSmsSystemEnabled,
         protected readonly bool $forceStack,
+        protected readonly bool $watchStack,
     ) {
     }
 
@@ -124,7 +125,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
                 }
             }
 
-            if ($this->forceStack || $this->watchesConfig['stack']) {
+            if ($this->forceStack || $this->watchStack) {
                 $result = $this->db->query("SELECT currentStand FROM bikes WHERE bikeNum='$bikeId'");
                 $row = $result->fetchAssoc();
                 $standid = $row['currentStand'];
@@ -142,7 +143,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
                     );
                 }
 
-                if ($this->watchesConfig['stack'] && $stacktopbike != $bikeId) {
+                if ($this->watchStack && $stacktopbike != $bikeId) {
                     $result = $this->db->query("SELECT standName FROM stands WHERE standId='$standid'");
                     $row = $result->fetchAssoc();
                     $stand = $row['standName'];
@@ -296,7 +297,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
         }
 
         if ($force == false) {
-            $creditchange = $this->changecreditendrental($bikeNum, $userId);
+            $creditchange = $this->rentalFeeCalculator->changeCreditEndRental($bikeNum, $userId);
             if ($this->creditSystem->isEnabled() && $creditchange) {
                 $message .= $messageType === 'text' ? "\n" : '<br />';
                 $message .= $this->translator->trans(
@@ -495,123 +496,5 @@ abstract class AbstractRentSystem implements RentSystemInterface
                 ]
             )
         );
-    }
-
-    // subtract credit for rental
-    private function changecreditendrental($bike, $userid): ?float
-    {
-        if ($this->creditSystem->isEnabled() === false) {
-            return null;
-        }
-
-        $userCredit = $this->creditSystem->getUserCredit($userid);
-
-        $result = $this->db->query(
-            "SELECT time FROM history WHERE bikeNum = :bikeNum AND userId = :userId AND action IN (:rentAction, :forceRentAction) ORDER BY time DESC LIMIT 1",
-            [
-                'bikeNum' => $bike,
-                'userId' => $userid,
-                'rentAction' => Action::RENT->value,
-                'forceRentAction' => Action::FORCE_RENT->value,
-            ]
-        );
-        if ($result->rowCount() == 1) {
-            $row = $result->fetchAssoc();
-            $startTime = new \DateTimeImmutable($row['time']);
-            $endTime = $this->clock->now();
-            $timeDiff = $endTime->getTimestamp() - $startTime->getTimestamp();
-            $creditchange = 0;
-            $changelog = '';
-
-            // if the bike is returned and rented again within 10 minutes, a user will not have new free time.
-            $oldRetrun = $this->db->query(
-                "SELECT time FROM history WHERE bikeNum = :bikeNum AND userId = :userId AND action IN (:returnAction, :forceReturnAction) ORDER BY time DESC LIMIT 1",
-                [
-                    'bikeNum' => $bike,
-                    'userId' => $userid,
-                    'returnAction' => Action::RETURN->value,
-                    'forceReturnAction' => Action::FORCE_RETURN->value,
-                ]
-            );
-            if ($oldRetrun->rowCount() == 1) {
-                $oldRow = $oldRetrun->fetchAssoc();
-                $returnTime = new \DateTimeImmutable($oldRow["time"]);
-                if (($startTime->getTimestamp() - $returnTime->getTimestamp()) < 10 * 60 && $timeDiff > 5 * 60) {
-                    $creditchange = $creditchange + $this->creditSystem->getRentalFee();
-                    $changelog .= 'rerent-' . $this->creditSystem->getRentalFee() . ';';
-                }
-            }
-
-            if ($timeDiff > $this->watchesConfig['freetime'] * 60) {
-                $creditchange += $this->creditSystem->getRentalFee();
-                $changelog .= 'overfree-' . $this->creditSystem->getRentalFee() . ';';
-            }
-
-            if ($this->watchesConfig['freetime'] == 0) {
-                $this->watchesConfig['freetime'] = 1;
-            }
-
-            // for further calculations
-            if ($this->creditSystem->getPriceCycle() && $timeDiff > $this->watchesConfig['freetime'] * 60 * 2) {
-                // after first paid period, i.e. freetime*2; if pricecycle enabled
-                $temptimediff = $timeDiff - ($this->watchesConfig['freetime'] * 60 * 2);
-                if ($this->creditSystem->getPriceCycle() == 1) { // flat price per cycle
-                    $cycles = ceil($temptimediff / ($this->watchesConfig['flatpricecycle'] * 60));
-                    $creditchange += $this->creditSystem->getRentalFee() * $cycles;
-                    $changelog .= 'flat-' . $this->creditSystem->getRentalFee() * $cycles . ';';
-                } elseif ($this->creditSystem->getPriceCycle() == 2) { // double price per cycle
-                    $cycles = ceil($temptimediff / ($this->watchesConfig['doublepricecycle'] * 60));
-                    $tempcreditrent = $this->creditSystem->getRentalFee();
-                    for ($i = 1; $i <= $cycles; $i++) {
-                        $multiplier = $i;
-                        if ($multiplier > $this->watchesConfig['doublepricecyclecap']) {
-                            $multiplier = $this->watchesConfig['doublepricecyclecap'];
-                        }
-
-                        // exception for rent=1, otherwise square won't work:
-                        if ($tempcreditrent == 1) {
-                            $tempcreditrent = 2;
-                        }
-
-                        $creditchange += pow($tempcreditrent, $multiplier);
-                        $changelog .= 'double-' . pow($tempcreditrent, $multiplier) . ';';
-                    }
-                }
-            }
-
-            if ($timeDiff > $this->watchesConfig['longrental'] * 3600) {
-                $creditchange += $this->creditSystem->getLongRentalFee();
-                $changelog .= 'longrent-' . $this->creditSystem->getLongRentalFee() . ';';
-            }
-            $userCredit -= $creditchange;
-            if ($creditchange > 0) {
-                $this->creditSystem->useCredit($userid, $creditchange);
-            }
-
-            $this->db->query(
-                "INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :creditChange, time = :time",
-                [
-                    'userId' => $userid,
-                    'bikeNum' => $bike,
-                    'action' => Action::CREDIT_CHANGE->value,
-                    'creditChange' => $creditchange . '|' . $changelog,
-                    'time' => $this->clock->now()->format('Y-m-d H:i:s'),
-                ]
-            );
-            $this->db->query(
-                "INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :userCredit, time = :time",
-                [
-                    'userId' => $userid,
-                    'bikeNum' => $bike,
-                    'action' => Action::CREDIT->value,
-                    'userCredit' => $userCredit,
-                    'time' => $this->clock->now()->format('Y-m-d H:i:s'),
-                ]
-            );
-
-            return $creditchange;
-        }
-
-        return null;
     }
 }
