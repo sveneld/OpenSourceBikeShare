@@ -14,26 +14,8 @@ use Symfony\Component\Clock\ClockInterface;
 
 class RentalFeeCalculatorTest extends TestCase
 {
-    public function testReturnsNullWhenCreditSystemDisabled(): void
-    {
-        $creditSystem = $this->createMock(CreditSystemInterface::class);
-        $creditSystem->expects($this->once())->method('isEnabled')->willReturn(false);
-        $db = $this->createMock(DbInterface::class);
-        $db->expects($this->never())->method('query');
-        $clock = $this->createMock(ClockInterface::class);
-        $watchesConfig = [];
-
-        $calculator = new RentalFeeCalculator($creditSystem, $db, $clock, $watchesConfig, 2.0, 0);
-
-        self::assertNull($calculator->changeCreditEndRental(1, 2));
-    }
-
     public function testReturnsNullWhenNoRentHistory(): void
     {
-        $creditSystem = $this->createMock(CreditSystemInterface::class);
-        $creditSystem->expects($this->once())->method('isEnabled')->willReturn(true);
-        $creditSystem->expects($this->once())->method('getUserCredit')->with(2)->willReturn(10.0);
-
         $rentResult = $this->createMock(DbResultInterface::class);
         $rentResult->method('rowCount')->willReturn(0);
 
@@ -57,7 +39,7 @@ class RentalFeeCalculatorTest extends TestCase
             'freetime' => 15,
         ];
 
-        $calculator = new RentalFeeCalculator($creditSystem, $db, $clock, $watchesConfig, 2.0, 0);
+        $calculator = new RentalFeeCalculator($db, $clock, $watchesConfig, 2.0, 5.0, 0);
 
         self::assertNull($calculator->changeCreditEndRental(1, 2));
     }
@@ -65,12 +47,6 @@ class RentalFeeCalculatorTest extends TestCase
     public function testCalculatesChargesAndPersistsHistory(): void
     {
         $now = new \DateTimeImmutable('2024-01-01 03:00:00');
-
-        $creditSystem = $this->createMock(CreditSystemInterface::class);
-        $creditSystem->expects($this->once())->method('isEnabled')->willReturn(true);
-        $creditSystem->expects($this->once())->method('getUserCredit')->with(5)->willReturn(100.0);
-        $creditSystem->method('getLongRentalFee')->willReturn(5.0);
-        $creditSystem->expects($this->once())->method('useCredit')->with(5, 47.0);
 
         $rentResult = $this->createMock(DbResultInterface::class);
         $rentResult->method('rowCount')->willReturn(1);
@@ -82,7 +58,7 @@ class RentalFeeCalculatorTest extends TestCase
 
         $db = $this->createMock(DbInterface::class);
         // Use a callback to inspect the SQL and parameters and return the appropriate mock result
-        $mathcer = $this->exactly(4);
+        $mathcer = $this->exactly(2);
         $db->expects($mathcer)
             ->method('query')
             ->willReturnCallback(function (string $sql, array $params) use ($rentResult, $returnResult, $mathcer, $db) {
@@ -108,28 +84,6 @@ class RentalFeeCalculatorTest extends TestCase
 
                         return $returnResult;
 
-                    case 3:
-                        // third query: insert credit change
-                        $this->assertStringContainsString('INSERT INTO ' . 'history' . ' SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :creditChange, time = :time', $sql);
-                        $this->assertSame(5, $params['userId']);
-                        $this->assertSame(7, $params['bikeNum']);
-                        $this->assertSame(Action::CREDIT_CHANGE->value, $params['action']);
-                        $this->assertSame('47|rerent-2;overfree-2;double-2;double-4;double-8;double-8;double-8;double-8;longrent-5;', $params['creditChange']);
-                        $this->assertSame('2024-01-01 03:00:00', $params['time']);
-
-                        return $this->createMock(DbResultInterface::class);
-
-                    case 4:
-                        // fourth query: insert user credit snapshot
-                        $this->assertStringContainsString('INSERT INTO ' . 'history' . ' SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :userCredit, time = :time', $sql);
-                        $this->assertSame(5, $params['userId']);
-                        $this->assertSame(7, $params['bikeNum']);
-                        $this->assertSame(Action::CREDIT->value, $params['action']);
-                        $this->assertSame(53.0, $params['userCredit']);
-                        $this->assertSame('2024-01-01 03:00:00', $params['time']);
-
-                        return $this->createMock(DbResultInterface::class);
-
                     default:
                         $this->fail('Unexpected invocation number: ' . $mathcer->getInvocationCount());
                 }
@@ -146,8 +100,9 @@ class RentalFeeCalculatorTest extends TestCase
             'longrental' => 2,
         ];
 
-        $calculator = new RentalFeeCalculator($creditSystem, $db, $clock, $watchesConfig, 2.0, 2);;
-
-        $this->assertSame(47.0, $calculator->changeCreditEndRental(7, 5));
+        $calculator = new RentalFeeCalculator($db, $clock, $watchesConfig, 2.0, 5.0, 2);
+        $result = $calculator->changeCreditEndRental(7, 5);
+        $this->assertSame(47.0, $result['creditChange']);
+        $this->assertSame('rerent-2;overfree-2;double-2;double-4;double-8;double-8;double-8;double-8;longrent-5;', $result['changeLog']);
     }
 }

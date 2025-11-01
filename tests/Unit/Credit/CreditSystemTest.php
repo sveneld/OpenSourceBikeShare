@@ -7,6 +7,7 @@ namespace BikeShare\Test\Unit\Credit;
 use BikeShare\Credit\CreditSystem;
 use BikeShare\Db\DbInterface;
 use BikeShare\Db\DbResultInterface;
+use BikeShare\Rent\RentalFeeCalculator;
 use BikeShare\Repository\HistoryRepository;
 use PHPUnit\Framework\TestCase;
 
@@ -29,21 +30,26 @@ class CreditSystemTest extends TestCase
         if (!is_null($expectedException)) {
             $this->expectException($expectedException);
         }
+        $rentalFeeCalculatorMock = $this->createMock(RentalFeeCalculator::class);
         $creditSystem = new CreditSystem(
             $isEnabled,
             $creditCurrency,
             $minRequiredCredit,
-            $rentalFee,
-            $longRentalFee,
             $limitIncreaseFee,
             $violationFee,
             $this->createMock(DbInterface::class),
-            $this->createMock(HistoryRepository::class)
+            $this->createMock(HistoryRepository::class),
+            $rentalFeeCalculatorMock
         );
+
+        $rentalFeeCalculatorMock
+            ->expects($this->once())
+            ->method('getMinRequiredCredit')
+            ->willReturn((float)($rentalFee + $longRentalFee));
+
         $this->assertEquals($isEnabled, $creditSystem->isEnabled());
         $this->assertEquals($creditCurrency, $creditSystem->getCreditCurrency());
         $this->assertEquals($expectedMinRequiredCredit, $creditSystem->getMinRequiredCredit());
-        $this->assertEquals($longRentalFee, $creditSystem->getLongRentalFee());
         $this->assertEquals($limitIncreaseFee, $creditSystem->getLimitIncreaseFee());
         $this->assertEquals($violationFee, $creditSystem->getViolationFee());
     }
@@ -72,20 +78,6 @@ class CreditSystemTest extends TestCase
             $default,
             [
                 'minRequiredCredit' => -1,
-                'expectedException' => \InvalidArgumentException::class,
-            ]
-        );
-        yield 'negative rentalFee' => array_merge(
-            $default,
-            [
-                'rentalFee' => -1,
-                'expectedException' => \InvalidArgumentException::class,
-            ]
-        );
-        yield 'negative longRentalFee' => array_merge(
-            $default,
-            [
-                'longRentalFee' => -1,
                 'expectedException' => \InvalidArgumentException::class,
             ]
         );
@@ -126,12 +118,11 @@ class CreditSystemTest extends TestCase
             true, //isEnabled
             '€', //creditCurrency
             9, //minRequiredCredit
-            2, //rentalFee
-            5, //longRentalFee
             10, //limitIncreaseFee
             5, //violationFee
             $db,
-            $this->createMock(HistoryRepository::class)
+            $this->createMock(HistoryRepository::class),
+            $this->createMock(RentalFeeCalculator::class)
         );
 
         $this->assertEquals(5, $creditSystem->getUserCredit($userId));
@@ -156,12 +147,11 @@ class CreditSystemTest extends TestCase
             true, //isEnabled
             '€', //creditCurrency
             9, //minRequiredCredit
-            2, //rentalFee
-            5, //longRentalFee
             10, //limitIncreaseFee
             5, //violationFee
             $db,
-            $this->createMock(HistoryRepository::class)
+            $this->createMock(HistoryRepository::class),
+            $this->createMock(RentalFeeCalculator::class)
         );
 
         $this->assertEquals(0, $creditSystem->getUserCredit($userId));

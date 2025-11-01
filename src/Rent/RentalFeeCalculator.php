@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BikeShare\Rent;
 
-use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
 use BikeShare\Enum\Action;
 use Symfony\Component\Clock\ClockInterface;
@@ -14,32 +13,33 @@ class RentalFeeCalculator
     // 0 = disabled,
     // 1 = charge flat price CREDIT_SYSTEM_RENTAL_FEE every WATCHES_FLAT_PRICE_CYCLE minutes,
     // 2 = charge doubled price CREDIT_SYSTEM_RENTAL_FEE every WATCHES_DOUBLE_PRICE_CYCLE minutes
-    // private readonly int $priceCycle;
 
     public function __construct(
-        private readonly CreditSystemInterface $creditSystem,
         private readonly DbInterface $db,
         private readonly ClockInterface $clock,
         private readonly array $watchesConfig,
         private readonly float $rentalFee,
+        private readonly float $longRentalFee,
         private readonly int $priceCycle,
     ) {
-        if ($rentalFee < 0) {
-            throw new \InvalidArgumentException('Credit values cannot be negative');
+        if (
+            $rentalFee < 0
+            || $longRentalFee < 0
+        ) {
+            throw new \InvalidArgumentException('Fee values cannot be negative');
         }
         if (!in_array($priceCycle, [0, 1, 2], true)) {
             throw new \InvalidArgumentException('Invalid price cycle value');
         }
     }
 
-    public function changeCreditEndRental(int $bike, int $userId): ?float
+    public function getMinRequiredCredit(): float
     {
-        if ($this->creditSystem->isEnabled() === false) {
-            return null;
-        }
+        return $this->rentalFee + $this->longRentalFee;
+    }
 
-        $userCredit = $this->creditSystem->getUserCredit($userId);
-
+    public function changeCreditEndRental(int $bike, int $userId): ?array
+    {
         $result = $this->db->query(
             'SELECT time FROM history WHERE bikeNum = :bikeNum AND userId = :userId AND action IN (:rentAction, :forceRentAction) ORDER BY time DESC LIMIT 1',
             [
@@ -113,39 +113,10 @@ class RentalFeeCalculator
         }
 
         if ($timeDiff > $this->watchesConfig['longrental'] * 3600) {
-            $creditChange += $this->creditSystem->getLongRentalFee();
-            $changeLog .= 'longrent-' . $this->creditSystem->getLongRentalFee() . ';';
+            $creditChange += $this->longRentalFee;
+            $changeLog .= 'longrent-' . $this->longRentalFee . ';';
         }
 
-        $userCredit -= $creditChange;
-        if ($creditChange > 0) {
-            $this->creditSystem->useCredit($userId, $creditChange);
-        }
-
-        $now = $this->clock->now()->format('Y-m-d H:i:s');
-
-        $this->db->query(
-            'INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :creditChange, time = :time',
-            [
-                'userId' => $userId,
-                'bikeNum' => $bike,
-                'action' => Action::CREDIT_CHANGE->value,
-                'creditChange' => $creditChange . '|' . $changeLog,
-                'time' => $now,
-            ]
-        );
-
-        $this->db->query(
-            'INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :userCredit, time = :time',
-            [
-                'userId' => $userId,
-                'bikeNum' => $bike,
-                'action' => Action::CREDIT->value,
-                'userCredit' => $userCredit,
-                'time' => $now,
-            ]
-        );
-
-        return $creditChange;
+        return ['creditChange' => $creditChange, 'changeLog' => $changeLog];
     }
 }

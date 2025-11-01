@@ -20,8 +20,6 @@ interface CreditSystemInterface
 
     public function getCreditCurrency(): string;
 
-    public function getLongRentalFee(): float;
-
     public function getLimitIncreaseFee(): float;
 
     public function getViolationFee(): float;

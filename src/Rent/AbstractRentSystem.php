@@ -297,17 +297,47 @@ abstract class AbstractRentSystem implements RentSystemInterface
         }
 
         if ($force == false) {
-            $creditchange = $this->rentalFeeCalculator->changeCreditEndRental($bikeNum, $userId);
-            if ($this->creditSystem->isEnabled() && $creditchange) {
+            $userCredit = $this->creditSystem->getUserCredit($userId);
+            $calculation = $this->rentalFeeCalculator->changeCreditEndRental($bikeNum, $userId);
+            $userCredit -= $calculation['creditChange'];
+            if ($calculation['creditChange'] > 0) {
+                $this->creditSystem->useCredit($userId, $calculation['creditChange']);
+            }
+
+            $now = $this->clock->now()->format('Y-m-d H:i:s');
+
+            $this->db->query(
+                'INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :creditChange, time = :time',
+                [
+                    'userId' => $userId,
+                    'bikeNum' => $bikeNum,
+                    'action' => Action::CREDIT_CHANGE->value,
+                    'creditChange' => $calculation['creditChange'] . '|' . $calculation['changeLog'],
+                    'time' => $now,
+                ]
+            );
+
+            $this->db->query(
+                'INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :userCredit, time = :time',
+                [
+                    'userId' => $userId,
+                    'bikeNum' => $bikeNum,
+                    'action' => Action::CREDIT->value,
+                    'userCredit' => $userCredit,
+                    'time' => $now,
+                ]
+            );
+
+            if ($this->creditSystem->isEnabled() && $calculation['creditChange']) {
                 $message .= $messageType === 'text' ? "\n" : '<br />';
                 $message .= $this->translator->trans(
                     'Credit change: -{creditChange}{creditCurrency}.',
                     [
-                        'creditChange' => $creditchange,
+                        'creditChange' => $calculation['creditChange'],
                         'creditCurrency' => $this->creditSystem->getCreditCurrency()
                     ]
                 );
-                $params['creditChange'] = $creditchange;
+                $params['creditChange'] = $calculation['creditChange'];
                 $params['creditCurrency'] = $this->creditSystem->getCreditCurrency();
             }
         }

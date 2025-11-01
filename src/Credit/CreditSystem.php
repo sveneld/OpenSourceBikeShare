@@ -6,6 +6,7 @@ namespace BikeShare\Credit;
 
 use BikeShare\Db\DbInterface;
 use BikeShare\Enum\Action;
+use BikeShare\Rent\RentalFeeCalculator;
 use BikeShare\Repository\HistoryRepository;
 
 class CreditSystem implements CreditSystemInterface
@@ -17,13 +18,6 @@ class CreditSystem implements CreditSystemInterface
     private readonly string $creditCurrency;
     // minimum credit required to allow any bike operations
     private readonly float $minBalanceCredit;
-    // rental fee (after WATCHES_FREE_TIME)
-    /**
-     * @deprecated should be get from rentalCaluclator
-     */
-    private readonly float $rentalFee;
-    // long rental fee (WATCHES_LONG_RENTAL time)
-    private readonly float $longRentalFee;
     // credit needed to temporarily increase limit, applicable only when USER_BIKE_LIMIT_INCREASE > 0
     private readonly float $limitIncreaseFee;
     // credit deduction for rule violations (applied by admins)
@@ -33,12 +27,11 @@ class CreditSystem implements CreditSystemInterface
         bool $isEnabled,
         string $creditCurrency,
         float $minBalanceCredit,
-        float $rentalFee,
-        float $longRentalFee,
         float $limitIncreaseFee,
         float $violationFee,
         private readonly DbInterface $db,
         private readonly HistoryRepository $historyRepository,
+        private readonly RentalFeeCalculator $rentalFeeCalculator,
     ) {
         if (!$isEnabled) {
             throw new \RuntimeException('Use DisabledCreditSystem instead');
@@ -46,8 +39,6 @@ class CreditSystem implements CreditSystemInterface
 
         if (
             $minBalanceCredit < 0
-            || $rentalFee < 0
-            || $longRentalFee < 0
             || $limitIncreaseFee < 0
             || $violationFee < 0
         ) {
@@ -57,8 +48,6 @@ class CreditSystem implements CreditSystemInterface
         $this->isEnabled = $isEnabled;
         $this->creditCurrency = $creditCurrency;
         $this->minBalanceCredit = $minBalanceCredit;
-        $this->rentalFee = $rentalFee;
-        $this->longRentalFee = $longRentalFee;
         $this->limitIncreaseFee = $limitIncreaseFee;
         $this->violationFee = $violationFee;
     }
@@ -122,7 +111,7 @@ class CreditSystem implements CreditSystemInterface
 
     public function getMinRequiredCredit(): float
     {
-        return $this->minBalanceCredit + $this->rentalFee + $this->longRentalFee;
+        return $this->minBalanceCredit + $this->rentalFeeCalculator->getMinRequiredCredit();
     }
 
     public function isEnoughCreditForRent($userid): bool
@@ -138,11 +127,6 @@ class CreditSystem implements CreditSystemInterface
     public function getCreditCurrency(): string
     {
         return $this->creditCurrency;
-    }
-
-    public function getLongRentalFee(): float
-    {
-        return $this->longRentalFee;
     }
 
     public function getLimitIncreaseFee(): float
