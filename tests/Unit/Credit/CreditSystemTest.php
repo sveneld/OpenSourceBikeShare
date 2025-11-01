@@ -20,7 +20,6 @@ class CreditSystemTest extends TestCase
         $creditCurrency,
         $minRequiredCredit,
         $rentalFee,
-        $priceCycle,
         $longRentalFee,
         $limitIncreaseFee,
         $violationFee,
@@ -35,7 +34,6 @@ class CreditSystemTest extends TestCase
             $creditCurrency,
             $minRequiredCredit,
             $rentalFee,
-            $priceCycle,
             $longRentalFee,
             $limitIncreaseFee,
             $violationFee,
@@ -45,7 +43,6 @@ class CreditSystemTest extends TestCase
         $this->assertEquals($isEnabled, $creditSystem->isEnabled());
         $this->assertEquals($creditCurrency, $creditSystem->getCreditCurrency());
         $this->assertEquals($expectedMinRequiredCredit, $creditSystem->getMinRequiredCredit());
-        $this->assertEquals($priceCycle, $creditSystem->getPriceCycle());
         $this->assertEquals($longRentalFee, $creditSystem->getLongRentalFee());
         $this->assertEquals($limitIncreaseFee, $creditSystem->getLimitIncreaseFee());
         $this->assertEquals($violationFee, $creditSystem->getViolationFee());
@@ -58,7 +55,6 @@ class CreditSystemTest extends TestCase
             'creditCurrency' => '$',
             'minRequiredCredit' => 12,
             'rentalFee' => 3,
-            'priceCycle' => 1,
             'longRentalFee' => 6,
             'limitIncreaseFee' => 11,
             'violationFee' => 6,
@@ -83,13 +79,6 @@ class CreditSystemTest extends TestCase
             $default,
             [
                 'rentalFee' => -1,
-                'expectedException' => \InvalidArgumentException::class,
-            ]
-        );
-        yield 'negative priceCycle' => array_merge(
-            $default,
-            [
-                'priceCycle' => -1,
                 'expectedException' => \InvalidArgumentException::class,
             ]
         );
@@ -138,7 +127,6 @@ class CreditSystemTest extends TestCase
             '€', //creditCurrency
             9, //minRequiredCredit
             2, //rentalFee
-            0, //priceCycle
             5, //longRentalFee
             10, //limitIncreaseFee
             5, //violationFee
@@ -169,7 +157,6 @@ class CreditSystemTest extends TestCase
             '€', //creditCurrency
             9, //minRequiredCredit
             2, //rentalFee
-            0, //priceCycle
             5, //longRentalFee
             10, //limitIncreaseFee
             5, //violationFee

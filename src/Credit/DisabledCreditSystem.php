@@ -39,11 +39,6 @@ class DisabledCreditSystem implements CreditSystemInterface
         return '';
     }
 
-    public function getPriceCycle(): int
-    {
-        return 0;
-    }
-
     public function getLongRentalFee(): float
     {
         return 0;

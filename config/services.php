@@ -158,7 +158,6 @@ return static function (ContainerConfigurator $container): void {
         ->bind('$creditCurrency', env('CREDIT_SYSTEM_CURRENCY'))
         ->bind('$minBalanceCredit', env('float:CREDIT_SYSTEM_MIN_BALANCE'))
         ->bind('$rentalFee', env('float:CREDIT_SYSTEM_RENTAL_FEE')) #deprecated
-        ->bind('$priceCycle', env('int:CREDIT_SYSTEM_PRICE_CYCLE'))
         ->bind('$longRentalFee', env('float:CREDIT_SYSTEM_LONG_RENTAL_FEE'))
         ->bind('$limitIncreaseFee', env('float:CREDIT_SYSTEM_LIMIT_INCREASE_FEE'))
         ->bind('$violationFee', env('float:CREDIT_SYSTEM_VIOLATION_FEE'));
@@ -176,7 +175,8 @@ return static function (ContainerConfigurator $container): void {
         )
         ->bind('$watchStack', env('bool:WATCHES_STACK'))
         ->bind('$forceStack', env('bool:FORCE_STACK'))
-        ->bind('$rentalFee', env('float:CREDIT_SYSTEM_RENTAL_FEE'));
+        ->bind('$rentalFee', env('float:CREDIT_SYSTEM_RENTAL_FEE'))
+        ->bind('$priceCycle', env('int:CREDIT_SYSTEM_PRICE_CYCLE'));
 
     $services->load('BikeShare\\SmsConnector\\', '../src/SmsConnector')
         ->bind('$request', expr("service('request_stack').getCurrentRequest()"))

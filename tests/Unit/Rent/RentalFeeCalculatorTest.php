@@ -23,7 +23,7 @@ class RentalFeeCalculatorTest extends TestCase
         $clock = $this->createMock(ClockInterface::class);
         $watchesConfig = [];
 
-        $calculator = new RentalFeeCalculator($creditSystem, $db, $clock, $watchesConfig);
+        $calculator = new RentalFeeCalculator($creditSystem, $db, $clock, $watchesConfig, 2.0, 0);
 
         self::assertNull($calculator->changeCreditEndRental(1, 2));
     }
@@ -57,7 +57,7 @@ class RentalFeeCalculatorTest extends TestCase
             'freetime' => 15,
         ];
 
-        $calculator = new RentalFeeCalculator($creditSystem, $db, $clock, $watchesConfig);
+        $calculator = new RentalFeeCalculator($creditSystem, $db, $clock, $watchesConfig, 2.0, 0);
 
         self::assertNull($calculator->changeCreditEndRental(1, 2));
     }
@@ -69,8 +69,6 @@ class RentalFeeCalculatorTest extends TestCase
         $creditSystem = $this->createMock(CreditSystemInterface::class);
         $creditSystem->expects($this->once())->method('isEnabled')->willReturn(true);
         $creditSystem->expects($this->once())->method('getUserCredit')->with(5)->willReturn(100.0);
-        $creditSystem->method('getRentalFee')->willReturn(2.0);
-        $creditSystem->method('getPriceCycle')->willReturn(2);
         $creditSystem->method('getLongRentalFee')->willReturn(5.0);
         $creditSystem->expects($this->once())->method('useCredit')->with(5, 47.0);
 
@@ -148,7 +146,7 @@ class RentalFeeCalculatorTest extends TestCase
             'longrental' => 2,
         ];
 
-        $calculator = new RentalFeeCalculator($creditSystem, $db, $clock, $watchesConfig);;
+        $calculator = new RentalFeeCalculator($creditSystem, $db, $clock, $watchesConfig, 2.0, 2);;
 
         $this->assertSame(47.0, $calculator->changeCreditEndRental(7, 5));
     }

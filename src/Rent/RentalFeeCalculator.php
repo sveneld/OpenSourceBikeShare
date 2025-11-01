@@ -11,13 +11,25 @@ use Symfony\Component\Clock\ClockInterface;
 
 class RentalFeeCalculator
 {
+    // 0 = disabled,
+    // 1 = charge flat price CREDIT_SYSTEM_RENTAL_FEE every WATCHES_FLAT_PRICE_CYCLE minutes,
+    // 2 = charge doubled price CREDIT_SYSTEM_RENTAL_FEE every WATCHES_DOUBLE_PRICE_CYCLE minutes
+    // private readonly int $priceCycle;
+
     public function __construct(
         private readonly CreditSystemInterface $creditSystem,
         private readonly DbInterface $db,
         private readonly ClockInterface $clock,
         private readonly array $watchesConfig,
         private readonly float $rentalFee,
+        private readonly int $priceCycle,
     ) {
+        if ($rentalFee < 0) {
+            throw new \InvalidArgumentException('Credit values cannot be negative');
+        }
+        if (!in_array($priceCycle, [0, 1, 2], true)) {
+            throw new \InvalidArgumentException('Invalid price cycle value');
+        }
     }
 
     public function changeCreditEndRental(int $bike, int $userId): ?float
@@ -75,13 +87,13 @@ class RentalFeeCalculator
 
         $freeTime = $this->watchesConfig['freetime'] == 0 ? 1 : $this->watchesConfig['freetime'];
 
-        if ($this->creditSystem->getPriceCycle() && $timeDiff > $freeTime * 60 * 2) {
+        if ($this->priceCycle && $timeDiff > $freeTime * 60 * 2) {
             $tempTimeDiff = $timeDiff - ($freeTime * 60 * 2);
-            if ($this->creditSystem->getPriceCycle() == 1) {
+            if ($this->priceCycle == 1) {
                 $cycles = (int) ceil($tempTimeDiff / ($this->watchesConfig['flatpricecycle'] * 60));
                 $creditChange += $this->rentalFee * $cycles;
                 $changeLog .= 'flat-' . $this->rentalFee * $cycles . ';';
-            } elseif ($this->creditSystem->getPriceCycle() == 2) {
+            } elseif ($this->priceCycle == 2) {
                 $cycles = (int) ceil($tempTimeDiff / ($this->watchesConfig['doublepricecycle'] * 60));
                 $tempCreditRent = $this->rentalFee;
                 for ($i = 1; $i <= $cycles; $i++) {

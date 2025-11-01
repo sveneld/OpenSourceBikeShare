@@ -22,10 +22,6 @@ class CreditSystem implements CreditSystemInterface
      * @deprecated should be get from rentalCaluclator
      */
     private readonly float $rentalFee;
-    // 0 = disabled,
-    // 1 = charge flat price CREDIT_SYSTEM_RENTAL_FEE every WATCHES_FLAT_PRICE_CYCLE minutes,
-    // 2 = charge doubled price CREDIT_SYSTEM_RENTAL_FEE every WATCHES_DOUBLE_PRICE_CYCLE minutes
-    private readonly int $priceCycle;
     // long rental fee (WATCHES_LONG_RENTAL time)
     private readonly float $longRentalFee;
     // credit needed to temporarily increase limit, applicable only when USER_BIKE_LIMIT_INCREASE > 0
@@ -38,7 +34,6 @@ class CreditSystem implements CreditSystemInterface
         string $creditCurrency,
         float $minBalanceCredit,
         float $rentalFee,
-        int $priceCycle,
         float $longRentalFee,
         float $limitIncreaseFee,
         float $violationFee,
@@ -59,15 +54,10 @@ class CreditSystem implements CreditSystemInterface
             throw new \InvalidArgumentException('Credit values cannot be negative');
         }
 
-        if (!in_array($priceCycle, [0, 1, 2], true)) {
-            throw new \InvalidArgumentException('Invalid price cycle value');
-        }
-
         $this->isEnabled = $isEnabled;
         $this->creditCurrency = $creditCurrency;
         $this->minBalanceCredit = $minBalanceCredit;
         $this->rentalFee = $rentalFee;
-        $this->priceCycle = $priceCycle;
         $this->longRentalFee = $longRentalFee;
         $this->limitIncreaseFee = $limitIncreaseFee;
         $this->violationFee = $violationFee;
@@ -148,11 +138,6 @@ class CreditSystem implements CreditSystemInterface
     public function getCreditCurrency(): string
     {
         return $this->creditCurrency;
-    }
-
-    public function getPriceCycle(): int
-    {
-        return $this->priceCycle;
     }
 
     public function getLongRentalFee(): float
