@@ -18,6 +18,9 @@ class CreditSystem implements CreditSystemInterface
     // minimum credit required to allow any bike operations
     private readonly float $minBalanceCredit;
     // rental fee (after WATCHES_FREE_TIME)
+    /**
+     * @deprecated should be get from rentalCaluclator
+     */
     private readonly float $rentalFee;
     // 0 = disabled,
     // 1 = charge flat price CREDIT_SYSTEM_RENTAL_FEE every WATCHES_FLAT_PRICE_CYCLE minutes,
@@ -145,11 +148,6 @@ class CreditSystem implements CreditSystemInterface
     public function getCreditCurrency(): string
     {
         return $this->creditCurrency;
-    }
-
-    public function getRentalFee(): float
-    {
-        return $this->rentalFee;
     }
 
     public function getPriceCycle(): int

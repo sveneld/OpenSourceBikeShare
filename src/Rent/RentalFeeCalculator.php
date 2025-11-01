@@ -16,6 +16,7 @@ class RentalFeeCalculator
         private readonly DbInterface $db,
         private readonly ClockInterface $clock,
         private readonly array $watchesConfig,
+        private readonly float $rentalFee,
     ) {
     }
 
@@ -62,14 +63,14 @@ class RentalFeeCalculator
             $oldRow = $oldReturn->fetchAssoc();
             $returnTime = new \DateTimeImmutable($oldRow['time']);
             if (($startTime->getTimestamp() - $returnTime->getTimestamp()) < 10 * 60 && $timeDiff > 5 * 60) {
-                $creditChange += $this->creditSystem->getRentalFee();
-                $changeLog .= 'rerent-' . $this->creditSystem->getRentalFee() . ';';
+                $creditChange += $this->rentalFee;
+                $changeLog .= 'rerent-' . $this->rentalFee . ';';
             }
         }
 
         if ($timeDiff > $this->watchesConfig['freetime'] * 60) {
-            $creditChange += $this->creditSystem->getRentalFee();
-            $changeLog .= 'overfree-' . $this->creditSystem->getRentalFee() . ';';
+            $creditChange += $this->rentalFee;
+            $changeLog .= 'overfree-' . $this->rentalFee . ';';
         }
 
         $freeTime = $this->watchesConfig['freetime'] == 0 ? 1 : $this->watchesConfig['freetime'];
@@ -78,11 +79,11 @@ class RentalFeeCalculator
             $tempTimeDiff = $timeDiff - ($freeTime * 60 * 2);
             if ($this->creditSystem->getPriceCycle() == 1) {
                 $cycles = (int) ceil($tempTimeDiff / ($this->watchesConfig['flatpricecycle'] * 60));
-                $creditChange += $this->creditSystem->getRentalFee() * $cycles;
-                $changeLog .= 'flat-' . $this->creditSystem->getRentalFee() * $cycles . ';';
+                $creditChange += $this->rentalFee * $cycles;
+                $changeLog .= 'flat-' . $this->rentalFee * $cycles . ';';
             } elseif ($this->creditSystem->getPriceCycle() == 2) {
                 $cycles = (int) ceil($tempTimeDiff / ($this->watchesConfig['doublepricecycle'] * 60));
-                $tempCreditRent = $this->creditSystem->getRentalFee();
+                $tempCreditRent = $this->rentalFee;
                 for ($i = 1; $i <= $cycles; $i++) {
                     $multiplier = $i;
                     if ($multiplier > $this->watchesConfig['doublepricecyclecap']) {

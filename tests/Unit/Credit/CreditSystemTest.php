@@ -45,7 +45,6 @@ class CreditSystemTest extends TestCase
         $this->assertEquals($isEnabled, $creditSystem->isEnabled());
         $this->assertEquals($creditCurrency, $creditSystem->getCreditCurrency());
         $this->assertEquals($expectedMinRequiredCredit, $creditSystem->getMinRequiredCredit());
-        $this->assertEquals($rentalFee, $creditSystem->getRentalFee());
         $this->assertEquals($priceCycle, $creditSystem->getPriceCycle());
         $this->assertEquals($longRentalFee, $creditSystem->getLongRentalFee());
         $this->assertEquals($limitIncreaseFee, $creditSystem->getLimitIncreaseFee());
