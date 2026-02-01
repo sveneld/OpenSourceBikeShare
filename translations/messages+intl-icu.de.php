@@ -255,4 +255,13 @@ Durch Klicken auf den folgenden Link bestätigst du deine E-Mail: {emailConfirmU
     'Current password' => 'Aktuelles Passwort',
     'New password' => 'Neues Passwort',
     'Confirm new password' => 'Neues Passwort bestätigen',
+    'Credit History' => 'Kreditverlauf',
+    'Current Balance' => 'Aktueller Kontostand',
+    'No credit history available' => 'Keine Kreditgeschichte verfügbar',
+    'Date' => 'Datum',
+    'Amount' => 'Betrag',
+    'Description' => 'Beschreibung',
+    'Balance' => 'Kontostand',
+    'Back to map' => 'Zurück zur Karte',
+    'Credit added' => 'Guthaben hinzugefügt',
 ];

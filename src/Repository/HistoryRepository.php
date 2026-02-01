@@ -176,4 +176,59 @@ class HistoryRepository
 
         return $result;
     }
+
+    /**
+     * Finds the second-to-last RETURN or FORCE_RETURN action for a bike.
+     * This is used to find where the bike was before the current return.
+     * Returns array with 'standId' (parameter) and 'time' of the return, or null if not found.
+     */
+    public function findPreviousBikeReturn(int $bikeNumber): ?array
+    {
+        $result = $this->db->query(
+            "SELECT
+              parameter AS standId,
+              time
+            FROM history
+            WHERE bikeNum = :bikeNumber
+              AND action IN (:returnAction, :forceReturnAction)
+            ORDER BY time DESC, id DESC
+            LIMIT 1, 1",
+            [
+                'bikeNumber' => $bikeNumber,
+                'returnAction' => Action::RETURN->value,
+                'forceReturnAction' => Action::FORCE_RETURN->value,
+            ]
+        )->fetchAssoc();
+
+        return $result ?: null;
+    }
+
+    /**
+     * Finds all credit-related history entries for a user.
+     * Returns array of entries with CREDIT and CREDITCHANGE actions, ordered by time desc.
+     */
+    public function findCreditHistoryByUser(int $userId, int $limit = 100, int $offset = 0): array
+    {
+        $result = $this->db->query(
+            "SELECT
+              id,
+              time,
+              action,
+              parameter
+            FROM history
+            WHERE userId = :userId
+              AND action IN (:creditAction, :creditChangeAction)
+            ORDER BY time DESC, id DESC
+            LIMIT :limit OFFSET :offset",
+            [
+                'userId' => $userId,
+                'creditAction' => Action::CREDIT->value,
+                'creditChangeAction' => Action::CREDIT_CHANGE->value,
+                'limit' => $limit,
+                'offset' => $offset,
+            ]
+        )->fetchAllAssoc();
+
+        return $result;
+    }
 }

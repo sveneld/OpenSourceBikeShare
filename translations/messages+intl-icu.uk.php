@@ -255,4 +255,13 @@ return [
     'Current password' => 'Поточний пароль',
     'New password' => 'Новий пароль',
     'Confirm new password' => 'Підтвердіть новий пароль',
+    'Credit History' => 'Історія кредитів',
+    'Current Balance' => 'Поточний баланс',
+    'No credit history available' => 'Історія кредитів відсутня',
+    'Date' => 'Дата',
+    'Amount' => 'Сума',
+    'Description' => 'Опис',
+    'Balance' => 'Баланс',
+    'Back to map' => 'Назад до карти',
+    'Credit added' => 'Кредит додано',
 ];
