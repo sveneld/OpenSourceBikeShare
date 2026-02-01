@@ -6,6 +6,7 @@ namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
+use BikeShare\Enum\CreditChangeType;
 use BikeShare\Event\BikeRentEvent;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\StandRepository;
@@ -41,7 +42,7 @@ class ReturnCommandWithCreditTest extends BikeSharingWebTestCase
         $creditSystem = $this->client->getContainer()->get(CreditSystemInterface::class);
         $userCredit = $creditSystem->getUserCredit($user['userId']);
         if ($userCredit > 0) {
-            $creditSystem->useCredit($user['userId'], $userCredit);
+            $creditSystem->decreaseCredit($user['userId'], $userCredit, CreditChangeType::BALANCE_ADJUSTMENT);
         }
         $this->client->request(
             Request::METHOD_GET,
@@ -72,7 +73,11 @@ class ReturnCommandWithCreditTest extends BikeSharingWebTestCase
 
         $user = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::USER_PHONE_NUMBER);
-        $this->client->getContainer()->get(CreditSystemInterface::class)->addCredit($user['userId'], $userCredit);
+            ->increaseCredit(
+                $user['userId'],
+                $userCredit,
+                CreditChangeType::CREDIT_ADD
+            );
 
         $this->client->getContainer()->get('event_dispatcher')->addListener(
             BikeRentEvent::class,

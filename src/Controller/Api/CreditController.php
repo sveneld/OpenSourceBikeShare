@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BikeShare\Controller\Api;
 
 use BikeShare\Credit\CreditSystemInterface;
+use BikeShare\Enum\CreditChangeType;
 use BikeShare\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,7 +39,7 @@ class CreditController extends AbstractController
         $minRequiredCredit = $creditSystem->getMinRequiredCredit();
         $creditAmount = $minRequiredCredit * $multiplier;
 
-        $creditSystem->addCredit($userId, (float)$creditAmount);
+        $creditSystem->increaseCredit($userId, (float)$creditAmount, CreditChangeType::CREDIT_ADD);
 
         $user = $userRepository->findItem($userId);
 

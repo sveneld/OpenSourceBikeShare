@@ -160,6 +160,10 @@ return function (RoutingConfigurator $routes) {
         ->requirements(['year' => '\d+'])
         ->controller([\BikeShare\Controller\PersonalStatsController::class, 'yearStats']);
 
+    $routes->add('credit_history', '/credit/history')
+        ->methods(['GET'])
+        ->controller([\BikeShare\Controller\CreditHistoryController::class, 'history']);
+
     $routes->add('qr_code_generator', '/admin/qrCodeGenerator')
         ->controller([\BikeShare\Controller\QrCodeGeneratorController::class, 'index']);
 };

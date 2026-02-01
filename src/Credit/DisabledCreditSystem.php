@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace BikeShare\Credit;
 
+use BikeShare\Enum\CreditChangeType;
+
 class DisabledCreditSystem implements CreditSystemInterface
 {
-    public function addCredit(int $userId, float $creditAmount, ?string $coupon = null): void
+    public function increaseCredit(int $userId, float $amount, CreditChangeType $type, array $context = []): void
     {
     }
 
-    public function useCredit(int $userId, float $creditAmount): void
+    public function decreaseCredit(int $userId, float $amount, CreditChangeType $type, array $context = []): void
     {
     }
 
-    public function getUserCredit($userId): float
+    public function getUserCredit(int $userId): float
     {
         return 0;
     }
@@ -24,7 +26,7 @@ class DisabledCreditSystem implements CreditSystemInterface
         return PHP_INT_MAX;
     }
 
-    public function isEnoughCreditForRent($userid): bool
+    public function isEnoughCreditForRent(int $userid): bool
     {
         return true;
     }
@@ -62,5 +64,13 @@ class DisabledCreditSystem implements CreditSystemInterface
     public function getViolationFee(): float
     {
         return 0;
+    }
+
+    /**
+     * @return array<int, array{date: \DateTimeImmutable, amount: float, type: string, balance: float}>
+     */
+    public function getUserCreditHistory(int $userId): array
+    {
+        return [];
     }
 }

@@ -209,4 +209,8 @@ return static function (ContainerConfigurator $container): void {
     $services->get(\BikeShare\EventListener\TooManyBikeRentEventListener::class)
         ->bind('$timeTooManyHours', env('int:WATCHES_TIME_TOO_MANY'))
         ->bind('$numberToMany', env('int:WATCHES_NUMBER_TOO_MANY'));
+
+    $services->get(\BikeShare\EventListener\LongStandBonusEventListener::class)
+        ->bind('$longStandDays', env('int:CREDIT_SYSTEM_LONG_STAND_DAYS'))
+        ->bind('$longStandBonus', env('float:CREDIT_SYSTEM_LONG_STAND_BONUS'));
 };

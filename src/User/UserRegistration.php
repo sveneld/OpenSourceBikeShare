@@ -6,7 +6,6 @@ namespace BikeShare\User;
 
 use BikeShare\App\Entity\User;
 use BikeShare\App\Security\UserProvider;
-use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Event\UserRegistrationEvent;
 use BikeShare\Repository\UserRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -16,7 +15,6 @@ class UserRegistration
 {
     public function __construct(
         private readonly UserProvider $userProvider,
-        private readonly CreditSystemInterface $creditSystem,
         private readonly UserRepository $userRepository,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -46,7 +44,6 @@ class UserRegistration
 
         $this->userProvider->upgradePassword($user, $hashedPassword);
         $this->userRepository->updateUserLimit($user->getUserId(), 0);
-        $this->creditSystem->addCredit($user->getUserId(), 0);
 
         $this->eventDispatcher->dispatch(new UserRegistrationEvent($user));
 

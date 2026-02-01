@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ siteName }}|{{ 'Credit History'|trans }}{% endblock %}
+
+{% block body %}
+    <h1 class="d-flex justify-content-center align-items-center">{{ 'Credit History'|trans }}</h1>
+
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-4 offset-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ 'Current Balance'|trans }}</h5>
+                        <p class="card-text h3">{{ currentCredit }} {{ currency }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if history|length == 0 %}
+            <div class="alert alert-info text-center" role="alert">
+                {{ 'No credit history available'|trans }}
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>{{ 'Date'|trans }}</th>
+                            <th>{{ 'Amount'|trans }}</th>
+                            <th>{{ 'Balance'|trans }}</th>
+                            <th>{{ 'Description'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in history %}
+                            <tr class="{% if entry.amount > 0 %}table-success{% elseif entry.amount < 0 %}table-danger{% endif %}">
+                                <td>{{ entry.date|date('Y-m-d H:i:s') }}</td>
+                                <td>
+                                    {% if entry.amount >= 0 %}
+                                        <span class="text-success">+{{ entry.amount }} {{ currency }}</span>
+                                    {% else %}
+                                        <span class="text-danger">{{ entry.amount }} {{ currency }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ entry.balance }} {{ currency }}
+                                </td>
+                                <td>
+                                    {{ entry.type|trans }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <div class="text-center mt-3">
+            <a href="{{ path('home') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{{ 'Back to map'|trans }}
+            </a>
+        </div>
+    </div>
+{% endblock %}

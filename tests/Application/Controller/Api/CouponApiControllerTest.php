@@ -7,6 +7,7 @@ namespace BikeShare\Test\Application\Controller\Api;
 use BikeShare\App\Security\UserProvider;
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
+use BikeShare\Enum\CreditChangeType;
 use BikeShare\Repository\CouponRepository;
 use BikeShare\Repository\UserRepository;
 use BikeShare\Test\Application\BikeSharingWebTestCase;
@@ -31,7 +32,7 @@ class CouponApiControllerTest extends BikeSharingWebTestCase
         $creditSystem = $this->client->getContainer()->get(CreditSystemInterface::class);
         $userCredit = $creditSystem->getUserCredit($user['userId']);
         if ($userCredit > 0) {
-            $creditSystem->useCredit($user['userId'], $userCredit);
+            $creditSystem->decreaseCredit($user['userId'], $userCredit, CreditChangeType::BALANCE_ADJUSTMENT);
         }
 
         $_ENV['CREDIT_SYSTEM_ENABLED'] = $this->creditSystemEnabled;
