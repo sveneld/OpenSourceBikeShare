@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace BikeShare\Credit;
 
+use BikeShare\Enum\CreditChangeType;
+
 interface CreditSystemInterface
 {
-    public function addCredit(int $userId, float $creditAmount, ?string $coupon = null): void;
+    public function increaseCredit(int $userId, float $amount, CreditChangeType $type, array $context = []): void;
 
-    public function useCredit(int $userId, float $creditAmount): void;
+    public function decreaseCredit(int $userId, float $amount, CreditChangeType $type, array $context = []): void;
 
     public function getUserCredit(int $userId): float;
 
@@ -29,4 +31,9 @@ interface CreditSystemInterface
     public function getLimitIncreaseFee(): float;
 
     public function getViolationFee(): float;
+
+    /**
+     * @return array<int, array{date: \DateTimeImmutable, amount: float, type: string, balance: float}>
+     */
+    public function getUserCreditHistory(int $userId): array;
 }

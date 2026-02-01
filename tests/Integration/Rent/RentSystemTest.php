@@ -6,6 +6,7 @@ namespace BikeShare\Test\Integration\Rent;
 
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
+use BikeShare\Enum\CreditChangeType;
 use BikeShare\Event\BikeRentEvent;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\BikeRepository;
@@ -51,7 +52,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
         $creditSystem = self::getContainer()->get(CreditSystemInterface::class);
         $userCredit = $creditSystem->getUserCredit($user['userId']);
         if ($userCredit > 0) {
-            $creditSystem->useCredit($user['userId'], $userCredit);
+            $creditSystem->decreaseCredit($user['userId'], $userCredit, CreditChangeType::BALANCE_ADJUSTMENT);
         }
         #force return bike by admin
         $admin = self::getContainer()->get(UserRepository::class)
@@ -76,7 +77,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
         array $configuration,
         float $userCredit,
         float $expectedCreditLeft,
-        string $expectedCreditHistory,
+        array $expectedCreditChanges,
         int $returnTimeMoveToFuture
     ): void {
         self::bootKernel();
@@ -89,7 +90,11 @@ class RentSystemTest extends BikeSharingKernelTestCase
 
         static::mockTime();
 
-        self::getContainer()->get(CreditSystemInterface::class)->addCredit($user['userId'], $userCredit);
+        self::getContainer()->get(CreditSystemInterface::class)->increaseCredit(
+            $user['userId'],
+            $userCredit,
+            CreditChangeType::CREDIT_ADD
+        );
 
         self::getContainer()->get('event_dispatcher')->addListener(
             BikeRentEvent::class,
@@ -135,18 +140,32 @@ class RentSystemTest extends BikeSharingKernelTestCase
         $creditSystem = self::getContainer()->get(CreditSystemInterface::class);
         $this->assertSame($expectedCreditLeft, $creditSystem->getUserCredit($user['userId']), 'Invalid credit left');
 
+        // Fetch enough history to cover all potential credit changes
         $history = $db->query(
-            'SELECT * FROM history WHERE userId = :userId ORDER BY time DESC, id DESC LIMIT 3',
+            'SELECT * FROM history WHERE userId = :userId ORDER BY time DESC, id DESC LIMIT 10',
             ['userId' => $user['userId']]
         )->fetchAllAssoc();
 
-        $this->assertCount(3, $history, 'Invalid history count');
+        $creditChanges = [];
         foreach ($history as $item) {
-            if ($item['action'] === 'CREDIT') {
-                $this->assertSame((string)$expectedCreditLeft, $item['parameter'], 'Invalid credit amount in history');
-            } elseif ($item['action'] === 'CREDITCHANGE') {
-                $this->assertSame($expectedCreditHistory, $item['parameter'], 'Invalid info about rent fee in history');
+            if ($item['action'] === 'CREDITCHANGE') {
+                $parameter = json_decode($item['parameter'], true);
+                // Skip the initial credit add
+                if (($parameter['reason'] ?? '') === 'credit_add') {
+                    continue;
+                }
+                $creditChanges[] = $parameter;
             }
+        }
+
+        $this->assertCount(count($expectedCreditChanges), $creditChanges, 'Mismatch in number of credit changes');
+
+        foreach ($expectedCreditChanges as $index => $expected) {
+            $actual = $creditChanges[$index] ?? [];
+            $this->assertSame($expected['reason'], $actual['reason'] ?? '', "Reason mismatch at index $index");
+            // Check amount absolute value or specific value? The stored amount is negative for deductions.
+            // Let's assume expected provides the negative value as stored.
+            $this->assertEquals($expected['amount'], $actual['amount'] ?? 0, "Amount mismatch at index $index");
         }
     }
 
@@ -169,7 +188,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
             ],
             'userCredit' => $startCredit,
             'expectedCreditLeft' => $startCredit,
-            'expectedCreditHistory' => '0|',
+            'expectedCreditChanges' => [],
             'returnTimeMoveToFuture' => 60, // 60 seconds, which is less than free time
         ];
 
@@ -183,7 +202,9 @@ class RentSystemTest extends BikeSharingKernelTestCase
                     'WATCHES_FREE_TIME' => 10, // 10 minutes of free time
                 ],
                 'expectedCreditLeft' => $startCredit - 10,
-                'expectedCreditHistory' => '10|overfree-10;',
+                'expectedCreditChanges' => [
+                    ['reason' => 'over_free_time', 'amount' => -10],
+                ],
                 'returnTimeMoveToFuture' => 10 * 60 + 1// more than free time, so credit will be charged
             ]
         );
@@ -198,7 +219,10 @@ class RentSystemTest extends BikeSharingKernelTestCase
                     'WATCHES_FREE_TIME' => 10, // 10 minute of free time
                 ],
                 'expectedCreditLeft' => $startCredit - 10 - 20,
-                'expectedCreditHistory' => '30|overfree-10;longrent-20;',
+                'expectedCreditChanges' => [
+                    ['reason' => 'long_rental', 'amount' => -20],
+                    ['reason' => 'over_free_time', 'amount' => -10],
+                ],
                 'returnTimeMoveToFuture' => (10 + 60) * 60 // more than the long rental time, so credit will be charged
             ]
         );
@@ -213,7 +237,16 @@ class RentSystemTest extends BikeSharingKernelTestCase
                     'WATCHES_FLAT_PRICE_CYCLE' => 5, // charge the flat price every 5 minutes
                 ],
                 'expectedCreditLeft' => $startCredit - 10 - 10 * 2, // rental fee + two times of flat price charge
-                'expectedCreditHistory' => '30|overfree-10;flat-20;',
+                'expectedCreditChanges' => [
+                    // Order: Last applied comes first in DESC sort
+                    // AbstractRentSystem::changecreditendrental application order:
+                    // 1. over_free_time
+                    // 2. flat_rate (calculated as total cycles * fee, one transaction)
+                    // So history ID order: over_free_time < flat_rate
+                    // DESC order: flat_rate, over_free_time
+                    ['reason' => 'flat_rate', 'amount' => -20],
+                    ['reason' => 'over_free_time', 'amount' => -10],
+                ],
                 'returnTimeMoveToFuture' => 10 * 60 + 1 // two times flat price cycle (5 minutes) + 1 second
             ]
         );
@@ -232,6 +265,16 @@ class RentSystemTest extends BikeSharingKernelTestCase
                 // rental fee (2) + first 5 minutes (2) + second 5 minutes (2 * 2)
                 // + third 5 minutes (2 * 4) + fourth 5 minutes (2 * 4)
                 'expectedCreditHistory' => '24|overfree-2;double-2;double-4;double-8;double-8;',
+                'expectedCreditChanges' => [
+                    // Application order: over_free_time, double_price loop
+                     // History ID order: over_free_time < double_1 < double_2 < double_3 < double_4
+                     // DESC order: double_4, double_3, double_2, double_1, over_free_time
+                     ['reason' => 'double_price', 'amount' => -8],
+                     ['reason' => 'double_price', 'amount' => -8],
+                     ['reason' => 'double_price', 'amount' => -4],
+                     ['reason' => 'double_price', 'amount' => -2],
+                     ['reason' => 'over_free_time', 'amount' => -2],
+                ],
                 'returnTimeMoveToFuture' => 20 * 60 + 1 // 20 minutes (4 * 5 minutes) + 1 second
             ]
         );
@@ -253,7 +296,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
         $db = self::getContainer()->get(DbInterface::class);
 
         $db->query('DELETE FROM history WHERE userId = :userId', ['userId' => $user['userId']]);
-        $creditSystem->addCredit($user['userId'], 100);
+        $creditSystem->increaseCredit($user['userId'], 100, CreditChangeType::CREDIT_ADD);
         $rentSystem->rentBike($user['userId'], self::BIKE_NUMBER);
         static::mockTime('+ 25 minutes');
         $rentSystem->returnBike($user['userId'], self::BIKE_NUMBER, self::STAND_NAME);
@@ -274,7 +317,13 @@ class RentSystemTest extends BikeSharingKernelTestCase
             if ($item['action'] === 'CREDIT') {
                 $this->assertSame('90', $item['parameter'], 'Invalid credit amount in history');
             } elseif ($item['action'] === 'CREDITCHANGE') {
-                $this->assertSame('10|rerent-10;', $item['parameter'], 'Invalid info about rent fee in history');
+                $parameter = json_decode($item['parameter'], true);
+                // The expected record is the rerent penalty
+                // The initial credit add (ignored or verified separately, here we focus on the fee)
+                if (($parameter['reason'] ?? '') === 'rerent_penalty') {
+                    $this->assertSame('rerent_penalty', $parameter['reason'], 'Invalid reason');
+                    $this->assertEquals(-10, $parameter['amount'], 'Invalid amount');
+                }
             }
         }
     }

@@ -7,6 +7,7 @@ namespace BikeShare\Controller\Api;
 use BikeShare\Credit\CodeGenerator\CodeGeneratorInterface;
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Repository\CouponRepository;
+use BikeShare\Enum\CreditChangeType;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -128,7 +129,12 @@ class CouponController extends AbstractController
         }
 
         $this->couponRepository->updateStatus($coupon, 2);// Mark as used
-        $this->creditSystem->addCredit($this->getUser()->getUserId(), (float)$couponData['value'], $coupon);
+        $this->creditSystem->increaseCredit(
+            $this->getUser()->getUserId(),
+            (float)$couponData['value'],
+            CreditChangeType::COUPON_REDEMPTION,
+            ['couponCode' => $coupon]
+        );
 
         return $this->json(
             [

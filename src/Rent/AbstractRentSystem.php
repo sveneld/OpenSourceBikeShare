@@ -12,6 +12,7 @@ use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\StandRepository;
 use BikeShare\User\User;
 use BikeShare\Enum\Action;
+use BikeShare\Enum\CreditChangeType;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -520,8 +521,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
             $startTime = new \DateTimeImmutable($row['time']);
             $endTime = $this->clock->now();
             $timeDiff = $endTime->getTimestamp() - $startTime->getTimestamp();
-            $creditchange = 0;
-            $changelog = '';
+            $totalCreditChange = 0;
 
             // if the bike is returned and rented again within 10 minutes, a user will not have new free time.
             $oldRetrun = $this->db->query(
@@ -537,14 +537,20 @@ abstract class AbstractRentSystem implements RentSystemInterface
                 $oldRow = $oldRetrun->fetchAssoc();
                 $returnTime = new \DateTimeImmutable($oldRow["time"]);
                 if (($startTime->getTimestamp() - $returnTime->getTimestamp()) < 10 * 60 && $timeDiff > 5 * 60) {
-                    $creditchange = $creditchange + $this->creditSystem->getRentalFee();
-                    $changelog .= 'rerent-' . $this->creditSystem->getRentalFee() . ';';
+                    $rerentFee = $this->creditSystem->getRentalFee();
+                    if ($rerentFee > 0) {
+                        $this->creditSystem->decreaseCredit($userid, $rerentFee, CreditChangeType::RERENT_PENALTY);
+                        $totalCreditChange += $rerentFee;
+                    }
                 }
             }
 
             if ($timeDiff > $this->watchesConfig['freetime'] * 60) {
-                $creditchange += $this->creditSystem->getRentalFee();
-                $changelog .= 'overfree-' . $this->creditSystem->getRentalFee() . ';';
+                $overFreeFee = $this->creditSystem->getRentalFee();
+                if ($overFreeFee > 0) {
+                    $this->creditSystem->decreaseCredit($userid, $overFreeFee, CreditChangeType::OVER_FREE_TIME);
+                    $totalCreditChange += $overFreeFee;
+                }
             }
 
             if ($this->watchesConfig['freetime'] == 0) {
@@ -557,8 +563,11 @@ abstract class AbstractRentSystem implements RentSystemInterface
                 $temptimediff = $timeDiff - ($this->watchesConfig['freetime'] * 60 * 2);
                 if ($this->creditSystem->getPriceCycle() == 1) { // flat price per cycle
                     $cycles = ceil($temptimediff / ($this->watchesConfig['flatpricecycle'] * 60));
-                    $creditchange += $this->creditSystem->getRentalFee() * $cycles;
-                    $changelog .= 'flat-' . $this->creditSystem->getRentalFee() * $cycles . ';';
+                    $flatFee = $this->creditSystem->getRentalFee() * $cycles;
+                    if ($flatFee > 0) {
+                        $this->creditSystem->decreaseCredit($userid, $flatFee, CreditChangeType::FLAT_RATE);
+                        $totalCreditChange += $flatFee;
+                    }
                 } elseif ($this->creditSystem->getPriceCycle() == 2) { // double price per cycle
                     $cycles = ceil($temptimediff / ($this->watchesConfig['doublepricecycle'] * 60));
                     $tempcreditrent = $this->creditSystem->getRentalFee();
@@ -573,43 +582,24 @@ abstract class AbstractRentSystem implements RentSystemInterface
                             $tempcreditrent = 2;
                         }
 
-                        $creditchange += pow($tempcreditrent, $multiplier);
-                        $changelog .= 'double-' . pow($tempcreditrent, $multiplier) . ';';
+                        $doubleFee = pow($tempcreditrent, $multiplier);
+                        if ($doubleFee > 0) {
+                            $this->creditSystem->decreaseCredit($userid, $doubleFee, CreditChangeType::DOUBLE_PRICE);
+                            $totalCreditChange += $doubleFee;
+                        }
                     }
                 }
             }
 
             if ($timeDiff > $this->watchesConfig['longrental'] * 3600) {
-                $creditchange += $this->creditSystem->getLongRentalFee();
-                $changelog .= 'longrent-' . $this->creditSystem->getLongRentalFee() . ';';
-            }
-            $userCredit -= $creditchange;
-            if ($creditchange > 0) {
-                $this->creditSystem->useCredit($userid, $creditchange);
+                $longRentalFee = $this->creditSystem->getLongRentalFee();
+                if ($longRentalFee > 0) {
+                    $this->creditSystem->decreaseCredit($userid, $longRentalFee, CreditChangeType::LONG_RENTAL);
+                    $totalCreditChange += $longRentalFee;
+                }
             }
 
-            $this->db->query(
-                "INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :creditChange, time = :time",
-                [
-                    'userId' => $userid,
-                    'bikeNum' => $bike,
-                    'action' => Action::CREDIT_CHANGE->value,
-                    'creditChange' => $creditchange . '|' . $changelog,
-                    'time' => $this->clock->now()->format('Y-m-d H:i:s'),
-                ]
-            );
-            $this->db->query(
-                "INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :userCredit, time = :time",
-                [
-                    'userId' => $userid,
-                    'bikeNum' => $bike,
-                    'action' => Action::CREDIT->value,
-                    'userCredit' => $userCredit,
-                    'time' => $this->clock->now()->format('Y-m-d H:i:s'),
-                ]
-            );
-
-            return $creditchange;
+            return $totalCreditChange > 0 ? $totalCreditChange : null;
         }
 
         return null;
