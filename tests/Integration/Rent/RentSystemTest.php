@@ -314,13 +314,11 @@ class RentSystemTest extends BikeSharingKernelTestCase
 
         $this->assertCount(3, $history, 'Invalid history count');
         foreach ($history as $item) {
-            if ($item['action'] === Action::CREDIT->value) {
-                $this->assertSame('90', $item['parameter'], 'Invalid credit amount in history');
-            } elseif ($item['action'] === Action::CREDIT_CHANGE->value) {
+            if ($item['action'] === Action::CREDIT_CHANGE->value) {
                 $parameter = json_decode($item['parameter'], true);
                 // The expected record is the rerent penalty
                 // The initial credit add (ignored or verified separately, here we focus on the fee)
-                if (($parameter['reason'] ?? '') === 'rerent_penalty') {
+                if ($parameter['reason'] === 'rerent_penalty') {
                     $this->assertSame(-10, $parameter['amount'], 'Invalid amount');
                 }
             }

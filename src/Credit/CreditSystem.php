@@ -212,7 +212,7 @@ class CreditSystem implements CreditSystemInterface
             $date = new DateTimeImmutable($entry['time']);
             $parameter = $entry['parameter'];
 
-            $jsonData = json_decode($parameter, true);
+            $jsonData = json_decode($parameter, true, JSON_THROW_ON_ERROR);
             $parsed[] = [
                 'date' => $date,
                 'amount' => (float)($jsonData['amount'] ?? 0),
