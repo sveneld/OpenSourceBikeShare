@@ -91,6 +91,7 @@ class RentCommandWithCreditTest extends BikeSharingWebTestCase
 
         $user = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::USER_PHONE_NUMBER);
+        $this->client->getContainer()->get(CreditSystemInterface::class)
             ->increaseCredit(
                 $user['userId'],
                 $userCredit,
