@@ -6,7 +6,9 @@ namespace BikeShare\Credit;
 
 use BikeShare\Db\DbInterface;
 use BikeShare\Enum\Action;
+use BikeShare\Enum\CreditChangeType;
 use BikeShare\Repository\HistoryRepository;
+use DateTimeImmutable;
 
 class CreditSystem implements CreditSystemInterface
 {
@@ -70,10 +72,14 @@ class CreditSystem implements CreditSystemInterface
         $this->violationFee = $violationFee;
     }
 
-    public function addCredit(int $userId, float $creditAmount, ?string $coupon = null): void
+    public function increaseCredit(int $userId, float $amount, CreditChangeType $type, array $context = []): void
     {
-        if ($creditAmount < 0) {
-            throw new \InvalidArgumentException('Credit amount must be positive');
+        if ($amount < 0) {
+            throw new \InvalidArgumentException('Amount must be non-negative');
+        }
+
+        if ($amount === 0.0) {
+            return;
         }
 
         $this->db->query(
@@ -82,49 +88,71 @@ class CreditSystem implements CreditSystemInterface
                    ON DUPLICATE KEY UPDATE credit = credit + :creditAmountUpdate',
             [
                 'userId' => $userId,
-                'creditAmount' => $creditAmount,
-                'creditAmountUpdate' => $creditAmount,
+                'creditAmount' => $amount,
+                'creditAmountUpdate' => $amount,
             ]
         );
 
-        if ($creditAmount !== 0) {
-            $this->historyRepository->addItem(
-                $userId,
-                0, //BikeNum
-                Action::CREDIT_CHANGE,
-                $creditAmount . '|add+' . $creditAmount . ($coupon ? '|' . $coupon : '') //parameter
-            );
-        }
+        $newBalance = $this->getUserCredit($userId);
+
+        $parameter = json_encode([
+            'amount' => $amount,
+            'balance' => $newBalance,
+            'reason' => $type->value,
+            ...(!empty($context['couponCode']) ? ['couponCode' => $context['couponCode']] : []),
+        ], JSON_THROW_ON_ERROR);
+
+        $this->historyRepository->addItem(
+            $userId,
+            0,
+            Action::CREDIT_CHANGE,
+            $parameter
+        );
     }
 
-    public function useCredit(int $userId, float $creditAmount): void
+    public function decreaseCredit(int $userId, float $amount, CreditChangeType $type, array $context = []): void
     {
-        if ($creditAmount <= 0) {
-            throw new \InvalidArgumentException('Credit amount must be positive');
+        if ($amount < 0) {
+            throw new \InvalidArgumentException('Amount must be non-negative');
         }
 
-        $currentCredit = $this->getUserCredit($userId);
-        if ($currentCredit < $creditAmount) {
-            throw new \RuntimeException('Insufficient credit for this operation');
+        if ($amount === 0.0) {
+            return;
         }
 
         $this->db->query(
             'UPDATE credit SET credit = credit - :credit WHERE userId = :userId',
             [
                 'userId' => $userId,
-                'credit' => $creditAmount
+                'credit' => $amount
             ]
+        );
+
+        $newBalance = $this->getUserCredit($userId);
+
+        $parameter = json_encode([
+            'amount' => -$amount,
+            'balance' => $newBalance,
+            'reason' => $type->value,
+            ...(!empty($context['couponCode']) ? ['couponCode' => $context['couponCode']] : []),
+        ], JSON_THROW_ON_ERROR);
+
+        $this->historyRepository->addItem(
+            $userId,
+            0,
+            Action::CREDIT_CHANGE,
+            $parameter
         );
     }
 
-    public function getUserCredit($userId): float
+    public function getUserCredit(int $userId): float
     {
         $result = $this->db->query('SELECT credit FROM credit WHERE userId = :userId', ['userId' => $userId]);
         if ($result->rowCount() == 0) {
             return 0;
         }
 
-        return $result->fetchAssoc()['credit'];
+        return (float)$result->fetchAssoc()['credit'];
     }
 
     public function getMinRequiredCredit(): float
@@ -132,7 +160,7 @@ class CreditSystem implements CreditSystemInterface
         return $this->minBalanceCredit + $this->rentalFee + $this->longRentalFee;
     }
 
-    public function isEnoughCreditForRent($userid): bool
+    public function isEnoughCreditForRent(int $userid): bool
     {
         return $this->getUserCredit($userid) >= $this->getMinRequiredCredit();
     }
@@ -170,5 +198,29 @@ class CreditSystem implements CreditSystemInterface
     public function getViolationFee(): float
     {
         return $this->violationFee;
+    }
+
+    /**
+     * @return array<int, array{date: \DateTimeImmutable, amount: float, type: string, balance: float}>
+     */
+    public function getUserCreditHistory(int $userId): array
+    {
+        $history = $this->historyRepository->findCreditHistoryByUser($userId, 1000);
+        $parsed = [];
+
+        foreach ($history as $entry) {
+            $date = new DateTimeImmutable($entry['time']);
+            $parameter = $entry['parameter'];
+
+            $jsonData = json_decode($parameter, true, JSON_THROW_ON_ERROR);
+            $parsed[] = [
+                'date' => $date,
+                'amount' => (float)($jsonData['amount'] ?? 0),
+                'type' => CreditChangeType::tryFrom($jsonData['reason'])?->value ?? 'unknown',
+                'balance' => (float)($jsonData['balance'] ?? 0),
+            ];
+        }
+
+        return $parsed;
     }
 }
