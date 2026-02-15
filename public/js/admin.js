@@ -31,6 +31,10 @@ $(document).ready(function () {
         if (window.ga) ga('send', 'event', 'buttons', 'click', 'admin-usagestats');
         usagestats();
     });
+    $("#inactivebikesreport").click(function () {
+        if (window.ga) ga('send', 'event', 'buttons', 'click', 'admin-inactivebikes');
+        inactivebikesreport();
+    });
     $('#creditconsole').on('click', '.sellcoupon', function (event) {
         sellcoupon($(this).data('coupon'));
         event.preventDefault();
@@ -352,7 +356,8 @@ function userlist() {
 }
 
 function userstats() {
-    $('#report-daily-table').addClass('d-none').closest('#stats-report-table_wrapper').addClass('d-none');
+    $('#report-daily-table').addClass('d-none').closest('#report-daily-table_wrapper').addClass('d-none');
+    $('#report-inactive-table').addClass('d-none').closest('#report-inactive-table_wrapper').addClass('d-none');
     $('#report-user-year').removeClass('d-none');
     let table = $('#report-user-table').removeClass('d-none').DataTable({
         destroy: true,
@@ -385,7 +390,7 @@ function userstats() {
         }
     });
 
-    $('#year').on('change', function() {
+    $('#year').off('change.report-user').on('change.report-user', function() {
         table.ajax.url('/api/report/user/' + $('#year').val());
         table.ajax.reload();
     });
@@ -394,6 +399,7 @@ function userstats() {
 function usagestats() {
     $('#report-user-table').addClass('d-none').closest('#report-user-table_wrapper').addClass('d-none');
     $('#report-user-year').addClass('d-none');
+    $('#report-inactive-table').addClass('d-none').closest('#report-inactive-table_wrapper').addClass('d-none');
     $('#report-daily-table').removeClass('d-none').DataTable({
         destroy: true,
         paging: false,
@@ -418,6 +424,38 @@ function usagestats() {
         ],
         error: function(xhr, error, code) {
             console.error('Error loading user report data:', error);
+        }
+    });
+}
+
+function inactivebikesreport() {
+    $('#report-daily-table').addClass('d-none').closest('#report-daily-table_wrapper').addClass('d-none');
+    $('#report-user-table').addClass('d-none').closest('#report-user-table_wrapper').addClass('d-none');
+    $('#report-user-year').addClass('d-none');
+    $('#report-inactive-table').removeClass('d-none').DataTable({
+        destroy: true,
+        paging: false,
+        info: false,
+        searching: false,
+        ajax: {
+            url: '/api/report/inactiveBikes',
+            dataSrc: '',
+            cache: true,
+        },
+        order: [[3, 'desc']],
+        columns: [
+            {
+                data: 'bikeNum',
+                render: function(data) {
+                    return `${data}`;
+                }
+            },
+            { data: 'standName' },
+            { data: 'lastMoveTime' },
+            { data: 'inactiveDays' }
+        ],
+        error: function(xhr, error, code) {
+            console.error('Error loading inactive bikes report data:', error);
         }
     });
 }

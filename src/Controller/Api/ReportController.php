@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Controller\Api;
 
+use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\HistoryRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -43,5 +44,33 @@ class ReportController extends AbstractController
         $stats = $historyRepository->userStats((int)$year);
 
         return $this->json($stats);
+    }
+
+    #[Route('/api/report/inactiveBikes', name: 'api_report_inactive_bikes', methods: ['GET'])]
+    public function inactiveBikes(
+        BikeRepository $bikeRepository,
+        ClockInterface $clock
+    ): Response {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $now = $clock->now();
+        $weekThreshold = $now->sub(new \DateInterval('P7D'));
+
+        $inactiveBikes = $bikeRepository->findInactiveBikes($weekThreshold);
+
+        $result = [];
+        foreach ($inactiveBikes as $bike) {
+            $lastMoveTime = new \DateTimeImmutable((string)$bike['lastMoveTime']);
+            $inactiveDays = (int)$lastMoveTime->diff($now)->days;
+
+            $result[] = [
+                'bikeNum' => (int)$bike['bikeNum'],
+                'standName' => (string)$bike['standName'],
+                'lastMoveTime' => $lastMoveTime->format('Y-m-d H:i:s'),
+                'inactiveDays' => $inactiveDays,
+            ];
+        }
+
+        return $this->json($result);
     }
 }

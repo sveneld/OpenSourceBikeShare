@@ -153,6 +153,9 @@ return function (RoutingConfigurator $routes) {
         ->defaults(['year' => date('Y')])
         ->requirements(['year' => '\d+'])
         ->controller([\BikeShare\Controller\Api\ReportController::class, 'user']);
+    $routes->add('api_report_inactive_bikes', '/api/report/inactiveBikes')
+        ->methods(['GET'])
+        ->controller([\BikeShare\Controller\Api\ReportController::class, 'inactiveBikes']);
 
     $routes->add('personal_stats_year', '/personalStats/year/{year}')
         ->methods(['GET'])
