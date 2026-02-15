@@ -20,6 +20,11 @@ return function (SecurityConfig $security) {
 
     $security
         ->passwordHasher(PasswordAuthenticatedUserInterface::class)
+        ->algorithm('auto')
+        ->migrateFrom(['legacy_sha512']);
+
+    $security
+        ->passwordHasher('legacy_sha512')
         ->algorithm('sha512')
         ->encodeAsBase64(false)
         ->iterations(1);

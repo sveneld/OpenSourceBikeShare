@@ -8,3 +8,4 @@ vendor
 config.php
 composer.lock
 var
+docker-compose.override.yml
