@@ -54,5 +54,4 @@ stdClass:
     privileges: 0
     number: 421951555555
     userLimit: 0
-    password: '<hash("sha512", "password")>'
-
+    password: '<(password_hash("password", PASSWORD_BCRYPT, ["cost" => 13]))>'

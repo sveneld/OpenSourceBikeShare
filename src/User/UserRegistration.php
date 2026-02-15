@@ -29,20 +29,28 @@ class UserRegistration
         string $userName,
         int $privileges
     ): User {
+        $registrationDate = new \DateTimeImmutable();
+        $newUser = new User(
+            0,
+            $number,
+            $email,
+            '',
+            $city,
+            $userName,
+            $privileges,
+            false,
+            $registrationDate,
+        );
+        $hashedPassword = $this->passwordHasher->hashPassword($newUser, $plainPassword);
+
         $user = $this->userProvider->addUser(
             $number,
             $email,
-            $plainPassword,
+            $hashedPassword,
             $city,
             $userName,
             $privileges
         );
-        $hashedPassword = $this->passwordHasher->hashPassword(
-            $user,
-            $plainPassword
-        );
-
-        $this->userProvider->upgradePassword($user, $hashedPassword);
         $this->userRepository->updateUserLimit($user->getUserId(), 0);
 
         $this->eventDispatcher->dispatch(new UserRegistrationEvent($user));

@@ -18,12 +18,6 @@ interface DbInterface
     public function exec($query);
 
     /**
-     * @param $string
-     * @return string
-     */
-    public function escape($string);
-
-    /**
      * @return int
      */
     public function getAffectedRows();

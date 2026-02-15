@@ -51,9 +51,4 @@ class PdoDb implements DbInterface
     {
         return (int)$this->conn->lastInsertId();
     }
-
-    public function escape($string)
-    {
-        return $string;
-    }
 }

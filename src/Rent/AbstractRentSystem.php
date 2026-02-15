@@ -469,11 +469,18 @@ abstract class AbstractRentSystem implements RentSystemInterface
 
     private function addnote($userId, $bikeNum, $message)
     {
-        $userNote = $this->db->escape(trim($message));
+        $userNote = trim($message);
 
         $userName = $this->user->findUserName($userId);
         $phone = $this->user->findPhoneNumber($userId);
-        $result = $this->db->query("SELECT stands.standName FROM bikes LEFT JOIN users on bikes.currentUser=users.userID LEFT JOIN stands on bikes.currentStand=stands.standId WHERE bikeNum=$bikeNum");
+        $result = $this->db->query(
+            'SELECT stands.standName
+             FROM bikes
+             LEFT JOIN users ON bikes.currentUser = users.userID
+             LEFT JOIN stands ON bikes.currentStand = stands.standId
+             WHERE bikeNum = :bikeNum',
+            ['bikeNum' => $bikeNum]
+        );
         $row = $result->fetchAssoc();
         $standName = $row['standName'];
         if ($standName != null) {
@@ -481,7 +488,14 @@ abstract class AbstractRentSystem implements RentSystemInterface
         } else {
             $bikeStatus = $this->translator->trans('used by {userName} +{phone}', ['userName' => $userName, 'phone' => $phone]);
         }
-        $this->db->query("INSERT INTO notes SET bikeNum='$bikeNum',userId='$userId',note='$userNote'");
+        $this->db->query(
+            'INSERT INTO notes (bikeNum, userId, note) VALUES (:bikeNum, :userId, :note)',
+            [
+                'bikeNum' => $bikeNum,
+                'userId' => $userId,
+                'note' => $userNote,
+            ]
+        );
         $noteid = $this->db->getLastInsertId();
         $this->notifyAdmins(
             $this->translator->trans(

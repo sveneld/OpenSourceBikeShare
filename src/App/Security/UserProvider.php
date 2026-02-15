@@ -129,7 +129,7 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
     public function addUser(
         string $number,
         string $mail,
-        string $plainPassword,
+        string $hashedPassword,
         string $city,
         string $userName,
         int $privileges,
@@ -138,12 +138,12 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
         $registrationDate = $this->clock->now();
         $this->db->query(
             'INSERT INTO users (number, mail, password, city, userName, privileges, isNumberConfirmed, registrationDate)
-               VALUES (:number, :mail, :plainPassword, :city, :userName, :privileges,
+               VALUES (:number, :mail, :hashedPassword, :city, :userName, :privileges,
                        :isNumberConfirmed, :registrationDate)',
             [
                 'number' => $number,
                 'mail' => $mail,
-                'plainPassword' => $plainPassword,
+                'hashedPassword' => $hashedPassword,
                 'city' => $city,
                 'userName' => $userName,
                 'privileges' => $privileges,
@@ -158,7 +158,7 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
             $userId,
             $number,
             $mail,
-            $plainPassword,
+            $hashedPassword,
             $city,
             $userName,
             $privileges,
