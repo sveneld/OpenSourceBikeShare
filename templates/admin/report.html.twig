@@ -7,6 +7,9 @@
             <button type="button" id="userstats" class="btn btn-outline-primary" title="{{ 'Show user stats.'|trans }}">
                 <span class="fas fa-road"></span> {{ 'User stats'|trans }}
             </button>
+            <button type="button" id="inactivebikesreport" class="btn btn-outline-primary" title="{{ 'S     how bikes inactive on non-service stands.'|trans }}">
+                <span class="fas fa-bicycle"></span> {{ 'Inactive bikes'|trans }}
+            </button>
             <div id="reportsconsole">
                 <div class="row">
                     <div class="col-12">
@@ -43,6 +46,18 @@
                                 <th>{{ 'Rents'|trans }}</th>
                                 <th>{{ 'Returns'|trans }}</th>
                                 <th>{{ 'Total Actions'|trans }}</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            </tfoot>
+                        </table>
+                        <table id="report-inactive-table" class="table table-striped table-bordered d-none" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th>{{ 'Bike'|trans }}</th>
+                                <th>{{ 'Stand'|trans }}</th>
+                                <th>{{ 'Last move'|trans }}</th>
+                                <th>{{ 'Inactive days'|trans }}</th>
                             </tr>
                             </thead>
                             <tfoot>

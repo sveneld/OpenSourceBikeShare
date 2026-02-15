@@ -263,6 +263,46 @@ class BikeRepository
         return $bikes;
     }
 
+    public function findInactiveBikes(\DateTimeImmutable $thresholdTime): array
+    {
+        $result = $this->db->query(
+            "SELECT
+                bikes.bikeNum,
+                stands.standName,
+                movement.lastMoveTime
+            FROM bikes
+            JOIN stands ON bikes.currentStand = stands.standId
+            JOIN (
+                SELECT
+                    bikeNum,
+                    MAX(time) AS lastMoveTime
+                FROM history
+                WHERE action IN (
+                    :rentAction,
+                    :returnAction,
+                    :revertAction,
+                    :forceRentAction,
+                    :forceReturnAction
+                )
+                GROUP BY bikeNum
+            ) AS movement ON movement.bikeNum = bikes.bikeNum
+            WHERE bikes.currentStand IS NOT NULL
+                AND stands.serviceTag = 0
+                AND movement.lastMoveTime <= :thresholdTime
+            ORDER BY movement.lastMoveTime DESC, bikes.bikeNum ASC",
+            [
+                'rentAction' => Action::RENT->value,
+                'returnAction' => Action::RETURN->value,
+                'revertAction' => Action::REVERT->value,
+                'forceRentAction' => Action::FORCE_RENT->value,
+                'forceReturnAction' => Action::FORCE_RETURN->value,
+                'thresholdTime' => $thresholdTime->format('Y-m-d H:i:s'),
+            ]
+        )->fetchAllAssoc();
+
+        return $result;
+    }
+
     public function updateBikeCode(int $bikeNumber, int $newCode): void
     {
         $this->db->query(

@@ -18,6 +18,7 @@ class RoutesAccessTest extends BikeSharingKernelTestCase
         '/api/coupon/generate' => 'POST',
         '/api/credit' => 'PUT',
         '/api/report/daily' => 'GET',
+        '/api/report/inactiveBikes' => 'GET',
         '/api/report/user/2025' => 'GET',
         '/api/stand' => 'GET',
         '/api/user' => 'GET',
