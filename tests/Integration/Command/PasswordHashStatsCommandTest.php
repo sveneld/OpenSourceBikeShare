@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace BikeShare\Test\Integration\Command;
 
 use BikeShare\Db\DbInterface;
+use BikeShare\Test\Integration\BikeSharingKernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class PasswordHashStatsCommandTest extends KernelTestCase
+class PasswordHashStatsCommandTest extends BikeSharingKernelTestCase
 {
     private CommandTester $commandTester;
     private DbInterface $db;

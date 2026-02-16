@@ -63,7 +63,7 @@ class ApiTokenAuthenticator extends AbstractAuthenticator implements Authenticat
         return new JsonResponse(['error' => 'Unauthorized', 'message' => 'Invalid credentials'], 401);
     }
 
-    public function start(Request $request, AuthenticationException $authException = null): JsonResponse
+    public function start(Request $request, ?AuthenticationException $authException = null): JsonResponse
     {
         $response = new JsonResponse(['error' => 'Unauthorized', 'message' => 'Authentication required'], 401);
         $response->headers->set('WWW-Authenticate', 'Bearer');

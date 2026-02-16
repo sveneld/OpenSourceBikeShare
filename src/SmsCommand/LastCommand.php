@@ -34,7 +34,7 @@ class LastCommand extends AbstractCommand implements SmsCommandInterface
         $lastUsage = $this->bikeRepository->findItemLastUsage($bikeNumber);
 
         $historyInfo = [];
-        $historyInfo[] = "B.$bikeNumber:";
+        $historyInfo[] = sprintf('B.%d:', $bikeNumber);
         foreach ($lastUsage['history'] as $row) {
             if (!in_array($row['action'], [Action::RETURN->value, Action::RENT->value, Action::REVERT->value])) {
                 continue;

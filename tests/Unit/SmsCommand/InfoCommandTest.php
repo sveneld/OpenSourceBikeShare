@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Repository\StandRepository;
 use BikeShare\SmsCommand\Exception\ValidationException;
@@ -15,11 +16,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class InfoCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var StandRepository|MockObject */
-    private $standRepositoryMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private StandRepository&MockObject $standRepositoryMock;
     private InfoCommand $command;
 
     protected function setUp(): void
@@ -34,12 +32,13 @@ class InfoCommandTest extends TestCase
         unset($this->translatorMock, $this->standRepositoryMock, $this->command);
     }
 
-    /** @dataProvider invokeDataProvider */
+    #[DataProvider('invokeDataProvider')]
     public function testInvoke(float $standLong, float $standLat, string $standPhoto, string $message): void
     {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $standName = 'STAND42';
 
+        $this->translatorMock->expects($this->never())->method('trans');
         $this->standRepositoryMock
             ->expects($this->once())
             ->method('findItemByName')
@@ -56,10 +55,11 @@ class InfoCommandTest extends TestCase
 
     public function testInvokeThrowsWhenInvalidStandName(): void
     {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $standName = '123_invalid';
         $expectedMessage = 'Stand name 123_invalid has not been recognized.';
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -77,7 +77,7 @@ class InfoCommandTest extends TestCase
 
     public function testInvokeThrowsWhenEmptyStandInfo(): void
     {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $standName = 'STAND404';
 
         $this->standRepositoryMock
@@ -98,7 +98,7 @@ class InfoCommandTest extends TestCase
         ($this->command)($userMock, $standName);
     }
 
-    public function invokeDataProvider(): Generator
+    public static function invokeDataProvider(): Generator
     {
         yield 'standLong not empty' => [
             'standLong' => 1.1,
@@ -146,6 +146,7 @@ class InfoCommandTest extends TestCase
 
     public function testGetHelpMessage(): void
     {
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')

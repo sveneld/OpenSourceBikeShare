@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\Api\Stand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Security\UserProvider;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\UserRepository;
@@ -30,9 +31,7 @@ class StandBikeListTest extends BikeSharingWebTestCase
         parent::tearDown();
     }
 
-    /**
-     * @dataProvider bikeListOnStandDataProvider
-     */
+    #[DataProvider('bikeListOnStandDataProvider')]
     public function testBikeListOnStand(
         bool $forceStack,
         $expectedStackTopBike
@@ -69,7 +68,7 @@ class StandBikeListTest extends BikeSharingWebTestCase
         }
     }
 
-    public function bikeListOnStandDataProvider(): iterable
+    public static function bikeListOnStandDataProvider(): iterable
     {
         yield 'forceStack true' => [
             'forceStack' => true,

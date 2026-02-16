@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\SmsCommand\Exception\ValidationException;
@@ -15,11 +16,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LastCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var BikeRepository|MockObject */
-    private $bikeRepositoryMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private BikeRepository&MockObject $bikeRepositoryMock;
     private LastCommand $command;
 
     protected function setUp(): void
@@ -34,14 +32,13 @@ class LastCommandTest extends TestCase
         unset($this->translatorMock, $this->bikeRepositoryMock, $this->command);
     }
 
-    /**
-     * @dataProvider invokeDataProvider
-     */
+    #[DataProvider('invokeDataProvider')]
     public function testInvoke(array $bikeRepositoryCallResult, string $message): void
     {
         $bikeNumber = 123;
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
 
+        $this->translatorMock->expects($this->never())->method('trans');
         $this->bikeRepositoryMock
             ->expects($this->once())
             ->method('findItem')
@@ -61,7 +58,7 @@ class LastCommandTest extends TestCase
     {
         $bikeNumber = 123;
         $errorMessage = 'Bike 123 does not exist.';
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
 
         $this->bikeRepositoryMock->expects($this->once())->method('findItem')->with($bikeNumber)->willReturn([]);
         $this->translatorMock
@@ -80,6 +77,7 @@ class LastCommandTest extends TestCase
     {
         $message = 'with bike number: LAST 42';
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -89,7 +87,7 @@ class LastCommandTest extends TestCase
         $this->assertEquals($message, $this->command->getHelpMessage());
     }
 
-    public function invokeDataProvider(): Generator
+    public static function invokeDataProvider(): Generator
     {
         yield 'empty history' => [
             'bikeRepositoryCallResult' => [],

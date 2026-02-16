@@ -17,7 +17,7 @@ class LoginSuccessEventListener
 
     public function __invoke(LoginSuccessEvent $event): void
     {
-        if (!is_a($event->getUser(), User::class)) {
+        if (!$event->getUser() instanceof User) {
             return;
         }
 

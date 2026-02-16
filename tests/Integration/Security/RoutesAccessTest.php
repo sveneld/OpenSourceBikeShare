@@ -60,6 +60,7 @@ class RoutesAccessTest extends BikeSharingKernelTestCase
             if (empty($methods)) {
                 $methods = [Request::METHOD_GET];
             }
+
             foreach ($methods as $method) {
                 $request = Request::create($route, $method);
                 [$attributes, $channel] = $accessMap->getPatterns($request);

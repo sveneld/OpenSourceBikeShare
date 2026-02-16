@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\Credit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Credit\CreditSystem;
 use BikeShare\Db\DbInterface;
 use BikeShare\Db\DbResultInterface;
@@ -12,9 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 class CreditSystemTest extends TestCase
 {
-    /**
-     * @dataProvider constructorDataProvider
-     */
+    #[DataProvider('constructorDataProvider')]
     public function testConstructor(
         $isEnabled,
         $creditCurrency,
@@ -30,6 +29,7 @@ class CreditSystemTest extends TestCase
         if (!is_null($expectedException)) {
             $this->expectException($expectedException);
         }
+
         $creditSystem = new CreditSystem(
             $isEnabled,
             $creditCurrency,
@@ -39,8 +39,8 @@ class CreditSystemTest extends TestCase
             $longRentalFee,
             $limitIncreaseFee,
             $violationFee,
-            $this->createMock(DbInterface::class),
-            $this->createMock(HistoryRepository::class)
+            $this->createStub(DbInterface::class),
+            $this->createStub(HistoryRepository::class)
         );
         $this->assertEquals($isEnabled, $creditSystem->isEnabled());
         $this->assertEquals($creditCurrency, $creditSystem->getCreditCurrency());
@@ -52,7 +52,7 @@ class CreditSystemTest extends TestCase
         $this->assertEquals($violationFee, $creditSystem->getViolationFee());
     }
 
-    public function constructorDataProvider()
+    public static function constructorDataProvider()
     {
         $default = [
             'isEnabled' => true,
@@ -144,7 +144,7 @@ class CreditSystemTest extends TestCase
             10, //limitIncreaseFee
             5, //violationFee
             $db,
-            $this->createMock(HistoryRepository::class)
+            $this->createStub(HistoryRepository::class)
         );
 
         $this->assertEquals(5, $creditSystem->getUserCredit($userId));
@@ -175,7 +175,7 @@ class CreditSystemTest extends TestCase
             10, //limitIncreaseFee
             5, //violationFee
             $db,
-            $this->createMock(HistoryRepository::class)
+            $this->createStub(HistoryRepository::class)
         );
 
         $this->assertEquals(0, $creditSystem->getUserCredit($userId));

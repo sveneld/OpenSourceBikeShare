@@ -44,8 +44,8 @@ class PdoDbResult implements DbResultInterface
     /**
      * @phpcs:disable Generic.NamingConventions.CamelCapsFunctionName
      * @phpcs:disable PSR1.Methods.CamelCapsMethodName
-     * @deprecated use fetchAssoc
      */
+    #[\Deprecated(message: 'use fetchAssoc')]
     public function fetch_assoc()
     {
         return $this->fetchAssoc();

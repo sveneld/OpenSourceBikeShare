@@ -25,7 +25,7 @@ class PhonePurifier implements PhonePurifierInterface
         $phoneNumber = trim($phoneNumber);
 
         $parsed = $this->parse($phoneNumber);
-        if ($parsed !== null) {
+        if ($parsed instanceof PhoneNumber) {
             return ltrim(
                 $this->phoneNumberUtil->format($parsed, PhoneNumberFormat::E164),
                 '+'
@@ -37,7 +37,7 @@ class PhonePurifier implements PhonePurifierInterface
 
     public function isValid(string $phoneNumber): bool
     {
-        return $this->parse($phoneNumber) !== null;
+        return $this->parse($phoneNumber) instanceof PhoneNumber;
     }
 
     private function parse(string $phoneNumber): ?PhoneNumber

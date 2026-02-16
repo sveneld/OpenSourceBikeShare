@@ -8,27 +8,33 @@ use BikeShare\Db\DbInterface;
 use BikeShare\Enum\Action;
 use BikeShare\Enum\CreditChangeType;
 use BikeShare\Repository\HistoryRepository;
-use DateTimeImmutable;
 
 class CreditSystem implements CreditSystemInterface
 {
     // false = no credit system and Exceptions will be thrown
     // true = apply credit system rules and deductions
     private readonly bool $isEnabled;
+
     // currency used for credit system
     private readonly string $creditCurrency;
+
     // minimum credit required to allow any bike operations
     private readonly float $minBalanceCredit;
+
     // rental fee (after WATCHES_FREE_TIME)
     private readonly float $rentalFee;
+
     // 0 = disabled,
     // 1 = charge flat price CREDIT_SYSTEM_RENTAL_FEE every WATCHES_FLAT_PRICE_CYCLE minutes,
     // 2 = charge doubled price CREDIT_SYSTEM_RENTAL_FEE every WATCHES_DOUBLE_PRICE_CYCLE minutes
     private readonly int $priceCycle;
+
     // long rental fee (WATCHES_LONG_RENTAL time)
     private readonly float $longRentalFee;
+
     // credit needed to temporarily increase limit, applicable only when USER_BIKE_LIMIT_INCREASE > 0
     private readonly float $limitIncreaseFee;
+
     // credit deduction for rule violations (applied by admins)
     private readonly float $violationFee;
 
@@ -99,7 +105,7 @@ class CreditSystem implements CreditSystemInterface
             'amount' => $amount,
             'balance' => $newBalance,
             'reason' => $type->value,
-            ...(!empty($context['couponCode']) ? ['couponCode' => $context['couponCode']] : []),
+            ...(empty($context['couponCode']) ? [] : ['couponCode' => $context['couponCode']]),
         ], JSON_THROW_ON_ERROR);
 
         $this->historyRepository->addItem(
@@ -134,7 +140,7 @@ class CreditSystem implements CreditSystemInterface
             'amount' => -$amount,
             'balance' => $newBalance,
             'reason' => $type->value,
-            ...(!empty($context['couponCode']) ? ['couponCode' => $context['couponCode']] : []),
+            ...(empty($context['couponCode']) ? [] : ['couponCode' => $context['couponCode']]),
         ], JSON_THROW_ON_ERROR);
 
         $this->historyRepository->addItem(
@@ -209,7 +215,7 @@ class CreditSystem implements CreditSystemInterface
         $parsed = [];
 
         foreach ($history as $entry) {
-            $date = new DateTimeImmutable($entry['time']);
+            $date = new \DateTimeImmutable($entry['time']);
             $parameter = $entry['parameter'];
 
             $jsonData = json_decode($parameter, true, JSON_THROW_ON_ERROR);

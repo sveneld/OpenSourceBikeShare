@@ -9,8 +9,6 @@ use BikeShare\Db\DbInterface;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\UserRepository;
 use BikeShare\Test\Application\BikeSharingWebTestCase;
-use DateInterval;
-use DateTimeImmutable;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -112,12 +110,12 @@ class InactiveBikesReportTest extends BikeSharingWebTestCase
     private function simulateBikeActivity(int $bikeNumber, string $standName, string $lastReturnTime): void
     {
         $rentSystem = $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('web');
-        $returnTime = new DateTimeImmutable($lastReturnTime);
+        $returnTime = new \DateTimeImmutable($lastReturnTime);
 
-        static::mockTime($returnTime->sub(new DateInterval('PT2M'))->format('Y-m-d H:i:s'));
+        static::mockTime($returnTime->sub(new \DateInterval('PT2M'))->format('Y-m-d H:i:s'));
         $rentSystem->returnBike($this->adminUserId, $bikeNumber, $standName, '', true);
 
-        static::mockTime($returnTime->sub(new DateInterval('PT1M'))->format('Y-m-d H:i:s'));
+        static::mockTime($returnTime->sub(new \DateInterval('PT1M'))->format('Y-m-d H:i:s'));
         $rentSystem->rentBike($this->adminUserId, $bikeNumber, true);
 
         static::mockTime($returnTime->format('Y-m-d H:i:s'));

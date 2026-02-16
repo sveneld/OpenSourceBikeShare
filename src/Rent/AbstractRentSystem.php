@@ -207,6 +207,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
 //                ['bikeNumber' => $bikeNum]
 //            );
         }
+
         $result = $this->db->query(
             "INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :newCode, time = :time",
             [
@@ -235,7 +236,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
         if (!$result->rowCount()) {
             return $this->response(
                 $this->translator->trans(
-                    'Stand name \'{standName}\' does not exist. Stands are marked by CAPITALLETTERS.',
+                    "Stand name '{standName}' does not exist. Stands are marked by CAPITALLETTERS.",
                     ['standName' => $stand]
                 ),
                 self::ERROR,
@@ -311,6 +312,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
                 $params['creditCurrency'] = $this->creditSystem->getCreditCurrency();
             }
         }
+
         $result = $this->db->query(
             "INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :standId, time = :time",
             [
@@ -398,7 +400,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
                     'userId' => $userId,
                     'bikeNum' => $bikeId,
                     'action' => Action::REVERT->value,
-                    'parameter' => "$standId|$code",
+                    'parameter' => sprintf('%s|%s', $standId, $code),
                     'time' => $this->clock->now()->format('Y-m-d H:i:s'),
                 ]
             );
@@ -488,6 +490,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
         } else {
             $bikeStatus = $this->translator->trans('used by {userName} +{phone}', ['userName' => $userName, 'phone' => $phone]);
         }
+
         $this->db->query(
             'INSERT INTO notes (bikeNum, userId, note) VALUES (:bikeNum, :userId, :note)',
             [

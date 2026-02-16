@@ -30,6 +30,7 @@ abstract class BikeSharingWebTestCase extends WebTestCase
         // grab & reset the monolog TestHandler
         $handler = $this->client->getContainer()->get('monolog.handler.test');
         $handler->clear();
+
         $this->expected = [];
     }
 
@@ -94,14 +95,7 @@ abstract class BikeSharingWebTestCase extends WebTestCase
                 // only care about ERROR and above
                 continue;
             }
-
-            $isExpected = false;
-            foreach ($this->expected as $expected) {
-                if ($matches($record, $expected)) {
-                    $isExpected = true;
-                    break;
-                }
-            }
+            $isExpected = array_any($this->expected, fn($expected) => $matches($record, $expected));
 
             if (!$isExpected) {
                 $unexpected[] = $record;

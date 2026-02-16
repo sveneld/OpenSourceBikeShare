@@ -6,11 +6,11 @@ namespace BikeShare\Test\Integration\Command;
 
 use BikeShare\Enum\Action;
 use BikeShare\Enum\CreditChangeType;
+use BikeShare\Test\Integration\BikeSharingKernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class MigrateCreditHistoryCommandTest extends KernelTestCase
+class MigrateCreditHistoryCommandTest extends BikeSharingKernelTestCase
 {
     private CommandTester $commandTester;
     private $db;

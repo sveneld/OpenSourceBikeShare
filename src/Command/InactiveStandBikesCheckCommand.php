@@ -6,8 +6,6 @@ namespace BikeShare\Command;
 
 use BikeShare\Notifier\AdminNotifier;
 use BikeShare\Repository\BikeRepository;
-use DateInterval;
-use DateTimeImmutable;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -32,7 +30,7 @@ class InactiveStandBikesCheckCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $now = $this->clock->now();
-        $weekThreshold = $now->sub(new DateInterval('P7D'));
+        $weekThreshold = $now->sub(new \DateInterval('P7D'));
         $isSilent = $output->isQuiet();
         $io = new SymfonyStyle($input, $output);
 
@@ -49,7 +47,7 @@ class InactiveStandBikesCheckCommand extends Command
         $lines = [];
         $rows = [];
         foreach ($inactiveBikes as $bike) {
-            $lastMoveTime = new DateTimeImmutable((string)$bike['lastMoveTime']);
+            $lastMoveTime = new \DateTimeImmutable((string)$bike['lastMoveTime']);
             $inactiveDays = (int)$lastMoveTime->diff($now)->days;
             $bikeNumber = (int)$bike['bikeNum'];
             $standName = (string)$bike['standName'];
@@ -103,6 +101,7 @@ class InactiveStandBikesCheckCommand extends Command
         foreach ($bikeLines as $bikeLine) {
             $lines[] = '- ' . $bikeLine;
         }
+
         if ([] === $bikeLines) {
             $lines[] = '- none';
         }

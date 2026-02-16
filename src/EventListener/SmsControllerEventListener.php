@@ -47,10 +47,10 @@ class SmsControllerEventListener
         $sms_text = $this->smsConnector->getMessage();
         $ip = $this->smsConnector->getIPAddress();
 
-        $result = $this->db->query('SELECT sms_uuid FROM received WHERE sms_uuid=:sms_uuid', compact('sms_uuid'));
+        $result = $this->db->query('SELECT sms_uuid FROM received WHERE sms_uuid=:sms_uuid', ['sms_uuid' => $sms_uuid]);
         if ($result->rowCount() >= 1) {
             // sms already exists in DB, possible problem
-            $this->logger->error("SMS already exists in DB", compact('sms_uuid'));
+            $this->logger->error("SMS already exists in DB", ['sms_uuid' => $sms_uuid]);
             $this->adminNotifier->notify(
                 $this->translator->trans('Problem with SMS') . $sms_uuid,
                 false

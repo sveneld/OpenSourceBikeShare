@@ -10,6 +10,7 @@ use BikeShare\EventListener\LongStandBonusEventListener;
 use BikeShare\Repository\HistoryRepository;
 use BikeShare\Repository\StandRepository;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\ClockInterface;
 
@@ -24,14 +25,14 @@ class LongStandBonusEventListenerTest extends TestCase
     private const LONG_STAND_BONUS = 5.0;
     private const CURRENT_TIME = '2023-10-15 12:00:00';
 
-    private ClockInterface&MockObject $clock;
+    private ClockInterface&Stub $clock;
     private HistoryRepository&MockObject $historyRepository;
     private StandRepository&MockObject $standRepository;
     private CreditSystemInterface&MockObject $creditSystem;
 
     protected function setUp(): void
     {
-        $this->clock = $this->createMock(ClockInterface::class);
+        $this->clock = $this->createStub(ClockInterface::class);
         $this->clock->method('now')->willReturn(new \DateTimeImmutable(self::CURRENT_TIME));
 
         $this->historyRepository = $this->createMock(HistoryRepository::class);
@@ -43,6 +44,7 @@ class LongStandBonusEventListenerTest extends TestCase
     {
         $listener = $this->createListener(longStandDays: 0);
 
+        $this->standRepository->expects($this->never())->method('findItemByName');
         $this->historyRepository->expects($this->never())->method('findPreviousBikeReturn');
         $this->creditSystem->expects($this->never())->method('increaseCredit');
 
@@ -53,6 +55,7 @@ class LongStandBonusEventListenerTest extends TestCase
     {
         $listener = $this->createListener();
 
+        $this->standRepository->expects($this->never())->method('findItemByName');
         $this->historyRepository
             ->expects($this->once())
             ->method('findPreviousBikeReturn')

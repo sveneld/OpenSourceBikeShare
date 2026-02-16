@@ -12,21 +12,11 @@ use BikeShare\App\DependencyInjection\SmsConnectorCompilerPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
-
-    public function boot(): void
-    {
-        if ($this->debug) {
-            Debug::enable();
-        }
-
-        parent::boot();
-    }
 
     protected function configureContainer(ContainerConfigurator $container): void
     {

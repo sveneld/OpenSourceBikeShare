@@ -43,6 +43,7 @@ class AsciiSmsTextNormalizerTest extends TestCase
     public function testSetLocaleChangesLocale(): void
     {
         $newLocale = 'uk';
+        $this->translitMock->expects($this->never())->method('convert');
         $this->normalizer->setLocale($newLocale);
 
         $this->assertSame($newLocale, $this->normalizer->getLocale());
@@ -50,6 +51,7 @@ class AsciiSmsTextNormalizerTest extends TestCase
 
     public function testGetLocaleReturnsCurrentLocale(): void
     {
+        $this->translitMock->expects($this->never())->method('convert');
         $this->assertSame($this->defaultLocale, $this->normalizer->getLocale());
     }
 

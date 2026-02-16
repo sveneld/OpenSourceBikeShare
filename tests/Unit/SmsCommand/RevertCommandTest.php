@@ -13,11 +13,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RevertCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var RentSystemInterface|MockObject */
-    private $rentSystemMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private RentSystemInterface&MockObject $rentSystemMock;
     private RevertCommand $command;
 
     protected function setUp(): void
@@ -39,6 +36,7 @@ class RevertCommandTest extends TestCase
         $bikeNumber = 456;
         $expectedMessage = 'Bike 42 reverted.';
 
+        $this->translatorMock->expects($this->never())->method('trans');
         $userMock->expects($this->once())->method('getUserId')->willReturn($userId);
         $this->rentSystemMock
             ->expects($this->once())
@@ -52,6 +50,7 @@ class RevertCommandTest extends TestCase
     public function testGetHelpMessage(): void
     {
         $expectedMessage = 'Bike rented successfully.';
+        $this->rentSystemMock->expects($this->never())->method('revertBike');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')

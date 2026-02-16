@@ -61,6 +61,7 @@ class StandController extends AbstractController
             );
             $bike['notes'] = implode('; ', $notes);
         }
+
         unset($bike);
 
         return $this->json(

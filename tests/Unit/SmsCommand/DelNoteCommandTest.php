@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\NoteRepository;
@@ -17,15 +18,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DelNoteCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var BikeRepository|MockObject */
-    private $bikeRepositoryMock;
-    /** @var StandRepository|MockObject */
-    private $standRepositoryMock;
-    /** @var NoteRepository|MockObject */
-    private $noteRepositoryMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private BikeRepository&MockObject $bikeRepositoryMock;
+    private StandRepository&MockObject $standRepositoryMock;
+    private NoteRepository&MockObject $noteRepositoryMock;
     private DelNoteCommand $command;
 
     protected function setUp(): void
@@ -53,7 +49,7 @@ class DelNoteCommandTest extends TestCase
         );
     }
 
-    /** @dataProvider invokeThrowsWhenBikeIsNullDataProvider */
+    #[DataProvider('invokeThrowsWhenBikeIsNullDataProvider')]
     public function testInvokeThrowsWhenBikeNumberIsNull(
         array $bikeRepositoryCallResult,
         array $translatorCallParams,
@@ -62,9 +58,10 @@ class DelNoteCommandTest extends TestCase
         array $noteRepositoryCallParams,
         string $message
     ): void {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $bikeNumber = 123;
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->bikeRepositoryMock
             ->expects($this->once())
             ->method('findItem')
@@ -87,7 +84,7 @@ class DelNoteCommandTest extends TestCase
         ($this->command)($userMock, $bikeNumber, null, $pattern);
     }
 
-    /** @dataProvider invokeThrowsWhenStandNameIsNotNullDataProvider */
+    #[DataProvider('invokeThrowsWhenStandNameIsNotNullDataProvider')]
     public function testInvokeThrowsWhenStandNameIsNotNull(
         string $standName,
         array $translatorCallParams,
@@ -98,8 +95,9 @@ class DelNoteCommandTest extends TestCase
         ?string $pattern,
         string $message
     ): void {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -115,7 +113,7 @@ class DelNoteCommandTest extends TestCase
             ->expects($matcher)
             ->method('deleteStandNote')
             ->willReturnCallback(function (...$parameters) use ($matcher, $noteRepositoryCallParams) {
-                $this->assertSame($noteRepositoryCallParams[$matcher->getInvocationCount() - 1], $parameters);
+                $this->assertSame($noteRepositoryCallParams[$matcher->numberOfInvocations() - 1], $parameters);
                 return 0;
             });
 
@@ -127,9 +125,12 @@ class DelNoteCommandTest extends TestCase
 
     public function testInvokeThrowsWhenBikeNumberAndStandNameIsNull(): void
     {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $message = 'exception message';
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('deleteBikeNote');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -146,7 +147,7 @@ class DelNoteCommandTest extends TestCase
         ($this->command)($userMock);
     }
 
-    /** @dataProvider invokeReturnMessageDataProvider */
+    #[DataProvider('invokeReturnMessageDataProvider')]
     public function testInvokeReturnMessage(
         ?int $bikeNumber,
         array $bikeRepositoryCallParams,
@@ -157,7 +158,7 @@ class DelNoteCommandTest extends TestCase
         ?string $pattern,
         string $message
     ): void {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $standName = 'ABC123';
 
         $this->bikeRepositoryMock
@@ -172,7 +173,7 @@ class DelNoteCommandTest extends TestCase
             ->willReturnCallback(
                 function (...$parameters) use ($matcher, $noteRepositoryDeleteBikeNoteCallParams) {
                     $this->assertSame(
-                        $noteRepositoryDeleteBikeNoteCallParams[$matcher->getInvocationCount() - 1],
+                        $noteRepositoryDeleteBikeNoteCallParams[$matcher->numberOfInvocations() - 1],
                         $parameters
                     );
 
@@ -186,7 +187,7 @@ class DelNoteCommandTest extends TestCase
             ->willReturnCallback(
                 function (...$parameters) use ($matcher, $noteRepositoryDeleteStandNoteCallParams) {
                     $this->assertSame(
-                        $noteRepositoryDeleteStandNoteCallParams[$matcher->getInvocationCount() - 1],
+                        $noteRepositoryDeleteStandNoteCallParams[$matcher->numberOfInvocations() - 1],
                         $parameters
                     );
 
@@ -212,6 +213,9 @@ class DelNoteCommandTest extends TestCase
         $translatedMessage = 'with bike number and optional pattern. '
             . 'All messages or notes matching pattern will be deleted: DELNOTE 42 wheel';
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('deleteBikeNote');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -225,7 +229,7 @@ class DelNoteCommandTest extends TestCase
         $this->assertEquals($translatedMessage, $this->command->getHelpMessage());
     }
 
-    public function invokeThrowsWhenBikeIsNullDataProvider(): Generator
+    public static function invokeThrowsWhenBikeIsNullDataProvider(): Generator
     {
         yield 'empty bikeInfo' => [
             'bikeRepositoryCallResult' => [],
@@ -260,7 +264,7 @@ class DelNoteCommandTest extends TestCase
         ];
     }
 
-    public function invokeThrowsWhenStandNameIsNotNullDataProvider(): Generator
+    public static function invokeThrowsWhenStandNameIsNotNullDataProvider(): Generator
     {
         yield 'unrecognized standName' => [
             'standName' => 'SAFKO4ZRUSENY',
@@ -317,7 +321,7 @@ class DelNoteCommandTest extends TestCase
         ];
     }
 
-    public function invokeReturnMessageDataProvider(): Generator
+    public static function invokeReturnMessageDataProvider(): Generator
     {
         yield 'bikeNumber is not null and pattern is null' => [
             'bikeNumber' => 123,

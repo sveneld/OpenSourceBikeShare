@@ -14,16 +14,12 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class PasswordHashStatsCommandTest extends TestCase
 {
-    /** @var DbInterface|MockObject */
-    private $db;
-    /** @var DbResultInterface|MockObject */
-    private $dbResult;
+    private DbInterface&MockObject $db;
     private CommandTester $commandTester;
 
     protected function setUp(): void
     {
         $this->db = $this->createMock(DbInterface::class);
-        $this->dbResult = $this->createMock(DbResultInterface::class);
 
         $command = new PasswordHashStatsCommand($this->db);
         $this->commandTester = new CommandTester($command);
@@ -31,8 +27,9 @@ class PasswordHashStatsCommandTest extends TestCase
 
     public function testExecuteReturnsFailureWhenStatsQueryFails(): void
     {
-        $this->db->expects($this->once())->method('query')->willReturn($this->dbResult);
-        $this->dbResult->expects($this->once())->method('fetchAssoc')->willReturn(false);
+        $dbResult = $this->createMock(DbResultInterface::class);
+        $this->db->expects($this->once())->method('query')->willReturn($dbResult);
+        $dbResult->expects($this->once())->method('fetchAssoc')->willReturn(false);
 
         $this->commandTester->execute([]);
         $this->assertSame(Command::FAILURE, $this->commandTester->getStatusCode());
@@ -55,8 +52,9 @@ class PasswordHashStatsCommandTest extends TestCase
 
     public function testExecuteReturnsSuccessWithWarningForEmptyStats(): void
     {
-        $this->db->expects($this->once())->method('query')->willReturn($this->dbResult);
-        $this->dbResult->expects($this->once())->method('fetchAssoc')->willReturn([]);
+        $dbResult = $this->createMock(DbResultInterface::class);
+        $this->db->expects($this->once())->method('query')->willReturn($dbResult);
+        $dbResult->expects($this->once())->method('fetchAssoc')->willReturn([]);
 
         $this->commandTester->execute([]);
         $this->assertSame(Command::SUCCESS, $this->commandTester->getStatusCode());

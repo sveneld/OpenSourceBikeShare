@@ -28,6 +28,7 @@ class MailSenderCompilerPass implements CompilerPassInterface
 
         $mailSender = new Definition(MailSenderInterface::class);
         $mailSender->setFactory([$factory, 'getMailSender']);
+
         $container->setDefinition(MailSenderInterface::class, $mailSender);
     }
 }

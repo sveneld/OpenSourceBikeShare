@@ -13,11 +13,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ForceReturnCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var RentSystemInterface|MockObject */
-    private $rentSystemMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private RentSystemInterface&MockObject $rentSystemMock;
     private ForceReturnCommand $command;
 
     protected function setUp(): void
@@ -41,6 +38,7 @@ class ForceReturnCommandTest extends TestCase
         $note = 'note';
         $expectedMessage = 'Return successful';
 
+        $this->translatorMock->expects($this->never())->method('trans');
         $userMock->expects($this->once())->method('getUserId')->willReturn($userId);
         $this->rentSystemMock
             ->expects($this->once())
@@ -59,6 +57,7 @@ class ForceReturnCommandTest extends TestCase
         $standName = 'CENTRALPARK';
         $expectedMessage = 'Returned without note';
 
+        $this->translatorMock->expects($this->never())->method('trans');
         $userMock->expects($this->once())->method('getUserId')->willReturn($userId);
         $this->rentSystemMock
             ->expects($this->once())
@@ -72,6 +71,7 @@ class ForceReturnCommandTest extends TestCase
     public function testGetHelpMessage(): void
     {
         $expectedMessage = 'Translated help text';
+        $this->rentSystemMock->expects($this->never())->method('returnBike');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')

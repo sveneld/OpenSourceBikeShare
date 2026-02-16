@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\Purifier;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Purifier\PhonePurifier;
 use libphonenumber\PhoneNumberUtil;
 use PHPUnit\Framework\TestCase;
 
 class PhonePurifierTest extends TestCase
 {
-    /**
-     * @dataProvider purifyDataProvider
-     */
+    #[DataProvider('purifyDataProvider')]
     public function testPurify(
         $phoneNumber,
         $countryCode,
@@ -22,11 +21,12 @@ class PhonePurifierTest extends TestCase
         if ($expectedException) {
             $this->expectException($expectedException);
         }
+
         $purifier = new PhonePurifier(PhoneNumberUtil::getInstance(), [$countryCode]);
         $this->assertEquals($expectedPhoneNumber, $purifier->purify($phoneNumber));
     }
 
-    public function purifyDataProvider()
+    public static function purifyDataProvider()
     {
         yield 'default' => [
             'phoneNumber' => '+421 903-123-456',

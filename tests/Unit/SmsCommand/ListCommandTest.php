@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Repository\StandRepository;
 use BikeShare\SmsCommand\Exception\ValidationException;
@@ -15,10 +16,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ListCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var StandRepository|MockObject */
-    private $standRepositoryMock;
+    private TranslatorInterface&MockObject $translatorMock;
+    private StandRepository&MockObject $standRepositoryMock;
 
     protected function setUp(): void
     {
@@ -37,6 +36,7 @@ class ListCommandTest extends TestCase
         $message = 'Stand name safko4zruseny has not been recognized. Stands are marked by CAPITALLETTERS.';
         $command = new ListCommand($this->translatorMock, $this->standRepositoryMock);
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -49,7 +49,7 @@ class ListCommandTest extends TestCase
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage($message);
 
-        ($command)($this->createMock(User::class), $standName);
+        ($command)($this->createStub(User::class), $standName);
     }
 
     public function testInvokeThrowsWhenStandDoesNotExist(): void
@@ -68,10 +68,10 @@ class ListCommandTest extends TestCase
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage($message);
 
-        ($command)($this->createMock(User::class), $standName);
+        ($command)($this->createStub(User::class), $standName);
     }
 
-    /** @dataProvider invokeDataProvider */
+    #[DataProvider('invokeDataProvider')]
     public function testInvoke(
         bool $forceStack,
         int $standRepositoryFindLastReturnedCallAmount,
@@ -83,7 +83,7 @@ class ListCommandTest extends TestCase
     ): void {
         $standName = 'ABC123';
         $standId = 123;
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $command = new ListCommand($this->translatorMock, $this->standRepositoryMock, $forceStack);
 
         $this->standRepositoryMock
@@ -107,9 +107,9 @@ class ListCommandTest extends TestCase
             ->method('trans')
             ->willReturnCallback(
                 function (...$parameters) use ($matcher, $translatorCallParams, $translatorCallResult) {
-                    $this->assertSame($translatorCallParams[$matcher->getInvocationCount() - 1], $parameters);
+                    $this->assertSame($translatorCallParams[$matcher->numberOfInvocations() - 1], $parameters);
 
-                    return $translatorCallResult[$matcher->getInvocationCount() - 1];
+                    return $translatorCallResult[$matcher->numberOfInvocations() - 1];
                 }
             );
 
@@ -121,6 +121,7 @@ class ListCommandTest extends TestCase
         $message = 'with stand name: LIST MAINSQUARE';
         $command = new ListCommand($this->translatorMock, $this->standRepositoryMock);
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -130,7 +131,7 @@ class ListCommandTest extends TestCase
         $this->assertEquals($message, $command->getHelpMessage());
     }
 
-    public function invokeDataProvider(): Generator
+    public static function invokeDataProvider(): Generator
     {
         yield 'force stack is true and bikesOnStand empty' => [
             'forceStack' => true,

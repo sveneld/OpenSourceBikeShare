@@ -15,13 +15,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class WhereCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var BikeRepository|MockObject */
-    private $bikeRepositoryMock;
-    /** @var NoteRepository|MockObject */
-    private $noteRepositoryMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private BikeRepository&MockObject $bikeRepositoryMock;
+    private NoteRepository&MockObject $noteRepositoryMock;
     private WhereCommand $command;
 
     protected function setUp(): void
@@ -49,7 +45,7 @@ class WhereCommandTest extends TestCase
 
     public function testBikeAtStand(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $bikeNumber = 42;
 
         $this->bikeRepositoryMock
@@ -85,7 +81,7 @@ class WhereCommandTest extends TestCase
 
     public function testBikeRented(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $bikeNumber = 42;
 
         $this->bikeRepositoryMock
@@ -125,9 +121,10 @@ class WhereCommandTest extends TestCase
 
     public function testBikeNotFoundThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $bikeNumber = 42;
 
+        $this->noteRepositoryMock->expects($this->never())->method('findBikeNote');
         $this->bikeRepositoryMock
             ->expects($this->once())
             ->method('findItem')
@@ -146,6 +143,8 @@ class WhereCommandTest extends TestCase
 
     public function testGetHelpMessage(): void
     {
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->noteRepositoryMock->expects($this->never())->method('findBikeNote');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')

@@ -62,7 +62,7 @@ class DelNoteCommand extends AbstractCommand implements SmsCommandInterface
             $pattern
         );
 
-        if ($count == 0) {
+        if ($count === 0) {
             if (is_null($pattern)) {
                 throw new ValidationException(
                     $this->translator->trans(

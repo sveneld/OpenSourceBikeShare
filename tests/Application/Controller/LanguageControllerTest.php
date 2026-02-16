@@ -13,14 +13,14 @@ class LanguageControllerTest extends BikeSharingWebTestCase
 {
     private const USER_PHONE_NUMBER = '421951111111';
 
-    public function setup(): void
+    protected function setup(): void
     {
         parent::setUp();
         $user = $this->client->getContainer()->get(UserProvider::class)->loadUserByIdentifier(self::USER_PHONE_NUMBER);
         $this->client->getContainer()->get(UserSettingsRepository::class)->saveLocale($user->getUserId(), 'en');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $user = $this->client->getContainer()->get(UserProvider::class)->loadUserByIdentifier(self::USER_PHONE_NUMBER);
         $this->client->getContainer()->get(UserSettingsRepository::class)->saveLocale($user->getUserId(), 'en');

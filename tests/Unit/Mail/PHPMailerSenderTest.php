@@ -11,14 +11,8 @@ use PHPUnit\Framework\TestCase;
 
 class PHPMailerSenderTest extends TestCase
 {
-    /**
-     * @var PHPMailer|MockObject
-     */
-    private $mailer;
-    /**
-     * @var PHPMailerMailSender
-     */
-    private $mailSender;
+    private PHPMailer&MockObject $mailer;
+    private PHPMailerMailSender $mailSender;
 
     protected function setUp(): void
     {

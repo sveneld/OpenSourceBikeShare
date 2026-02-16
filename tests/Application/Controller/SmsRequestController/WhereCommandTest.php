@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\UserRepository;
 use BikeShare\SmsConnector\SmsConnectorInterface;
@@ -34,9 +35,7 @@ class WhereCommandTest extends BikeSharingWebTestCase
         parent::tearDown();
     }
 
-    /**
-     * @dataProvider whereCommandDataProvider
-     */
+    #[DataProvider('whereCommandDataProvider')]
     public function testWhereCommand(
         string $startAction,
         string $expectedMessagePattern
@@ -77,7 +76,7 @@ class WhereCommandTest extends BikeSharingWebTestCase
         );
     }
 
-    public function whereCommandDataProvider(): iterable
+    public static function whereCommandDataProvider(): iterable
     {
         yield 'not rented bike' => [
             'startAction' => 'FORCERETURN ' . self::BIKE_NUMBER . ' ' . self::STAND_NAME,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\SmsCommand\HelpCommand;
@@ -14,11 +15,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HelpCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var CreditSystemInterface|MockObject */
-    private $creditSystemMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private CreditSystemInterface&MockObject $creditSystemMock;
     private HelpCommand $command;
 
     protected function setUp(): void
@@ -33,18 +31,19 @@ class HelpCommandTest extends TestCase
         unset($this->translatorMock, $this->creditSystemMock, $this->command);
     }
 
-    /** @dataProvider invokeDataProvider */
+    #[DataProvider('invokeDataProvider')]
     public function testInvoke(bool $creditSystemCallResult, int $userCallResult, string $message): void
     {
         $userMock = $this->createMock(User::class);
 
+        $this->translatorMock->expects($this->never())->method('trans');
         $this->creditSystemMock->expects($this->once())->method('isEnabled')->willReturn($creditSystemCallResult);
         $userMock->expects($this->once())->method('getPrivileges')->willReturn($userCallResult);
 
         $this->assertSame($message, ($this->command)($userMock));
     }
 
-    public function invokeDataProvider(): Generator
+    public static function invokeDataProvider(): Generator
     {
         yield 'credit system disabled user privileges zero' => [
             'creditSystemCallResult' => false,
@@ -108,6 +107,8 @@ class HelpCommandTest extends TestCase
 
     public function testGetHelpMessage(): void
     {
+        $this->translatorMock->expects($this->never())->method('trans');
+        $this->creditSystemMock->expects($this->never())->method('isEnabled');
         $this->assertSame('', $this->command->getHelpMessage());
     }
 }

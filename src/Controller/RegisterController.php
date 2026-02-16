@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Controller;
 
+use Symfony\Component\Security\Core\User\UserInterface;
 use BikeShare\Form\RegistrationFormType;
 use BikeShare\Purifier\PhonePurifierInterface;
 use BikeShare\User\UserRegistration;
@@ -23,7 +24,7 @@ class RegisterController extends AbstractController
         UserRegistration $userRegistration,
         PhonePurifierInterface $phonePurifier,
     ): Response {
-        if ($this->getUser()) {
+        if ($this->getUser() instanceof UserInterface) {
             return $this->redirectToRoute('home');
         }
 
