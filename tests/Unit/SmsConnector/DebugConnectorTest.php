@@ -14,7 +14,7 @@ class DebugConnectorTest extends TestCase
     public function testSend()
     {
         $loggerMock = $this->createMock(LoggerInterface::class);
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = $this->createStub(RequestStack::class);
         $debugConnector = new DebugConnector(
             $requestStack,
             $loggerMock,

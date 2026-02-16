@@ -14,11 +14,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CreditCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var CreditSystemInterface|MockObject */
-    private $creditSystemMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private CreditSystemInterface&MockObject $creditSystemMock;
     private CreditCommand $command;
 
     protected function setUp(): void
@@ -55,7 +52,7 @@ class CreditCommandTest extends TestCase
 
     public function testInvokeThrowsWhenCreditDisabled(): void
     {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $expectedMessage = 'Error. The command CREDIT does not exist. If you need help, send: HELP';
 
         $this->creditSystemMock->expects($this->once())->method('isEnabled')->willReturn(false);
@@ -77,6 +74,8 @@ class CreditCommandTest extends TestCase
 
     public function testGetHelpMessage(): void
     {
+        $this->translatorMock->expects($this->never())->method('trans');
+        $this->creditSystemMock->expects($this->never())->method('isEnabled');
         $this->assertSame('', $this->command->getHelpMessage());
     }
 }

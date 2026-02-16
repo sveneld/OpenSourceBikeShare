@@ -16,13 +16,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FreeCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var BikeRepository|MockObject */
-    private $bikeRepositoryMock;
-    /** @var StandRepository|MockObject */
-    private $standRepositoryMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private BikeRepository&MockObject $bikeRepositoryMock;
+    private StandRepository&MockObject $standRepositoryMock;
     private FreeCommand $command;
 
     protected function setUp(): void
@@ -47,7 +43,7 @@ class FreeCommandTest extends TestCase
         array $standRepositoryCallResult,
         string $message
     ): void {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
 
         $this->bikeRepositoryMock
             ->expects($this->once())
@@ -74,6 +70,9 @@ class FreeCommandTest extends TestCase
 
     public function testGetHelpMessage(): void
     {
+        $this->translatorMock->expects($this->never())->method('trans');
+        $this->bikeRepositoryMock->expects($this->never())->method('findFreeBikes');
+        $this->standRepositoryMock->expects($this->never())->method('findFreeStands');
         $this->assertSame('', $this->command->getHelpMessage());
     }
 

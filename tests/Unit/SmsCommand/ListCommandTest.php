@@ -16,10 +16,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ListCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var StandRepository|MockObject */
-    private $standRepositoryMock;
+    private TranslatorInterface&MockObject $translatorMock;
+    private StandRepository&MockObject $standRepositoryMock;
 
     protected function setUp(): void
     {
@@ -38,6 +36,7 @@ class ListCommandTest extends TestCase
         $message = 'Stand name safko4zruseny has not been recognized. Stands are marked by CAPITALLETTERS.';
         $command = new ListCommand($this->translatorMock, $this->standRepositoryMock);
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -50,7 +49,7 @@ class ListCommandTest extends TestCase
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage($message);
 
-        ($command)($this->createMock(User::class), $standName);
+        ($command)($this->createStub(User::class), $standName);
     }
 
     public function testInvokeThrowsWhenStandDoesNotExist(): void
@@ -69,7 +68,7 @@ class ListCommandTest extends TestCase
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage($message);
 
-        ($command)($this->createMock(User::class), $standName);
+        ($command)($this->createStub(User::class), $standName);
     }
 
     #[DataProvider('invokeDataProvider')]
@@ -84,7 +83,7 @@ class ListCommandTest extends TestCase
     ): void {
         $standName = 'ABC123';
         $standId = 123;
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $command = new ListCommand($this->translatorMock, $this->standRepositoryMock, $forceStack);
 
         $this->standRepositoryMock
@@ -122,6 +121,7 @@ class ListCommandTest extends TestCase
         $message = 'with stand name: LIST MAINSQUARE';
         $command = new ListCommand($this->translatorMock, $this->standRepositoryMock);
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')

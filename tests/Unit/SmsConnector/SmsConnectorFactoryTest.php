@@ -28,7 +28,9 @@ class SmsConnectorFactoryTest extends TestCase
         $expectedInstance,
         $expectedExceptionMessage = null
     ) {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $expectedExceptionMessage
+            ? $this->createMock(LoggerInterface::class)
+            : $this->createStub(LoggerInterface::class);
         $serviceLocatorMock = $this->createMock(ServiceLocator::class);
 
         if ($expectedExceptionMessage) {

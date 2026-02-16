@@ -16,12 +16,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class InactiveStandBikesCheckCommandTest extends TestCase
 {
-    /** @var BikeRepository|MockObject */
-    private $bikeRepository;
-    /** @var AdminNotifier|MockObject */
-    private $adminNotifier;
-    /** @var ClockInterface|MockObject */
-    private $clock;
+    private BikeRepository&MockObject $bikeRepository;
+    private AdminNotifier&MockObject $adminNotifier;
+    private ClockInterface&MockObject $clock;
     private CommandTester $commandTester;
 
     protected function setUp(): void

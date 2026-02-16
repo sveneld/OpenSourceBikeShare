@@ -20,17 +20,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommandExecutorTest extends TestCase
 {
-    /** @var CommandDetector|MockObject */
-    private $commandDetectorMock;
-    /** @var ServiceLocator|MockObject */
-    private $commandLocatorMock;
-    /** @var EventDispatcherInterface|MockObject */
-    private $eventDispatcherMock;
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var LoggerInterface|MockObject */
-    private $loggerMock;
-
+    private CommandDetector&MockObject $commandDetectorMock;
+    private ServiceLocator&MockObject $commandLocatorMock;
+    private EventDispatcherInterface&MockObject $eventDispatcherMock;
+    private TranslatorInterface&MockObject $translatorMock;
+    private LoggerInterface&MockObject $loggerMock;
     private CommandExecutor $executor;
 
     protected function setUp(): void
@@ -64,9 +58,11 @@ class CommandExecutorTest extends TestCase
 
     public function testExecuteUnknownCommand(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $possibleCommandMock = $this->createMock(SmsCommandInterface::class);
 
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->loggerMock->expects($this->never())->method('error');
         $this->commandDetectorMock
             ->expects($this->once())
             ->method('detect')
@@ -85,8 +81,11 @@ class CommandExecutorTest extends TestCase
 
     public function testExecuteThrowsRuntimeExceptionOnUnknownCommand(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
 
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->translatorMock->expects($this->never())->method('trans');
+        $this->loggerMock->expects($this->never())->method('error');
         $this->commandDetectorMock
             ->expects($this->once())
             ->method('detect')
@@ -99,10 +98,12 @@ class CommandExecutorTest extends TestCase
 
     public function testExecuteKnownCommand(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $commandName = 'ADD';
         $arguments = ['email' => 'test@example.com', 'phone' => '123', 'fullName' => 'Test User'];
 
+        $this->translatorMock->expects($this->never())->method('trans');
+        $this->loggerMock->expects($this->never())->method('warning');
         $commandMock = $this->createMock(AddCommand::class);
         $commandMock->expects($this->once())->method('checkPrivileges')->with($user);
         $commandMock
@@ -126,9 +127,11 @@ class CommandExecutorTest extends TestCase
 
     public function testExecuteHandlesValidationException(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $commandName = 'ADD';
 
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->translatorMock->expects($this->never())->method('trans');
         $commandMock = $this->createMock(AddCommand::class);
         $commandMock->expects($this->once())->method('checkPrivileges')->with($user);
         $commandMock
@@ -151,9 +154,10 @@ class CommandExecutorTest extends TestCase
 
     public function testExecuteHandlesGenericException(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $commandName = 'ADD';
 
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
         $commandMock = $this->createMock(AddCommand::class);
         $commandMock->expects($this->once())->method('checkPrivileges')->with($user);
         $commandMock->expects($this->once())->method('__invoke')->willThrowException(new \Exception('fail'));

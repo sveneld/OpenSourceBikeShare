@@ -15,13 +15,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UnTagCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var StandRepository|MockObject */
-    private $standRepositoryMock;
-    /** @var NoteRepository|MockObject */
-    private $noteRepositoryMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private StandRepository&MockObject $standRepositoryMock;
+    private NoteRepository&MockObject $noteRepositoryMock;
     private UnTagCommand $command;
 
     protected function setUp(): void
@@ -49,7 +45,7 @@ class UnTagCommandTest extends TestCase
 
     public function testUnTagStandSuccessNoPattern(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $stand = 'MAINSQUARE';
 
         $this->standRepositoryMock
@@ -79,7 +75,7 @@ class UnTagCommandTest extends TestCase
 
     public function testUnTagStandSuccessWithPattern(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $stand = 'MAINSQUARE';
         $pattern = 'vandalism';
 
@@ -110,9 +106,11 @@ class UnTagCommandTest extends TestCase
 
     public function testUnTagStandInvalidStandNameThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $stand = 'stand#1';
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('deleteNotesForAllBikesOnStand');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -129,9 +127,10 @@ class UnTagCommandTest extends TestCase
 
     public function testUnTagStandNotFoundThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $stand = 'UNKNOWNSTAND';
 
+        $this->noteRepositoryMock->expects($this->never())->method('deleteNotesForAllBikesOnStand');
         $this->standRepositoryMock->expects($this->once())->method('findItemByName')->with($stand)->willReturn(null);
         $this->translatorMock
             ->expects($this->once())
@@ -146,7 +145,7 @@ class UnTagCommandTest extends TestCase
 
     public function testUnTagStandNoNotesFoundThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $stand = 'MAINSQUARE';
 
         $this->standRepositoryMock
@@ -175,7 +174,7 @@ class UnTagCommandTest extends TestCase
 
     public function testUnTagStandNoNotesFoundWithPatternThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $stand = 'MAINSQUARE';
         $pattern = 'vandalism';
 
@@ -208,6 +207,8 @@ class UnTagCommandTest extends TestCase
     public function testGetHelpMessage(): void
     {
         $matcher = $this->exactly(2);
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('deleteNotesForAllBikesOnStand');
         $this->translatorMock->expects($matcher)
             ->method('trans')
             ->willReturnCallback(

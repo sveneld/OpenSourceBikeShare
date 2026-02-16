@@ -16,11 +16,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class InfoCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var StandRepository|MockObject */
-    private $standRepositoryMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private StandRepository&MockObject $standRepositoryMock;
     private InfoCommand $command;
 
     protected function setUp(): void
@@ -38,9 +35,10 @@ class InfoCommandTest extends TestCase
     #[DataProvider('invokeDataProvider')]
     public function testInvoke(float $standLong, float $standLat, string $standPhoto, string $message): void
     {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $standName = 'STAND42';
 
+        $this->translatorMock->expects($this->never())->method('trans');
         $this->standRepositoryMock
             ->expects($this->once())
             ->method('findItemByName')
@@ -57,10 +55,11 @@ class InfoCommandTest extends TestCase
 
     public function testInvokeThrowsWhenInvalidStandName(): void
     {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $standName = '123_invalid';
         $expectedMessage = 'Stand name 123_invalid has not been recognized.';
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -78,7 +77,7 @@ class InfoCommandTest extends TestCase
 
     public function testInvokeThrowsWhenEmptyStandInfo(): void
     {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $standName = 'STAND404';
 
         $this->standRepositoryMock
@@ -147,6 +146,7 @@ class InfoCommandTest extends TestCase
 
     public function testGetHelpMessage(): void
     {
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')

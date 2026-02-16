@@ -18,15 +18,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AddCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var UserRegistration|MockObject */
-    private $userRegistrationMock;
-    /** @var UserRepository|MockObject */
-    private $userRepositoryMock;
-    /** @var PhonePurifierInterface|MockObject */
-    private $phonePurifierMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private UserRegistration&MockObject $userRegistrationMock;
+    private UserRepository&MockObject $userRepositoryMock;
+    private PhonePurifierInterface&MockObject $phonePurifierMock;
     private AddCommand $command;
 
     protected function setUp(): void
@@ -69,6 +64,8 @@ class AddCommandTest extends TestCase
         $userMock = $this->createMock(User::class);
         $phone = '123456789';
 
+        $userMock->expects($this->never())->method('getCity');
+        $this->userRegistrationMock->expects($this->never())->method('register');
         $this->phonePurifierMock
             ->expects($this->once())
             ->method('isValid')
@@ -109,7 +106,7 @@ class AddCommandTest extends TestCase
         $purifiedPhone = '421123456789';
         $city = 'Bratislava';
         $fullName = 'Test User';
-        $newUser = $this->createMock(User::class);
+        $newUser = $this->createStub(User::class);
         $message = 'User Test User added. They need to read email and agree to rules before using the system.';
 
         $userMock->expects($this->once())->method('getCity')->willReturn($city);
@@ -144,6 +141,9 @@ class AddCommandTest extends TestCase
     {
         $message = 'with email, phone, fullname: ADD king@earth.com 0901456789 Martin Luther King Jr.';
 
+        $this->userRegistrationMock->expects($this->never())->method('register');
+        $this->userRepositoryMock->expects($this->never())->method('findItemByPhoneNumber');
+        $this->phonePurifierMock->expects($this->never())->method('isValid');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')

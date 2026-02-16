@@ -15,11 +15,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HelpCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var CreditSystemInterface|MockObject */
-    private $creditSystemMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private CreditSystemInterface&MockObject $creditSystemMock;
     private HelpCommand $command;
 
     protected function setUp(): void
@@ -39,6 +36,7 @@ class HelpCommandTest extends TestCase
     {
         $userMock = $this->createMock(User::class);
 
+        $this->translatorMock->expects($this->never())->method('trans');
         $this->creditSystemMock->expects($this->once())->method('isEnabled')->willReturn($creditSystemCallResult);
         $userMock->expects($this->once())->method('getPrivileges')->willReturn($userCallResult);
 
@@ -109,6 +107,8 @@ class HelpCommandTest extends TestCase
 
     public function testGetHelpMessage(): void
     {
+        $this->translatorMock->expects($this->never())->method('trans');
+        $this->creditSystemMock->expects($this->never())->method('isEnabled');
         $this->assertSame('', $this->command->getHelpMessage());
     }
 }

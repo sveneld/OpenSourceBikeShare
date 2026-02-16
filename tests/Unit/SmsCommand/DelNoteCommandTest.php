@@ -18,15 +18,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DelNoteCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var BikeRepository|MockObject */
-    private $bikeRepositoryMock;
-    /** @var StandRepository|MockObject */
-    private $standRepositoryMock;
-    /** @var NoteRepository|MockObject */
-    private $noteRepositoryMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private BikeRepository&MockObject $bikeRepositoryMock;
+    private StandRepository&MockObject $standRepositoryMock;
+    private NoteRepository&MockObject $noteRepositoryMock;
     private DelNoteCommand $command;
 
     protected function setUp(): void
@@ -63,9 +58,10 @@ class DelNoteCommandTest extends TestCase
         array $noteRepositoryCallParams,
         string $message
     ): void {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $bikeNumber = 123;
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->bikeRepositoryMock
             ->expects($this->once())
             ->method('findItem')
@@ -99,8 +95,9 @@ class DelNoteCommandTest extends TestCase
         ?string $pattern,
         string $message
     ): void {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -128,9 +125,12 @@ class DelNoteCommandTest extends TestCase
 
     public function testInvokeThrowsWhenBikeNumberAndStandNameIsNull(): void
     {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $message = 'exception message';
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('deleteBikeNote');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -158,7 +158,7 @@ class DelNoteCommandTest extends TestCase
         ?string $pattern,
         string $message
     ): void {
-        $userMock = $this->createMock(User::class);
+        $userMock = $this->createStub(User::class);
         $standName = 'ABC123';
 
         $this->bikeRepositoryMock
@@ -213,6 +213,9 @@ class DelNoteCommandTest extends TestCase
         $translatedMessage = 'with bike number and optional pattern. '
             . 'All messages or notes matching pattern will be deleted: DELNOTE 42 wheel';
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('deleteBikeNote');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')

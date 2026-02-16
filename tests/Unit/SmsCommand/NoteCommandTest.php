@@ -16,15 +16,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class NoteCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var BikeRepository|MockObject */
-    private $bikeRepositoryMock;
-    /** @var StandRepository|MockObject */
-    private $standRepositoryMock;
-    /** @var NoteRepository|MockObject */
-    private $noteRepositoryMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private BikeRepository&MockObject $bikeRepositoryMock;
+    private StandRepository&MockObject $standRepositoryMock;
+    private NoteRepository&MockObject $noteRepositoryMock;
     private NoteCommand $command;
 
     protected function setUp(): void
@@ -55,11 +50,12 @@ class NoteCommandTest extends TestCase
 
     public function testAddBikeNoteSuccess(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $user->method('getUserId')->willReturn(1);
         $bikeNumber = 42;
         $note = 'Flat tire';
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
         $this->bikeRepositoryMock
             ->expects($this->once())
             ->method('findItem')
@@ -77,9 +73,12 @@ class NoteCommandTest extends TestCase
 
     public function testAddBikeNoteEmptyNoteThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $bikeNumber = 42;
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToBike');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -96,9 +95,11 @@ class NoteCommandTest extends TestCase
 
     public function testAddBikeNoteBikeNotFoundThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $bikeNumber = 99;
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToBike');
         $this->bikeRepositoryMock->expects($this->once())->method('findItem')->with($bikeNumber)->willReturn([]);
         $this->translatorMock
             ->expects($this->once())
@@ -113,11 +114,12 @@ class NoteCommandTest extends TestCase
 
     public function testAddStandNoteSuccess(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $user->method('getUserId')->willReturn(2);
         $stand = 'STAND1';
         $note = 'No bikes available';
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
         $this->standRepositoryMock
             ->expects($this->once())
             ->method('findItemByName')
@@ -141,9 +143,12 @@ class NoteCommandTest extends TestCase
 
     public function testAddStandNoteEmptyNoteThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $stand = 'STAND1';
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToStand');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -160,9 +165,12 @@ class NoteCommandTest extends TestCase
 
     public function testAddStandNoteInvalidStandNameThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $stand = 'stand#1';
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToStand');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -180,9 +188,11 @@ class NoteCommandTest extends TestCase
 
     public function testAddStandNoteStandNotFoundThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $stand = 'STAND2';
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToStand');
         $this->standRepositoryMock->expects($this->once())->method('findItemByName')->with($stand)->willReturn(null);
         $this->translatorMock
             ->expects($this->once())
@@ -197,9 +207,12 @@ class NoteCommandTest extends TestCase
 
     public function testInvokeWithNoBikeOrStandThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $matcher = $this->exactly(2);
 
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToBike');
         $this->translatorMock
             ->expects($matcher)
             ->method('trans')->willReturnCallback(function (...$parameters) use ($matcher) {
@@ -222,6 +235,9 @@ class NoteCommandTest extends TestCase
     public function testGetHelpMessage(): void
     {
         $matcher = $this->exactly(2);
+        $this->bikeRepositoryMock->expects($this->never())->method('findItem');
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToBike');
         $this->translatorMock
             ->expects($matcher)
             ->method('trans')->willReturnCallback(function (...$parameters) use ($matcher) {

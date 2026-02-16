@@ -30,8 +30,8 @@ class EuroSmsConnectorTest extends TestCase
             ]
         ];
 
-        $requestStack = $this->createMock(RequestStack::class);
-        $httpClient = $this->createMock(HttpClientInterface::class);
+        $requestStack = $this->createStub(RequestStack::class);
+        $httpClient = $this->createStub(HttpClientInterface::class);
         $smsConnector = new EuroSmsConnector(
             $requestStack,
             $httpClient,
@@ -62,8 +62,8 @@ class EuroSmsConnectorTest extends TestCase
                 'gatewaySenderNumber' => $gatewaySenderNumber,
             ]
         ];
-        $requestStack = $this->createMock(RequestStack::class);
-        $httpClient = $this->createMock(HttpClientInterface::class);
+        $requestStack = $this->createStub(RequestStack::class);
+        $httpClient = $this->createStub(HttpClientInterface::class);
         new EuroSmsConnector(
             $requestStack,
             $httpClient,
@@ -100,8 +100,8 @@ class EuroSmsConnectorTest extends TestCase
                 'gatewaySenderNumber' => 'SenderNumber',
             ]
         ];
-        $requestStack = $this->createMock(RequestStack::class);
-        $httpClient = $this->createMock(HttpClientInterface::class);
+        $requestStack = $this->createStub(RequestStack::class);
+        $httpClient = $this->createStub(HttpClientInterface::class);
         $smsConnector = new EuroSmsConnector(
             $requestStack,
             $httpClient,
@@ -110,7 +110,6 @@ class EuroSmsConnectorTest extends TestCase
 
         $reflection = new \ReflectionClass($smsConnector);
         $uuid = $reflection->getProperty('uuid');
-        $uuid->setAccessible(true);
         $uuid->setValue($smsConnector, 'uuid');
 
         $this->expectOutputString('ok:uuid' . "\n");
@@ -130,7 +129,7 @@ class EuroSmsConnectorTest extends TestCase
         $mockResponse = new MockResponse('', ['http_code' => 200]);
         $httpClient = new MockHttpClient($mockResponse);
 
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = $this->createStub(RequestStack::class);
         $smsConnector = new EuroSmsConnector(
             $requestStack,
             $httpClient,
@@ -180,8 +179,8 @@ class EuroSmsConnectorTest extends TestCase
             ]
         ];
 
-        $requestStack = $this->createMock(RequestStack::class);
-        $httpClient = $this->createMock(HttpClientInterface::class);
+        $requestStack = $this->createStub(RequestStack::class);
+        $httpClient = $this->createStub(HttpClientInterface::class);
         $smsConnector = new EuroSmsConnector(
             $requestStack,
             $httpClient,
@@ -190,7 +189,6 @@ class EuroSmsConnectorTest extends TestCase
 
         $reflection = new \ReflectionClass($smsConnector);
         $calculateSignature = $reflection->getMethod('calculateSignature');
-        $calculateSignature->setAccessible(true);
 
         $number = '123456789';
         $text = 'Hello World';

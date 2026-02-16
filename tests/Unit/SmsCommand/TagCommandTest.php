@@ -15,13 +15,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagCommandTest extends TestCase
 {
-    /** @var TranslatorInterface|MockObject */
-    private $translatorMock;
-    /** @var StandRepository|MockObject */
-    private $standRepositoryMock;
-    /** @var NoteRepository|MockObject */
-    private $noteRepositoryMock;
-
+    private TranslatorInterface&MockObject $translatorMock;
+    private StandRepository&MockObject $standRepositoryMock;
+    private NoteRepository&MockObject $noteRepositoryMock;
     private TagCommand $command;
 
     protected function setUp(): void
@@ -45,7 +41,7 @@ class TagCommandTest extends TestCase
 
     public function testTagStandSuccess(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $user->method('getUserId')->willReturn(10);
         $standName = 'MAINSTAND';
         $note = 'vandalism';
@@ -73,11 +69,13 @@ class TagCommandTest extends TestCase
 
     public function testTagStandEmptyNoteThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $standName = 'MAINSTAND';
         $message = 'Empty tag for stand {standName} not saved, '
             . 'for deleting notes for all bikes on stand use UNTAG (for admins).';
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToAllBikesOnStand');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -91,9 +89,11 @@ class TagCommandTest extends TestCase
 
     public function testTagStandInvalidStandNameThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $standName = 'stand#1';
 
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToAllBikesOnStand');
         $this->translatorMock
             ->expects($this->once())
             ->method('trans')
@@ -110,9 +110,10 @@ class TagCommandTest extends TestCase
 
     public function testTagStandNotFoundThrows(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $standName = 'UNKNOWNSTAND';
 
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToAllBikesOnStand');
         $this->standRepositoryMock
             ->expects($this->once())
             ->method('findItemByName')
@@ -131,6 +132,8 @@ class TagCommandTest extends TestCase
     public function testGetHelpMessage(): void
     {
         $matcher = $this->exactly(2);
+        $this->standRepositoryMock->expects($this->never())->method('findItemByName');
+        $this->noteRepositoryMock->expects($this->never())->method('addNoteToAllBikesOnStand');
         $this->translatorMock
             ->expects($matcher)
             ->method('trans')->willReturnCallback(function (...$parameters) use ($matcher) {
