@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Db\DbInterface;
 use BikeShare\Mail\MailSenderInterface;
 use BikeShare\Repository\NoteRepository;
@@ -38,9 +39,7 @@ class DelNoteCommandTest extends BikeSharingWebTestCase
         $noteRepository->addNoteToStand(self::STAND_ID, $user['userId'], 'Note for stand');
     }
 
-    /**
-     * @dataProvider standNotePatternDataProvider
-     */
+    #[DataProvider('standNotePatternDataProvider')]
     public function testDelNoteCommandForStand(
         ?string $pattern,
         string $expectedMessage,
@@ -99,8 +98,10 @@ class DelNoteCommandTest extends BikeSharingWebTestCase
                         'Invalid message sent to admin'
                     );
                 }
+
                 $notifiedNumbers[] = $sentMessage['number'];
             }
+
             $this->assertEqualsCanonicalizing(
                 array_merge([self::ADMIN_PHONE_NUMBER], array_column($admins, 'number')),
                 $notifiedNumbers,
@@ -133,7 +134,7 @@ class DelNoteCommandTest extends BikeSharingWebTestCase
         }
     }
 
-    public function standNotePatternDataProvider(): array
+    public static function standNotePatternDataProvider(): array
     {
         return [
             'No pattern' => [
@@ -164,9 +165,7 @@ class DelNoteCommandTest extends BikeSharingWebTestCase
         ];
     }
 
-    /**
-     * @dataProvider bikeNotePatternDataProvider
-     */
+    #[DataProvider('bikeNotePatternDataProvider')]
     public function testDelNoteCommandForBike(
         ?string $pattern,
         string $expectedMessage,
@@ -225,8 +224,10 @@ class DelNoteCommandTest extends BikeSharingWebTestCase
                         'Invalid message sent to admin'
                     );
                 }
+
                 $notifiedNumbers[] = $sentMessage['number'];
             }
+
             $this->assertEqualsCanonicalizing(
                 array_merge([self::ADMIN_PHONE_NUMBER], array_column($admins, 'number')),
                 $notifiedNumbers,
@@ -257,7 +258,7 @@ class DelNoteCommandTest extends BikeSharingWebTestCase
         }
     }
 
-    public function bikeNotePatternDataProvider(): array
+    public static function bikeNotePatternDataProvider(): array
     {
         return [
             'No pattern' => [

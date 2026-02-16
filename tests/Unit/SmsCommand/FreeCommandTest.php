@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\StandRepository;
@@ -37,7 +38,7 @@ class FreeCommandTest extends TestCase
         unset($this->translatorMock, $this->bikeRepositoryMock, $this->standRepositoryMock, $this->command);
     }
 
-    /** @dataProvider invokeDataProvider */
+    #[DataProvider('invokeDataProvider')]
     public function testInvoke(
         array $bikeRepositoryCallResult,
         array $translatorCallParams,
@@ -58,9 +59,9 @@ class FreeCommandTest extends TestCase
             ->method('trans')
             ->willReturnCallback(
                 function (...$parameters) use ($matcher, $translatorCallParams, $translatorCallResult) {
-                    $this->assertEquals($translatorCallParams[$matcher->getInvocationCount() - 1], $parameters);
+                    $this->assertEquals($translatorCallParams[$matcher->numberOfInvocations() - 1], $parameters);
 
-                    return $translatorCallResult[$matcher->getInvocationCount() - 1];
+                    return $translatorCallResult[$matcher->numberOfInvocations() - 1];
                 }
             );
         $this->standRepositoryMock
@@ -76,7 +77,7 @@ class FreeCommandTest extends TestCase
         $this->assertSame('', $this->command->getHelpMessage());
     }
 
-    public function invokeDataProvider(): Generator
+    public static function invokeDataProvider(): Generator
     {
         yield 'empty free bikes' => [
             'bikeRepositoryCallResult' => [],

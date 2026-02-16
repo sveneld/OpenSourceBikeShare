@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\Credit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Credit\CreditSystem;
 use BikeShare\Credit\CreditSystemFactory;
 use BikeShare\Credit\DisabledCreditSystem;
@@ -12,9 +13,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 
 class CreditSystemFactoryTest extends TestCase
 {
-    /**
-     * @dataProvider creditSystemDataProvider
-     */
+    #[DataProvider('creditSystemDataProvider')]
     public function testGetCreditSystem(
         $isCreditSystemEnabled,
         $expectedSystemClass
@@ -28,7 +27,7 @@ class CreditSystemFactoryTest extends TestCase
         $serviceLocatorMock->expects($this->once())
             ->method('get')
             ->with($expectedSystemClass)
-            ->willReturn($this->createMock($expectedSystemClass));
+            ->willReturn($this->createStub($expectedSystemClass));
 
         $this->assertInstanceOf(
             $expectedSystemClass,
@@ -36,7 +35,7 @@ class CreditSystemFactoryTest extends TestCase
         );
     }
 
-    public function creditSystemDataProvider()
+    public static function creditSystemDataProvider()
     {
         yield 'disabled credit system' => [
             'isCreditSystemEnabled' => false,

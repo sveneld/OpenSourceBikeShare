@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\SmsCommand\Exception\ValidationException;
@@ -34,9 +35,7 @@ class LastCommandTest extends TestCase
         unset($this->translatorMock, $this->bikeRepositoryMock, $this->command);
     }
 
-    /**
-     * @dataProvider invokeDataProvider
-     */
+    #[DataProvider('invokeDataProvider')]
     public function testInvoke(array $bikeRepositoryCallResult, string $message): void
     {
         $bikeNumber = 123;
@@ -89,7 +88,7 @@ class LastCommandTest extends TestCase
         $this->assertEquals($message, $this->command->getHelpMessage());
     }
 
-    public function invokeDataProvider(): Generator
+    public static function invokeDataProvider(): Generator
     {
         yield 'empty history' => [
             'bikeRepositoryCallResult' => [],

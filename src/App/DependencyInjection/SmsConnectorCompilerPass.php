@@ -28,6 +28,7 @@ class SmsConnectorCompilerPass implements CompilerPassInterface
 
         $smsConnector = new Definition(SmsConnectorInterface::class);
         $smsConnector->setFactory([$factory, 'getConnector']);
+
         $container->setDefinition(SmsConnectorInterface::class, $smsConnector);
     }
 }

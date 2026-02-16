@@ -43,6 +43,7 @@ class UserSettingsRepository
                 ['userId' => $userId, 'settings' => $row['settings'], 'exception' => $e]
             );
         }
+
         $settings = array_merge($this->defaultSettings, $settings);
 
         return $settings;

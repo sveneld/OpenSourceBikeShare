@@ -92,7 +92,7 @@ class AddCommandTest extends BikeSharingWebTestCase
         $this->assertStringContainsString(
             'Hello ' . $firstName . PHP_EOL,
             $sentMessages[0]['message'],
-            'Email does not contain the user\'s first name'
+            "Email does not contain the user's first name"
         );
         # Assert that the email contains the link to the system rules page
         $this->assertStringContainsString(
@@ -116,6 +116,7 @@ class AddCommandTest extends BikeSharingWebTestCase
             if ($listener['pretty'] === 'BikeShare\EventListener\RegistrationEventListener::__invoke') {
                 $this->fail('Registration event listener was not called');
             }
+
             if ($listener['stub'] === 'closure(UserRegistrationEvent $event)') {
                 $this->fail('TestEventListener was not called');
             }

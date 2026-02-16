@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\SmsCommand\HelpCommand;
@@ -33,7 +34,7 @@ class HelpCommandTest extends TestCase
         unset($this->translatorMock, $this->creditSystemMock, $this->command);
     }
 
-    /** @dataProvider invokeDataProvider */
+    #[DataProvider('invokeDataProvider')]
     public function testInvoke(bool $creditSystemCallResult, int $userCallResult, string $message): void
     {
         $userMock = $this->createMock(User::class);
@@ -44,7 +45,7 @@ class HelpCommandTest extends TestCase
         $this->assertSame($message, ($this->command)($userMock));
     }
 
-    public function invokeDataProvider(): Generator
+    public static function invokeDataProvider(): Generator
     {
         yield 'credit system disabled user privileges zero' => [
             'creditSystemCallResult' => false,

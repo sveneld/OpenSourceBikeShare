@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Security\UserProvider;
 use BikeShare\Db\DbInterface;
 use BikeShare\Repository\UserSettingsRepository;
@@ -21,8 +22,8 @@ class SmsRequestControllerTest extends BikeSharingWebTestCase
 
     /**
      * @var Callback|string $expectedSms
-     * @dataProvider smsDataProvider
      */
+    #[DataProvider('smsDataProvider')]
     public function testBaseSmsFlow(
         string $phoneNumber,
         string $message,
@@ -71,7 +72,7 @@ class SmsRequestControllerTest extends BikeSharingWebTestCase
         }
     }
 
-    public function smsDataProvider(): iterable
+    public static function smsDataProvider(): iterable
     {
         yield 'invalid phone number' => [
             'phoneNumber' => '0000000000000',
@@ -116,7 +117,7 @@ class SmsRequestControllerTest extends BikeSharingWebTestCase
             'message' => 'HELP',
             'expectedResponse' => '',
             'expectedResponseCode' => Response::HTTP_OK,
-            'expectedSms' => $this->callback(function ($message) {
+            'expectedSms' => new Callback(static function ($message) {
                 return (bool)preg_match('/Commands:.*/', $message);
             }),
             'expectedLog' => [],
@@ -126,7 +127,7 @@ class SmsRequestControllerTest extends BikeSharingWebTestCase
             'message' => 'WHERE 1',
             'expectedResponse' => '',
             'expectedResponseCode' => Response::HTTP_OK,
-            'expectedSms' => $this->callback(function ($message) {
+            'expectedSms' => new Callback(static function ($message) {
                 return (bool)preg_match('/Bike 1 is at stand STAND\d*. /', $message);
             }),
             'expectedLog' => [],

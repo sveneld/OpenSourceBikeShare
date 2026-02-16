@@ -91,7 +91,7 @@ class MigrateCreditHistoryCommand extends Command
                 }
             } catch (\Exception $e) {
                 $totalErrors++;
-                $io->warning("Error migrating user {$userId}: {$e->getMessage()}");
+                $io->warning(sprintf('Error migrating user %d: %s', $userId, $e->getMessage()));
             }
 
             $io->progressAdvance();
@@ -209,6 +209,7 @@ class MigrateCreditHistoryCommand extends Command
                         ['id' => $record['id']]
                     );
                 }
+
                 $deleted++;
                 continue;
             }
@@ -224,6 +225,7 @@ class MigrateCreditHistoryCommand extends Command
                     // Reverse the transaction to get previous balance
                     $runningBalance -= $amount;
                 }
+
                 continue;
             }
 
@@ -237,6 +239,7 @@ class MigrateCreditHistoryCommand extends Command
                         ['id' => $record['id']]
                     );
                 }
+
                 $deleted++;
                 continue;
             }
@@ -372,7 +375,7 @@ class MigrateCreditHistoryCommand extends Command
         }
 
         // Fallback if nothing parsed
-        if (empty($newRecords) && abs($totalAmount) >= 0.001) {
+        if ($newRecords === [] && abs($totalAmount) >= 0.001) {
             $newRecords[] = [
                 'amount' => $totalAmount,
                 'balance' => 0.0,

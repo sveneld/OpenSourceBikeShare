@@ -72,7 +72,7 @@ class EuroSmsConnector extends AbstractConnector
 
         if ($statusCode < 200 || $statusCode >= 300) {
             // Potentially log error response content: $response->getContent(false)
-            throw new \RuntimeException("Failed to send SMS. API responded with status code: {$statusCode}");
+            throw new \RuntimeException('Failed to send SMS. API responded with status code: ' . $statusCode);
         }
     }
 

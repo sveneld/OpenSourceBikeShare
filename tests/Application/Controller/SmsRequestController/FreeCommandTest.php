@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\StandRepository;
 use BikeShare\SmsConnector\SmsConnectorInterface;
@@ -14,9 +15,7 @@ class FreeCommandTest extends BikeSharingWebTestCase
 {
     private const USER_PHONE_NUMBER = '421951111111';
 
-    /**
-     * @dataProvider freeCommandDataProvider
-     */
+    #[DataProvider('freeCommandDataProvider')]
     public function testFreeCommand(
         array $findFreeBikesResult,
         array $findFreeStandsResult,
@@ -59,7 +58,7 @@ class FreeCommandTest extends BikeSharingWebTestCase
         $this->assertSame($expectedMessage, $sentMessage['text'], 'Invalid response sms text');
     }
 
-    public function freeCommandDataProvider(): iterable
+    public static function freeCommandDataProvider(): iterable
     {
         yield 'no free bikes' => [
             'findFreeBikesResult' => [],

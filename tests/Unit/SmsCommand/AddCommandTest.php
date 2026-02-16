@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Purifier\PhonePurifierInterface;
 use BikeShare\Repository\UserRepository;
@@ -54,7 +55,7 @@ class AddCommandTest extends TestCase
         );
     }
 
-    /** @dataProvider invokeThrowsValidationDataProvider */
+    #[DataProvider('invokeThrowsValidationDataProvider')]
     public function testInvokeThrowsValidation(
         string $phonePurifierCallResult,
         bool $isValid,
@@ -155,7 +156,7 @@ class AddCommandTest extends TestCase
         $this->assertEquals($message, $this->command->getHelpMessage());
     }
 
-    public function invokeThrowsValidationDataProvider(): Generator
+    public static function invokeThrowsValidationDataProvider(): Generator
     {
         yield 'phone number invalid' => [
             'phonePurifierCallResult' => '420123456789',

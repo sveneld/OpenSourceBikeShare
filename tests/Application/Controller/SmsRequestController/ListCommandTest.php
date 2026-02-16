@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\SmsConnector\SmsConnectorInterface;
 use BikeShare\Test\Application\BikeSharingWebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,9 +28,7 @@ class ListCommandTest extends BikeSharingWebTestCase
         parent::tearDown();
     }
 
-    /**
-     * @dataProvider listCommandDataProvider
-     */
+    #[DataProvider('listCommandDataProvider')]
     public function testListCommand(
         bool $forceStack
     ): void {
@@ -87,7 +86,7 @@ class ListCommandTest extends BikeSharingWebTestCase
         }
     }
 
-    public function listCommandDataProvider(): iterable
+    public static function listCommandDataProvider(): iterable
     {
         yield 'force stack off' => [
             'forceStack' => false,

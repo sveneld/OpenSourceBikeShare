@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\Sms;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Db\DbInterface;
 use BikeShare\Sms\SmsSender;
 use BikeShare\SmsConnector\SmsConnectorInterface;
@@ -46,9 +47,7 @@ class SmsSenderTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider sendDataProvider
-     */
+    #[DataProvider('sendDataProvider')]
     public function testSend(
         $number,
         $message,
@@ -68,7 +67,7 @@ class SmsSenderTest extends TestCase
             ->expects($matcher)
             ->method('send')
             ->willReturnCallback(function (...$parameters) use ($matcher, $smsConnectorCallParams) {
-                $this->assertSame($smsConnectorCallParams[$matcher->getInvocationCount() - 1], $parameters);
+                $this->assertSame($smsConnectorCallParams[$matcher->numberOfInvocations() - 1], $parameters);
             });
         $this->smsConnectorMock
             ->expects($this->once())
@@ -79,13 +78,13 @@ class SmsSenderTest extends TestCase
             ->expects($matcher)
             ->method('query')
             ->willReturnCallback(function (...$parameters) use ($matcher, $dbCallParams) {
-                $this->assertSame($dbCallParams[$matcher->getInvocationCount() - 1], $parameters);
+                $this->assertSame($dbCallParams[$matcher->numberOfInvocations() - 1], $parameters);
             });
 
         $this->smsSender->send($number, $message);
     }
 
-    public function sendDataProvider()
+    public static function sendDataProvider()
     {
         yield 'short message' => [
             'number' => '123456789',

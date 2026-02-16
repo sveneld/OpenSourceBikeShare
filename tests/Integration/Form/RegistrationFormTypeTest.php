@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Integration\Form;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Form\RegistrationFormType;
 use BikeShare\Test\Integration\BikeSharingKernelTestCase;
 
 class RegistrationFormTypeTest extends BikeSharingKernelTestCase
 {
-    /**
-     * @dataProvider invalidDataProvider
-     */
+    #[DataProvider('invalidDataProvider')]
     public function testSubmitInvalidData(
         array $formData,
         array $expectedErrors = []
@@ -29,14 +28,16 @@ class RegistrationFormTypeTest extends BikeSharingKernelTestCase
             if (empty($key->getErrors())) {
                 continue;
             }
+
             foreach ($key->getErrors() as $error) {
                 $actualErrors[$key->getName()][] = $error->getMessage();
             }
         }
+
         $this->assertEquals($expectedErrors, $actualErrors);
     }
 
-    public function invalidDataProvider(): iterable
+    public static function invalidDataProvider(): iterable
     {
         $expectedErrors = [
             'fullname' => [
@@ -161,9 +162,7 @@ class RegistrationFormTypeTest extends BikeSharingKernelTestCase
         ];
     }
 
-    /**
-     * @dataProvider fullNamePurifyDataProvider
-     */
+    #[DataProvider('fullNamePurifyDataProvider')]
     public function testFullNamePurify(
         string $fullname,
         string $expectedFullname
@@ -183,7 +182,7 @@ class RegistrationFormTypeTest extends BikeSharingKernelTestCase
         $this->assertSame($expectedFullname, $form->get('fullname')->getData());
     }
 
-    public function fullNamePurifyDataProvider(): iterable
+    public static function fullNamePurifyDataProvider(): iterable
     {
         yield 'default' => [
             'fullname' => 'Test User',
@@ -195,7 +194,7 @@ class RegistrationFormTypeTest extends BikeSharingKernelTestCase
         ];
         yield 'xss code in name' => [
             'fullname' => '<script>alert(Test);</script> User',
-            'expectedfullname' => 'alert(Test); User',
+            'expectedFullname' => 'alert(Test); User',
         ];
     }
 }

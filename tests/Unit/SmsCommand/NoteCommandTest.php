@@ -203,11 +203,12 @@ class NoteCommandTest extends TestCase
         $this->translatorMock
             ->expects($matcher)
             ->method('trans')->willReturnCallback(function (...$parameters) use ($matcher) {
-                if ($matcher->getInvocationCount() === 1) {
+                if ($matcher->numberOfInvocations() === 1) {
                     $this->assertSame('Flat tire on front wheel', $parameters[0]);
                     return 'Flat tire on front wheel';
                 }
-                if ($matcher->getInvocationCount() === 2) {
+
+                if ($matcher->numberOfInvocations() === 2) {
                     $this->assertSame('with bike number/stand name and problem description: {example}', $parameters[0]);
                     return 'Help message';
                 }
@@ -224,11 +225,12 @@ class NoteCommandTest extends TestCase
         $this->translatorMock
             ->expects($matcher)
             ->method('trans')->willReturnCallback(function (...$parameters) use ($matcher) {
-                if ($matcher->getInvocationCount() === 1) {
+                if ($matcher->numberOfInvocations() === 1) {
                     $this->assertSame('Flat tire on front wheel', $parameters[0]);
                     return 'Flat tire on front wheel';
                 }
-                if ($matcher->getInvocationCount() === 2) {
+
+                if ($matcher->numberOfInvocations() === 2) {
                     $this->assertSame('with bike number/stand name and problem description: {example}', $parameters[0]);
                     $this->assertSame(['example' => 'NOTE 42 Flat tire on front wheel'], $parameters[1]);
                     return 'with bike number/stand name and problem description: NOTE 42 Flat tire on front wheel';

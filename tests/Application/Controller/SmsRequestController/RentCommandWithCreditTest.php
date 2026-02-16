@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
 use BikeShare\Enum\CreditChangeType;
@@ -61,6 +62,7 @@ class RentCommandWithCreditTest extends BikeSharingWebTestCase
         if ($userCredit > 0) {
             $creditSystem->decreaseCredit($user['userId'], $userCredit, CreditChangeType::BALANCE_ADJUSTMENT);
         }
+
         $this->client->request(
             Request::METHOD_GET,
             '/receive.php',
@@ -77,9 +79,7 @@ class RentCommandWithCreditTest extends BikeSharingWebTestCase
         parent::tearDown();
     }
 
-    /**
-     * @dataProvider rentCommandDataProvider
-     */
+    #[DataProvider('rentCommandDataProvider')]
     public function testRentCommand(
         bool $isCreditSystemEnabled,
         float $userCredit,

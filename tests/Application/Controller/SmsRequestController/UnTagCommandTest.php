@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Db\DbInterface;
 use BikeShare\Mail\MailSenderInterface;
 use BikeShare\Repository\NoteRepository;
@@ -35,9 +36,7 @@ class UnTagCommandTest extends BikeSharingWebTestCase
         $noteRepository->addNoteToAllBikesOnStand(self::STAND_ID, $user['userId'], 'Note for bike');
     }
 
-    /**
-     * @dataProvider unTagPatternDataProvider
-     */
+    #[DataProvider('unTagPatternDataProvider')]
     public function testUnTagCommandForStand(
         ?string $pattern,
         string $expectedMessage,
@@ -96,8 +95,10 @@ class UnTagCommandTest extends BikeSharingWebTestCase
                         'Invalid message sent to admin'
                     );
                 }
+
                 $notifiedNumbers[] = $sentMessage['number'];
             }
+
             $this->assertEqualsCanonicalizing(
                 array_merge([self::ADMIN_PHONE_NUMBER], array_column($admins, 'number')),
                 $notifiedNumbers,
@@ -131,7 +132,7 @@ class UnTagCommandTest extends BikeSharingWebTestCase
         }
     }
 
-    public function unTagPatternDataProvider(): array
+    public static function unTagPatternDataProvider(): array
     {
         return [
             'No pattern' => [

@@ -76,8 +76,10 @@ class NoteCommandTest extends BikeSharingWebTestCase
                     'Invalid message sent to admin'
                 );
             }
+
             $notifiedNumbers[] = $sentMessage['number'];
         }
+
         $this->assertEqualsCanonicalizing(
             array_merge([self::USER_PHONE_NUMBER], array_column($admins, 'number')),
             $notifiedNumbers,
@@ -144,8 +146,10 @@ class NoteCommandTest extends BikeSharingWebTestCase
                     'Invalid message sent to admin'
                 );
             }
+
             $notifiedNumbers[] = $sentMessage['number'];
         }
+
         $this->assertEqualsCanonicalizing(
             array_merge([self::USER_PHONE_NUMBER], array_column($admins, 'number')),
             $notifiedNumbers,

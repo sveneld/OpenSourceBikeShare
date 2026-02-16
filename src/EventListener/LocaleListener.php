@@ -22,6 +22,7 @@ class LocaleListener
         $locale = $request->getPreferredLanguage($this->enabledLocales) ?? $this->defaultLocale;
 
         $locale = $session->get('_locale', $locale);
+
         $request->setLocale($locale);
     }
 }

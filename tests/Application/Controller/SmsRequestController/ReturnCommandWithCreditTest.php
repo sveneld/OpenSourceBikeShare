@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
 use BikeShare\Enum\CreditChangeType;
@@ -44,6 +45,7 @@ class ReturnCommandWithCreditTest extends BikeSharingWebTestCase
         if ($userCredit > 0) {
             $creditSystem->decreaseCredit($user['userId'], $userCredit, CreditChangeType::BALANCE_ADJUSTMENT);
         }
+
         $this->client->request(
             Request::METHOD_GET,
             '/receive.php',
@@ -60,9 +62,7 @@ class ReturnCommandWithCreditTest extends BikeSharingWebTestCase
         parent::tearDown();
     }
 
-    /**
-     * @dataProvider rentCommandDataProvider
-     */
+    #[DataProvider('rentCommandDataProvider')]
     public function testReturnCommand(
         float $userCredit,
         float $expectedCreditLeft,
@@ -163,11 +163,12 @@ class ReturnCommandWithCreditTest extends BikeSharingWebTestCase
                 $this->fail('TestEventListener was not called');
             }
         }
+
         $creditSystem = $this->client->getContainer()->get(CreditSystemInterface::class);
         $this->assertSame($expectedCreditLeft, $creditSystem->getUserCredit($user['userId']), 'Invalid credit left');
     }
 
-    public function rentCommandDataProvider(): iterable
+    public static function rentCommandDataProvider(): iterable
     {
         yield 'return without credit charge' => [
             'userCredit' => 100,

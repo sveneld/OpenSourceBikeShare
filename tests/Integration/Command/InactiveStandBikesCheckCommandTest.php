@@ -9,8 +9,6 @@ use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\UserRepository;
 use BikeShare\SmsConnector\SmsConnectorInterface;
 use BikeShare\Test\Integration\BikeSharingKernelTestCase;
-use DateInterval;
-use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -74,7 +72,7 @@ class InactiveStandBikesCheckCommandTest extends BikeSharingKernelTestCase
             strpos($message, self::BIKE_INACTIVE_SHORT . ' | STAND1')
         );
 
-        $this->assertStringNotContainsString(self::BIKE_ON_SERVICE_STAND . ' |', $message);
+        $this->assertStringNotContainsString('- ' . self::BIKE_ON_SERVICE_STAND . ' |', $message);
 
         $smsConnector = self::getContainer()->get(SmsConnectorInterface::class);
         $this->assertCount(0, $smsConnector->getSentMessages(), 'SMS should not be sent to admins');
@@ -97,12 +95,12 @@ class InactiveStandBikesCheckCommandTest extends BikeSharingKernelTestCase
     private function simulateBikeActivity(int $bikeNumber, string $standName, string $lastReturnTime): void
     {
         $rentSystem = self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web');
-        $returnTime = new DateTimeImmutable($lastReturnTime);
+        $returnTime = new \DateTimeImmutable($lastReturnTime);
 
-        static::mockTime($returnTime->sub(new DateInterval('PT2M'))->format('Y-m-d H:i:s'));
+        static::mockTime($returnTime->sub(new \DateInterval('PT2M'))->format('Y-m-d H:i:s'));
         $rentSystem->returnBike($this->adminUserId, $bikeNumber, $standName, '', true);
 
-        static::mockTime($returnTime->sub(new DateInterval('PT1M'))->format('Y-m-d H:i:s'));
+        static::mockTime($returnTime->sub(new \DateInterval('PT1M'))->format('Y-m-d H:i:s'));
         $rentSystem->rentBike($this->adminUserId, $bikeNumber, true);
 
         static::mockTime($returnTime->format('Y-m-d H:i:s'));

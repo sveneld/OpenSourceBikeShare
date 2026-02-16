@@ -33,7 +33,7 @@ class TooManyBikeRentEventListenerTest extends BikeSharingKernelTestCase
             ->method('findRentCountByUser')
             ->with(
                 $user['userId'],
-                (new \DateTimeImmutable(self::CURRENT_TIME))
+                new \DateTimeImmutable(self::CURRENT_TIME)
                     ->sub(new \DateInterval('PT' . $_ENV['WATCHES_NUMBER_TOO_MANY'] . 'H'))
             )->willReturn(self::RENT_COUNT);
         $this->getContainer()->set(HistoryRepository::class, $historyRepository);

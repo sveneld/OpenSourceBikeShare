@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsConnector;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\SmsConnector\DisabledConnector;
 use BikeShare\SmsConnector\EuroSmsConnector;
 use BikeShare\SmsConnector\SmsConnectorFactory;
@@ -19,8 +20,8 @@ class SmsConnectorFactoryTest extends TestCase
      * @param bool $debugMode
      * @param string $expectedInstance
      * @param string|null $expectedException
-     * @dataProvider getConnectorDataProvider
      */
+    #[DataProvider('getConnectorDataProvider')]
     public function testGetConnector(
         $connectorName,
         $debugMode,
@@ -41,7 +42,7 @@ class SmsConnectorFactoryTest extends TestCase
                 ->expects($this->once())
                 ->method('get')
                 ->with($connectorName)
-                ->willReturn($this->createMock($expectedInstance));
+                ->willReturn($this->createStub($expectedInstance));
         }
 
         $smsConnectorFactory = new SmsConnectorFactory($connectorName, $serviceLocatorMock, $logger);
@@ -57,11 +58,12 @@ class SmsConnectorFactoryTest extends TestCase
                         && $context['exception']->getMessage() === $expectedExceptionMessage)
                 );
         }
+
         $result = $smsConnectorFactory->getConnector();
         $this->assertInstanceOf($expectedInstance, $result);
     }
 
-    public function getConnectorDataProvider()
+    public static function getConnectorDataProvider()
     {
         yield 'eurosms' => [
             'connectorName' => 'eurosms',

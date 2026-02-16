@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BikeShare\Controller;
 
-use BikeShare\App\Entity\User;
 use BikeShare\App\Security\UserProvider;
 use BikeShare\Notifier\AdminNotifier;
 use BikeShare\Purifier\PhonePurifierInterface;

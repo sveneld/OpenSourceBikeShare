@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Integration\EventListener;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
 use BikeShare\Enum\Action;
@@ -52,9 +53,7 @@ class LongStandBonusEventListenerFunctionalTest extends BikeSharingKernelTestCas
         parent::tearDown();
     }
 
-    /**
-     * @dataProvider bonusDataProvider
-     */
+    #[DataProvider('bonusDataProvider')]
     public function testLongStandBonusLogic(
         int $longStandDays,
         float $longStandBonus,
@@ -114,7 +113,7 @@ class LongStandBonusEventListenerFunctionalTest extends BikeSharingKernelTestCas
         );
     }
 
-    public function bonusDataProvider(): \Generator
+    public static function bonusDataProvider(): \Generator
     {
         yield 'bonus awarded: long stand, different stand' => [
             'longStandDays' => 7,

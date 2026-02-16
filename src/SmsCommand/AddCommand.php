@@ -32,6 +32,7 @@ class AddCommand extends AbstractCommand implements SmsCommandInterface
                 $this->translator->trans('Invalid phone number.')
             );
         }
+
         $phone = $this->phonePurifier->purify($phone);
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

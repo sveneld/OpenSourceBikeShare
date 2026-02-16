@@ -87,7 +87,7 @@ class InactiveStandBikesCheckCommandTest extends TestCase
         $this->adminNotifier
             ->expects($this->once())
             ->method('notify')
-            ->with($this->isType('string'), false)
+            ->with($this->isString(), false)
             ->willReturnCallback(
                 static function (string $message, bool $bySms) use (&$notifiedMessage): void {
                     $notifiedMessage = $message;

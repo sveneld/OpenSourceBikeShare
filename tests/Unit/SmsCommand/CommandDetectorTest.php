@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\SmsCommand\CommandDetector;
 use PHPUnit\Framework\TestCase;
 
 class CommandDetectorTest extends TestCase
 {
-    /**
-     * @dataProvider detectDataProvider
-     */
+    #[DataProvider('detectDataProvider')]
     public function testDetect(string $command, array $expected)
     {
         $detector = new CommandDetector();
@@ -21,7 +20,7 @@ class CommandDetectorTest extends TestCase
     /**
      * @phpcs:disable Generic.Files.LineLength
      */
-    public function detectDataProvider(): iterable
+    public static function detectDataProvider(): iterable
     {
         yield 'HELP' => [
             'command' => 'HELP',

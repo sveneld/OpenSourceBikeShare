@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Repository\StandRepository;
 use BikeShare\SmsCommand\Exception\ValidationException;
@@ -34,7 +35,7 @@ class InfoCommandTest extends TestCase
         unset($this->translatorMock, $this->standRepositoryMock, $this->command);
     }
 
-    /** @dataProvider invokeDataProvider */
+    #[DataProvider('invokeDataProvider')]
     public function testInvoke(float $standLong, float $standLat, string $standPhoto, string $message): void
     {
         $userMock = $this->createMock(User::class);
@@ -98,7 +99,7 @@ class InfoCommandTest extends TestCase
         ($this->command)($userMock, $standName);
     }
 
-    public function invokeDataProvider(): Generator
+    public static function invokeDataProvider(): Generator
     {
         yield 'standLong not empty' => [
             'standLong' => 1.1,

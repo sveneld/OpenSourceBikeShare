@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\SmsConnector\SmsConnectorInterface;
 use BikeShare\Test\Application\BikeSharingWebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,9 +28,7 @@ class HelpCommandTest extends BikeSharingWebTestCase
         parent::tearDown();
     }
 
-    /**
-     * @dataProvider smsHelpDataProvider
-     */
+    #[DataProvider('smsHelpDataProvider')]
     public function testHelpCommand(
         string $phoneNumber,
         array $expectedCommands,
@@ -61,6 +60,7 @@ class HelpCommandTest extends BikeSharingWebTestCase
                 'Response sms text does not contain expected command'
             );
         }
+
         foreach ($notExpectedCommands as $command) {
             $this->assertStringNotContainsString(
                 $command,
@@ -68,13 +68,14 @@ class HelpCommandTest extends BikeSharingWebTestCase
                 'Response sms text contains unexpected command'
             );
         }
+
         $this->assertStringContainsString($phoneNumber, $sentMessage['number'], 'Invalid response sms number');
     }
 
     /**
      * @phpcs:disable Generic.Files.LineLength
      */
-    public function smsHelpDataProvider(): iterable
+    public static function smsHelpDataProvider(): iterable
     {
         yield 'user help' => [
             'phoneNumber' => self::USER_PHONE_NUMBER,

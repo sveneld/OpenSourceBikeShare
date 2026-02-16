@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsConnector;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\SmsConnector\EuroSmsConnector;
 use phpmock\phpunit\PHPMock;
 use PHPUnit\Framework\TestCase;
@@ -11,7 +12,6 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class EuroSmsConnectorTest extends TestCase
 {
@@ -40,20 +40,15 @@ class EuroSmsConnectorTest extends TestCase
 
         $reflection = new \ReflectionClass($smsConnector);
         $gatewayId = $reflection->getProperty('gatewayId');
-        $gatewayId->setAccessible(true);
         $gatewayKey = $reflection->getProperty('gatewayKey');
-        $gatewayKey->setAccessible(true);
         $gatewaySenderNumber = $reflection->getProperty('gatewaySenderNumber');
-        $gatewaySenderNumber->setAccessible(true);
 
         $this->assertEquals('Id', $gatewayId->getValue($smsConnector));
         $this->assertEquals('Key', $gatewayKey->getValue($smsConnector));
         $this->assertEquals('SenderNumber', $gatewaySenderNumber->getValue($smsConnector));
     }
 
-    /**
-     * @dataProvider checkConfigErrorDataProvider
-     */
+    #[DataProvider('checkConfigErrorDataProvider')]
     public function testCheckConfigError(
         ?string $gatewayId,
         ?string $gatewayKey,
@@ -77,7 +72,7 @@ class EuroSmsConnectorTest extends TestCase
     }
 
 
-    public function checkConfigErrorDataProvider(): \Generator
+    public static function checkConfigErrorDataProvider(): \Generator
     {
         yield 'gatewayId is empty' => [
             '',
@@ -148,7 +143,6 @@ class EuroSmsConnectorTest extends TestCase
         // Create a spy for the calculateSignature method
         $reflection = new \ReflectionClass($smsConnector);
         $calculateSignature = $reflection->getMethod('calculateSignature');
-        $calculateSignature->setAccessible(true);
         $expectedSignature = $calculateSignature->invoke($smsConnector, $phoneNumber, $message);
 
         $smsConnector->send($phoneNumber, $message);

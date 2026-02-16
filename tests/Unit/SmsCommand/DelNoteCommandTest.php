@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\NoteRepository;
@@ -53,7 +54,7 @@ class DelNoteCommandTest extends TestCase
         );
     }
 
-    /** @dataProvider invokeThrowsWhenBikeIsNullDataProvider */
+    #[DataProvider('invokeThrowsWhenBikeIsNullDataProvider')]
     public function testInvokeThrowsWhenBikeNumberIsNull(
         array $bikeRepositoryCallResult,
         array $translatorCallParams,
@@ -87,7 +88,7 @@ class DelNoteCommandTest extends TestCase
         ($this->command)($userMock, $bikeNumber, null, $pattern);
     }
 
-    /** @dataProvider invokeThrowsWhenStandNameIsNotNullDataProvider */
+    #[DataProvider('invokeThrowsWhenStandNameIsNotNullDataProvider')]
     public function testInvokeThrowsWhenStandNameIsNotNull(
         string $standName,
         array $translatorCallParams,
@@ -115,7 +116,7 @@ class DelNoteCommandTest extends TestCase
             ->expects($matcher)
             ->method('deleteStandNote')
             ->willReturnCallback(function (...$parameters) use ($matcher, $noteRepositoryCallParams) {
-                $this->assertSame($noteRepositoryCallParams[$matcher->getInvocationCount() - 1], $parameters);
+                $this->assertSame($noteRepositoryCallParams[$matcher->numberOfInvocations() - 1], $parameters);
                 return 0;
             });
 
@@ -146,7 +147,7 @@ class DelNoteCommandTest extends TestCase
         ($this->command)($userMock);
     }
 
-    /** @dataProvider invokeReturnMessageDataProvider */
+    #[DataProvider('invokeReturnMessageDataProvider')]
     public function testInvokeReturnMessage(
         ?int $bikeNumber,
         array $bikeRepositoryCallParams,
@@ -172,7 +173,7 @@ class DelNoteCommandTest extends TestCase
             ->willReturnCallback(
                 function (...$parameters) use ($matcher, $noteRepositoryDeleteBikeNoteCallParams) {
                     $this->assertSame(
-                        $noteRepositoryDeleteBikeNoteCallParams[$matcher->getInvocationCount() - 1],
+                        $noteRepositoryDeleteBikeNoteCallParams[$matcher->numberOfInvocations() - 1],
                         $parameters
                     );
 
@@ -186,7 +187,7 @@ class DelNoteCommandTest extends TestCase
             ->willReturnCallback(
                 function (...$parameters) use ($matcher, $noteRepositoryDeleteStandNoteCallParams) {
                     $this->assertSame(
-                        $noteRepositoryDeleteStandNoteCallParams[$matcher->getInvocationCount() - 1],
+                        $noteRepositoryDeleteStandNoteCallParams[$matcher->numberOfInvocations() - 1],
                         $parameters
                     );
 
@@ -225,7 +226,7 @@ class DelNoteCommandTest extends TestCase
         $this->assertEquals($translatedMessage, $this->command->getHelpMessage());
     }
 
-    public function invokeThrowsWhenBikeIsNullDataProvider(): Generator
+    public static function invokeThrowsWhenBikeIsNullDataProvider(): Generator
     {
         yield 'empty bikeInfo' => [
             'bikeRepositoryCallResult' => [],
@@ -260,7 +261,7 @@ class DelNoteCommandTest extends TestCase
         ];
     }
 
-    public function invokeThrowsWhenStandNameIsNotNullDataProvider(): Generator
+    public static function invokeThrowsWhenStandNameIsNotNullDataProvider(): Generator
     {
         yield 'unrecognized standName' => [
             'standName' => 'SAFKO4ZRUSENY',
@@ -317,7 +318,7 @@ class DelNoteCommandTest extends TestCase
         ];
     }
 
-    public function invokeReturnMessageDataProvider(): Generator
+    public static function invokeReturnMessageDataProvider(): Generator
     {
         yield 'bikeNumber is not null and pattern is null' => [
             'bikeNumber' => 123,

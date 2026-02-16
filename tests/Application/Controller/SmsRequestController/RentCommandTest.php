@@ -7,7 +7,6 @@ namespace BikeShare\Test\Application\Controller\SmsRequestController;
 use BikeShare\Db\DbInterface;
 use BikeShare\Event\BikeRentEvent;
 use BikeShare\Rent\RentSystemFactory;
-use BikeShare\Rent\RentSystemInterface;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\UserRepository;
 use BikeShare\SmsConnector\SmsConnectorInterface;

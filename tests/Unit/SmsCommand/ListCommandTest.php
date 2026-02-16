@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Unit\SmsCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Entity\User;
 use BikeShare\Repository\StandRepository;
 use BikeShare\SmsCommand\Exception\ValidationException;
@@ -71,7 +72,7 @@ class ListCommandTest extends TestCase
         ($command)($this->createMock(User::class), $standName);
     }
 
-    /** @dataProvider invokeDataProvider */
+    #[DataProvider('invokeDataProvider')]
     public function testInvoke(
         bool $forceStack,
         int $standRepositoryFindLastReturnedCallAmount,
@@ -107,9 +108,9 @@ class ListCommandTest extends TestCase
             ->method('trans')
             ->willReturnCallback(
                 function (...$parameters) use ($matcher, $translatorCallParams, $translatorCallResult) {
-                    $this->assertSame($translatorCallParams[$matcher->getInvocationCount() - 1], $parameters);
+                    $this->assertSame($translatorCallParams[$matcher->numberOfInvocations() - 1], $parameters);
 
-                    return $translatorCallResult[$matcher->getInvocationCount() - 1];
+                    return $translatorCallResult[$matcher->numberOfInvocations() - 1];
                 }
             );
 
@@ -130,7 +131,7 @@ class ListCommandTest extends TestCase
         $this->assertEquals($message, $command->getHelpMessage());
     }
 
-    public function invokeDataProvider(): Generator
+    public static function invokeDataProvider(): Generator
     {
         yield 'force stack is true and bikesOnStand empty' => [
             'forceStack' => true,

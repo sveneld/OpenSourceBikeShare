@@ -212,12 +212,13 @@ class UnTagCommandTest extends TestCase
             ->method('trans')
             ->willReturnCallback(
                 function (...$parameters) use ($matcher) {
-                    if ($matcher->getInvocationCount() === 1) {
+                    if ($matcher->numberOfInvocations() === 1) {
                         $this->assertSame('vandalism', $parameters[0]);
 
                         return 'vandalism';
                     }
-                    if ($matcher->getInvocationCount() === 2) {
+
+                    if ($matcher->numberOfInvocations() === 2) {
                         $this->assertSame(
                             'with stand name and optional pattern. '
                                 . 'All notes matching pattern will be deleted for all bikes on that stand: {example}',

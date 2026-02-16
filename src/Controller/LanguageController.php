@@ -41,7 +41,7 @@ class LanguageController extends AbstractController
         }
 
         $referer = $request->headers->get('referer');
-        if ($referer && strpos($referer, '/switchLanguage') === false) {
+        if ($referer && !str_contains($referer, '/switchLanguage')) {
             return $this->redirect($referer);
         }
 

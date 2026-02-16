@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Integration\Rent;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
 use BikeShare\Enum\Action;
@@ -55,6 +56,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
         if ($userCredit > 0) {
             $creditSystem->decreaseCredit($user['userId'], $userCredit, CreditChangeType::BALANCE_ADJUSTMENT);
         }
+
         #force return bike by admin
         $admin = self::getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
@@ -71,9 +73,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
         parent::tearDown();
     }
 
-    /**
-     * @dataProvider rentCommandDataProvider
-     */
+    #[DataProvider('rentCommandDataProvider')]
     public function testReturnCommand(
         array $configuration,
         float $userCredit,
@@ -85,6 +85,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
         foreach ($configuration as $key => $value) {
             $_ENV[$key] = $value;
         }
+
         $db = self::getContainer()->get(DbInterface::class);
         $user = self::getContainer()->get(UserRepository::class)->findItemByPhoneNumber(self::USER_PHONE_NUMBER);
         $db->query('DELETE FROM history WHERE userId = :userId', ['userId' => $user['userId']]);
@@ -138,6 +139,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
                 $this->fail('TestEventListener was not called');
             }
         }
+
         $creditSystem = self::getContainer()->get(CreditSystemInterface::class);
         $this->assertSame($expectedCreditLeft, $creditSystem->getUserCredit($user['userId']), 'Invalid credit left');
 
@@ -155,6 +157,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
                 if (($parameter['reason'] ?? '') === CreditChangeType::CREDIT_ADD->value) {
                     continue;
                 }
+
                 $creditChanges[] = $parameter;
             }
         }
@@ -163,13 +166,13 @@ class RentSystemTest extends BikeSharingKernelTestCase
 
         foreach ($expectedCreditChanges as $index => $expected) {
             $actual = $creditChanges[$index] ?? [];
-            $this->assertSame($expected['reason'], $actual['reason'] ?? '', "Reason mismatch at index $index");
-            $this->assertSame($expected['amount'], $actual['amount'] ?? 0, "Amount mismatch at index $index");
-            $this->assertSame($expected['balance'], $actual['balance'] ?? 0, "Balance mismatch at index $index");
+            $this->assertSame($expected['reason'], $actual['reason'] ?? '', 'Reason mismatch at index ' . $index);
+            $this->assertSame($expected['amount'], $actual['amount'] ?? 0, 'Amount mismatch at index ' . $index);
+            $this->assertSame($expected['balance'], $actual['balance'] ?? 0, 'Balance mismatch at index ' . $index);
         }
     }
 
-    public function rentCommandDataProvider(): iterable
+    public static function rentCommandDataProvider(): iterable
     {
         $startCredit = 100;
 
@@ -264,7 +267,6 @@ class RentSystemTest extends BikeSharingKernelTestCase
                 'expectedCreditLeft' => $startCredit - 2 - 2 - 2 * 2 - 2 * 4 - 2 * 4,
                 // rental fee (2) + first 5 minutes (2) + second 5 minutes (2 * 2)
                 // + third 5 minutes (2 * 4) + fourth 5 minutes (2 * 4)
-                'expectedCreditHistory' => '24|overfree-2;double-2;double-4;double-8;double-8;',
                 'expectedCreditChanges' => [
                      // Application order: over_free_time, double_price loop
                      // History ID order: over_free_time < double_1 < double_2 < double_3 < double_4
@@ -296,6 +298,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
         $db = self::getContainer()->get(DbInterface::class);
 
         $db->query('DELETE FROM history WHERE userId = :userId', ['userId' => $user['userId']]);
+
         $creditSystem->increaseCredit($user['userId'], 100, CreditChangeType::CREDIT_ADD);
         $rentSystem->rentBike($user['userId'], self::BIKE_NUMBER);
         static::mockTime('+ 25 minutes');
