@@ -22,7 +22,9 @@ class BikeLastUsageTest extends BikeSharingWebTestCase
         $user = $this->client->getContainer()->get(UserProvider::class)->loadUserByIdentifier(self::ADMIN_PHONE_NUMBER);
         $this->client->loginUser($user);
 
-        $rentSystemFactory = $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB);
+        $rentSystemFactory = $this->client->getContainer()
+            ->get(RentSystemFactory::class)
+            ->getRentSystem(RentSystemType::WEB);
         $rentSystemFactory->returnBike($user->getUserId(), self::BIKE_NUMBER, self::STAND_NAME, '', true);
         $rentSystemFactory->rentBike($user->getUserId(), self::BIKE_NUMBER);
         $rentSystemFactory->returnBike($user->getUserId(), self::BIKE_NUMBER, self::STAND_NAME);

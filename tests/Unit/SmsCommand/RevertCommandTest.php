@@ -44,7 +44,7 @@ class RevertCommandTest extends TestCase
             ->expects($this->once())
             ->method('revertBike')
             ->with($userId, $bikeNumber)
-            ->willReturn(new RentSystemResult(false, $expectedMessage, 'bike.revert.success', [], RentSystemType::SMS));
+            ->willReturn(new RentSystemResult(false, $expectedMessage, 'bike.revert.success', RentSystemType::SMS, []));
 
         $this->assertSame($expectedMessage, ($this->command)($userMock, $bikeNumber));
     }

@@ -46,7 +46,7 @@ class ReturnCommandTest extends TestCase
             ->expects($this->once())
             ->method('returnBike')
             ->with($userId, $bikeNumber, $standName, $note)
-            ->willReturn(new RentSystemResult(false, $expectedMessage, 'bike.return.success', [], RentSystemType::SMS));
+            ->willReturn(new RentSystemResult(false, $expectedMessage, 'bike.return.success', RentSystemType::SMS, []));
 
         $this->assertSame($expectedMessage, ($this->command)($userMock, $bikeNumber, $standName, $note));
     }

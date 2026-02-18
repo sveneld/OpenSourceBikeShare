@@ -12,8 +12,8 @@ class RentSystemResult implements \JsonSerializable
         private readonly bool $error,
         private readonly string $message,
         private readonly string $code,
-        private readonly array $params = [],
         private readonly RentSystemType $systemType,
+        private readonly array $params = [],
     ) {
         if (trim($this->message) === '') {
             throw new \InvalidArgumentException('message cannot be empty.');
@@ -56,7 +56,6 @@ class RentSystemResult implements \JsonSerializable
             'message' => $this->message,
             'code' => $this->code,
             'params' => $this->params,
-            'systemType' => $this->systemType->value,
         ];
     }
 }

@@ -452,7 +452,7 @@ abstract class AbstractRentSystem implements RentSystemInterface
 
     protected function createResult(bool $error, string $message, string $code, array $params = []): RentSystemResult
     {
-        return new RentSystemResult($error, $this->normalizeMessage($message), $code, $params, static::getType());
+        return new RentSystemResult($error, $this->normalizeMessage($message), $code, static::getType(), $params);
     }
 
     protected function normalizeMessage(string $message): string
