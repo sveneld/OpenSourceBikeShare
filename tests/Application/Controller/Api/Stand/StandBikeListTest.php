@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\Api\Stand;
 
+use BikeShare\Rent\Enum\RentSystemType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\App\Security\UserProvider;
 use BikeShare\Rent\RentSystemFactory;
@@ -41,7 +42,7 @@ class StandBikeListTest extends BikeSharingWebTestCase
         #add bike to stand with note
         $admin = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
-        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,

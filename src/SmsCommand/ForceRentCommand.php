@@ -24,7 +24,7 @@ class ForceRentCommand extends AbstractCommand implements SmsCommandInterface
     {
         $response = $this->rentSystem->rentBike($user->getUserId(), $bikeNumber, true);
 
-        return $response['message'];
+        return $response->getMessage();
     }
 
     public function getHelpMessage(): string

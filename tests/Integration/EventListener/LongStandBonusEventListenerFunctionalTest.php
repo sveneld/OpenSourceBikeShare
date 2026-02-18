@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Integration\EventListener;
 
+use BikeShare\Rent\Enum\RentSystemType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
@@ -46,7 +47,7 @@ class LongStandBonusEventListenerFunctionalTest extends BikeSharingKernelTestCas
 
         $admin = self::getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
-        self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike($admin['userId'], self::BIKE_NUMBER, self::STAND1_NAME, '', true);
 
         $_ENV = $this->originalEnv;
@@ -70,7 +71,7 @@ class LongStandBonusEventListenerFunctionalTest extends BikeSharingKernelTestCas
         $userRepository = self::getContainer()->get(UserRepository::class);
         $standRepository = self::getContainer()->get(StandRepository::class);
         $creditSystem = self::getContainer()->get(CreditSystemInterface::class);
-        $rentSystem = self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web');
+        $rentSystem = self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB);
 
         $user = $userRepository->findItemByPhoneNumber(self::USER_PHONE_NUMBER);
         $admin = $userRepository->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);

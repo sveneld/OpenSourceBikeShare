@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Rent;
 
+use BikeShare\Rent\Enum\RentSystemType;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 class RentSystemFactory
@@ -13,10 +14,10 @@ class RentSystemFactory
     ) {
     }
 
-    public function getRentSystem(string $type): RentSystemInterface
+    public function getRentSystem(RentSystemType $type): RentSystemInterface
     {
-        if ($this->locator->has($type)) {
-            return $this->locator->get($type);
+        if ($this->locator->has($type->value)) {
+            return $this->locator->get($type->value);
         }
 
         throw new \InvalidArgumentException('Invalid rent system type');

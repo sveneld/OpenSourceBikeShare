@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace BikeShare\Test\Unit\SmsCommand;
 
 use BikeShare\App\Entity\User;
+use BikeShare\Rent\DTO\RentSystemResult;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemInterface;
 use BikeShare\SmsCommand\RevertCommand;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -42,7 +44,7 @@ class RevertCommandTest extends TestCase
             ->expects($this->once())
             ->method('revertBike')
             ->with($userId, $bikeNumber)
-            ->willReturn(['message' => $expectedMessage]);
+            ->willReturn(new RentSystemResult(false, $expectedMessage, 'bike.revert.success', RentSystemType::SMS, []));
 
         $this->assertSame($expectedMessage, ($this->command)($userMock, $bikeNumber));
     }

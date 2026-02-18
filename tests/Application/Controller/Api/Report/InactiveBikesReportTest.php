@@ -6,6 +6,7 @@ namespace BikeShare\Test\Application\Controller\Api\Report;
 
 use BikeShare\App\Security\UserProvider;
 use BikeShare\Db\DbInterface;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\UserRepository;
 use BikeShare\Test\Application\BikeSharingWebTestCase;
@@ -109,7 +110,7 @@ class InactiveBikesReportTest extends BikeSharingWebTestCase
 
     private function simulateBikeActivity(int $bikeNumber, string $standName, string $lastReturnTime): void
     {
-        $rentSystem = $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('web');
+        $rentSystem = $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB);
         $returnTime = new \DateTimeImmutable($lastReturnTime);
 
         static::mockTime($returnTime->sub(new \DateInterval('PT2M'))->format('Y-m-d H:i:s'));
@@ -137,7 +138,7 @@ class InactiveBikesReportTest extends BikeSharingWebTestCase
     {
         static::mockTime('2000-01-01 00:00:00');
 
-        $rentSystem = $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('web');
+        $rentSystem = $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB);
         foreach ([self::BIKE_INACTIVE_SHORT, self::BIKE_INACTIVE_LONG, self::BIKE_ON_SERVICE_STAND] as $bikeNumber) {
             $rentSystem->returnBike($this->adminUserId, $bikeNumber, self::SERVICE_STAND_NAME, '', true);
         }

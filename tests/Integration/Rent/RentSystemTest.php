@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Integration\Rent;
 
+use BikeShare\Rent\Enum\RentSystemType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Credit\CreditSystemInterface;
 use BikeShare\Db\DbInterface;
@@ -36,7 +37,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
         #force return bike by admin
         $admin = self::getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
-        self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,
@@ -60,7 +61,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
         #force return bike by admin
         $admin = self::getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
-        self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,
@@ -108,12 +109,12 @@ class RentSystemTest extends BikeSharingKernelTestCase
         );
 
         #rent bike by user
-        self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->rentBike($user['userId'], self::BIKE_NUMBER);
 
         static::mockTime('+' . $returnTimeMoveToFuture . ' seconds');
         #return bike by user
-        $result = self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        $result = self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike($user['userId'], self::BIKE_NUMBER, self::STAND_NAME);
 
         $bike = self::getContainer()->get(BikeRepository::class)->findItem(self::BIKE_NUMBER);
@@ -294,7 +295,7 @@ class RentSystemTest extends BikeSharingKernelTestCase
 
         $user = self::getContainer()->get(UserRepository::class)->findItemByPhoneNumber(self::USER_PHONE_NUMBER);
         $creditSystem = self::getContainer()->get(CreditSystemInterface::class);
-        $rentSystem = self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web');
+        $rentSystem = self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB);
         $db = self::getContainer()->get(DbInterface::class);
 
         $db->query('DELETE FROM history WHERE userId = :userId', ['userId' => $user['userId']]);
@@ -334,32 +335,32 @@ class RentSystemTest extends BikeSharingKernelTestCase
         $admin = self::getContainer()->get(UserRepository::class)->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
         $user = self::getContainer()->get(UserRepository::class)->findItemByPhoneNumber(self::USER_PHONE_NUMBER);
         //use sms rent system for better text parsing
-        $rentSystem = self::getContainer()->get(RentSystemFactory::class)->getRentSystem('sms');
+        $rentSystem = self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::SMS);
 
         // First rent by user
         $response = $rentSystem->rentBike($user['userId'], self::BIKE_NUMBER);
-        $this->assertSame('bike.rent.success', $response['code']);
-        $this->assertArrayHasKey('params', $response);
-        $this->assertArrayHasKey('bikeNumber', $response['params']);
-        $this->assertArrayHasKey('currentCode', $response['params']);
-        $this->assertArrayHasKey('newCode', $response['params']);
-        $this->assertSame(self::BIKE_NUMBER, $response['params']['bikeNumber']);
+        $this->assertSame('bike.rent.success', $response->getCode());
+        $responseParams = $response->getParams();
+        $this->assertArrayHasKey('bikeNumber', $responseParams);
+        $this->assertArrayHasKey('currentCode', $responseParams);
+        $this->assertArrayHasKey('newCode', $responseParams);
+        $this->assertSame(self::BIKE_NUMBER, $responseParams['bikeNumber']);
 
         // Second rent
         $response2 = $rentSystem->rentBike($user['userId'], self::BIKE_NUMBER);
-        $this->assertSame('bike.rent.error.already_rented_by_current_user', $response2['code']);
-        $this->assertArrayHasKey('params', $response2);
-        $this->assertArrayHasKey('bikeNumber', $response2['params']);
-        $this->assertArrayHasKey('currentCode', $response2['params']);
-        $this->assertSame(self::BIKE_NUMBER, $response2['params']['bikeNumber']);
-        $this->assertSame($response['params']['newCode'], $response2['params']['currentCode']);
+        $this->assertSame('bike.rent.error.already_rented_by_current_user', $response2->getCode());
+        $response2Params = $response2->getParams();
+        $this->assertArrayHasKey('bikeNumber', $response2Params);
+        $this->assertArrayHasKey('currentCode', $response2Params);
+        $this->assertSame(self::BIKE_NUMBER, $response2Params['bikeNumber']);
+        $this->assertSame($responseParams['newCode'], $response2Params['currentCode']);
 
         //Try rent bike by admin without force
         $response3 = $rentSystem->rentBike($admin['userId'], self::BIKE_NUMBER);
-        $this->assertSame('bike.rent.error.already_rented', $response3['code']);
-        $this->assertArrayHasKey('params', $response3);
-        $this->assertArrayHasKey('bikeNumber', $response3['params']);
-        $this->assertSame(self::BIKE_NUMBER, $response3['params']['bikeNumber']);
+        $this->assertSame('bike.rent.error.already_rented', $response3->getCode());
+        $response3Params = $response3->getParams();
+        $this->assertArrayHasKey('bikeNumber', $response3Params);
+        $this->assertSame(self::BIKE_NUMBER, $response3Params['bikeNumber']);
     }
 
     public function testAdminCanRentBikeFromServiceStand(): void
@@ -372,14 +373,14 @@ class RentSystemTest extends BikeSharingKernelTestCase
         $admin = $userRepository->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
         $user = $userRepository->findItemByPhoneNumber(self::USER_PHONE_NUMBER);
 
-        $rentSystem = $rentSystemFactory->getRentSystem('web');
+        $rentSystem = $rentSystemFactory->getRentSystem(RentSystemType::WEB);
         $rentSystem->returnBike($admin['userId'], self::BIKE_NUMBER, self::SERVICE_STAND_NAME, '', true);
 
         $userResponse = $rentSystem->rentBike($user['userId'], self::BIKE_NUMBER);
-        $this->assertSame('bike.rent.error.service_stand', $userResponse['code']);
+        $this->assertSame('bike.rent.error.service_stand', $userResponse->getCode());
 
         $adminWebResponse = $rentSystem->rentBike($admin['userId'], self::BIKE_NUMBER);
-        $this->assertSame('bike.rent.success', $adminWebResponse['code']);
+        $this->assertSame('bike.rent.success', $adminWebResponse->getCode());
 
         $rentSystem->returnBike(
             $admin['userId'],

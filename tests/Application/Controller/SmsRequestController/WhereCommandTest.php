@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
+use BikeShare\Rent\Enum\RentSystemType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\UserRepository;
@@ -24,7 +25,7 @@ class WhereCommandTest extends BikeSharingWebTestCase
         $admin = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
 
-        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,

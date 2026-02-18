@@ -6,6 +6,7 @@ namespace BikeShare\Test\Application\Controller\Api\Bike;
 
 use BikeShare\App\Security\UserProvider;
 use BikeShare\Db\DbInterface;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Test\Application\BikeSharingWebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +22,9 @@ class BikeTripTest extends BikeSharingWebTestCase
         $user = $this->client->getContainer()->get(UserProvider::class)->loadUserByIdentifier(self::ADMIN_PHONE_NUMBER);
         $this->client->loginUser($user);
 
-        $rentSystemFactory = $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('web');
+        $rentSystemFactory = $this->client->getContainer()
+            ->get(RentSystemFactory::class)
+            ->getRentSystem(RentSystemType::WEB);
         $rentSystemFactory->rentBike($user->getUserId(), self::BIKE_NUMBER, true);
         $rentSystemFactory->returnBike($user->getUserId(), self::BIKE_NUMBER, self::STAND_NAME);
 

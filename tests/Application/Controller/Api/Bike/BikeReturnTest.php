@@ -7,6 +7,7 @@ namespace BikeShare\Test\Application\Controller\Api\Bike;
 use BikeShare\App\Security\UserProvider;
 use BikeShare\Db\DbInterface;
 use BikeShare\Event\BikeReturnEvent;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\StandRepository;
@@ -31,7 +32,7 @@ class BikeReturnTest extends BikeSharingWebTestCase
         $admin = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
 
-        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,
@@ -45,7 +46,7 @@ class BikeReturnTest extends BikeSharingWebTestCase
     {
         $admin = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
-        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,
@@ -70,7 +71,7 @@ class BikeReturnTest extends BikeSharingWebTestCase
         $response = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('message', $response, 'Response does not contain message key');
         $this->assertArrayHasKey('error', $response, 'Response does not contain error key');
-        $this->assertSame(0, $response['error'], 'Response with error: ' . $response['message']);
+        $this->assertFalse($response['error'], 'Response with error: ' . $response['message']);
 
         $this->client->getContainer()->get('event_dispatcher')->addListener(
             BikeReturnEvent::class,
@@ -95,7 +96,7 @@ class BikeReturnTest extends BikeSharingWebTestCase
         $this->assertArrayHasKey('error', $response, 'Response does not contain error key');
         $this->assertArrayHasKey('code', $response, 'Response does not contain code');
         $this->assertArrayHasKey('params', $response, 'Response does not contain params');
-        $this->assertSame(0, $response['error'], 'Response with error: ' . $response['message']);
+        $this->assertFalse($response['error'], 'Response with error: ' . $response['message']);
         $this->assertSame($response['code'], 'bike.return.success', 'Invalid response code');
         $this->assertArrayHasKey('bikeNumber', $response['params'], 'Response params does not contain bikeNumber');
         $this->assertArrayHasKey('standName', $response['params'], 'Response params does not contain standName');

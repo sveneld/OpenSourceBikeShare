@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace BikeShare\Rent;
 
+use BikeShare\Rent\Enum\RentSystemType;
+
 class RentSystemSms extends AbstractRentSystem implements RentSystemInterface
 {
-    public static function getType(): string
+    public static function getType(): RentSystemType
     {
-        return 'sms';
+        return RentSystemType::SMS;
     }
 
-    protected function response($message, $error = 0, string $code = '', array $params = []): array
+    protected function normalizeMessage(string $message): string
     {
-        return [
-            'error' => $error,
-            'message' => strip_tags($message),
-            'code' => $code,
-            'params' => $params,
-        ];
+        return strip_tags($message);
     }
 }
