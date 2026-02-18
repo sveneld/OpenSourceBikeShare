@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BikeShare\Controller;
 
 use BikeShare\Db\DbInterface;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\StandRepository;
@@ -44,15 +45,15 @@ class ScanController extends AbstractController
             && $request->request->has('rent')
             && $request->request->get('rent') === "yes"
         ) {
-            $rentSystem = $this->rentSystemFactory->getRentSystem('qr');
+            $rentSystem = $this->rentSystemFactory->getRentSystem(RentSystemType::QR);
             $result = $rentSystem->rentBike($this->getUser()->getUserId(), $bikeNumber);
-            if ($result['error']) {
-                $error = $result['message'];
+            if ($result->isError()) {
+                $error = $result->getMessage();
             } else {
-                $message = $result['message'];
+                $message = $result->getMessage();
             }
 
-            $this->logResponse($result['message']);
+            $this->logResponse($result->getMessage());
         }
 
         return $this->render('scan/rent.html.twig', [
@@ -73,15 +74,15 @@ class ScanController extends AbstractController
         if (empty($stand)) {
             $error = $this->translator->trans('Stand {standName} does not exist.', ['standName' => $standName]);
         } else {
-            $rentSystem = $this->rentSystemFactory->getRentSystem('qr');
+            $rentSystem = $this->rentSystemFactory->getRentSystem(RentSystemType::QR);
             $result = $rentSystem->returnBike($this->getUser()->getUserId(), 0, $standName);
-            if ($result['error']) {
-                $error = $result['message'];
+            if ($result->isError()) {
+                $error = $result->getMessage();
             } else {
-                $message = $result['message'];
+                $message = $result->getMessage();
             }
 
-            $this->logResponse($result['message']);
+            $this->logResponse($result->getMessage());
         }
 
         return $this->render('scan/return.html.twig', [

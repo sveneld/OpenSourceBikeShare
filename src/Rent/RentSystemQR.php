@@ -2,19 +2,22 @@
 
 namespace BikeShare\Rent;
 
+use BikeShare\Rent\DTO\RentSystemResult;
+use BikeShare\Rent\Enum\RentSystemType;
+
 /**
  * @phpcs:disable Generic.Files.LineLength
  */
 class RentSystemQR extends AbstractRentSystem implements RentSystemInterface
 {
-    public function rentBike($userId, $bikeId, $force = false)
+    public function rentBike($userId, $bikeId, $force = false): RentSystemResult
     {
         $force = false; #rent by qr code cannot be forced
 
         return parent::rentBike($userId, $bikeId, $force);
     }
 
-    public function returnBike($userId, $bikeId, $standName, $note = '', $force = false)
+    public function returnBike($userId, $bikeId, $standName, $note = '', $force = false): RentSystemResult
     {
         $force = false; #return by qr code cannot be forced
         $note = ''; #note cannot be provided via qr code
@@ -22,9 +25,8 @@ class RentSystemQR extends AbstractRentSystem implements RentSystemInterface
         if ($bikeId !== 0) {
             $this->logger->error("Bike number could not be provided via QR code", ["userId" => $userId]);
 
-            return $this->response(
+            return $this->error(
                 $this->translator->trans('Invalid bike number'),
-                self::ERROR,
                 'bike.return.error.invalid_bike_number'
             );
         }
@@ -33,9 +35,8 @@ class RentSystemQR extends AbstractRentSystem implements RentSystemInterface
         $bikeNumber = $result->rowCount();
 
         if ($bikeNumber === 0) {
-            return $this->response(
+            return $this->error(
                 $this->translator->trans('You currently have no rented bikes.'),
-                self::ERROR,
                 'bike.return.error.no_rented_bikes'
             );
         } elseif ($bikeNumber > 1) {
@@ -50,9 +51,8 @@ class RentSystemQR extends AbstractRentSystem implements RentSystemInterface
                 );
             }
 
-            return $this->response(
+            return $this->error(
                 $message,
-                self::ERROR,
                 'bike.return.error.multiple_rented_bikes',
                 ['bikeNumber' => $bikeNumber],
             );
@@ -63,17 +63,16 @@ class RentSystemQR extends AbstractRentSystem implements RentSystemInterface
         return parent::returnBike($userId, $bikeId, $standName, $note, $force);
     }
 
-    public function revertBike($userId, $bikeId)
+    public function revertBike($userId, $bikeId): RentSystemResult
     {
-        return $this->response(
+        return $this->error(
             $this->translator->trans('Revert is not supported for QR code'),
-            self::ERROR,
             'bike.revert.error.not_supported'
         );
     }
 
-    public static function getType(): string
+    public static function getType(): RentSystemType
     {
-        return 'qr';
+        return RentSystemType::QR;
     }
 }

@@ -8,6 +8,7 @@ use BikeShare\App\Security\UserProvider;
 use BikeShare\Db\DbInterface;
 use BikeShare\Event\BikeRentEvent;
 use BikeShare\Event\BikeReturnEvent;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\StandRepository;
@@ -32,7 +33,7 @@ class ScanControllerTest extends BikeSharingWebTestCase
         $admin = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
 
-        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('sms')
+        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::SMS)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,
@@ -46,7 +47,7 @@ class ScanControllerTest extends BikeSharingWebTestCase
     {
         $admin = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
-        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('sms')
+        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::SMS)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,

@@ -60,7 +60,7 @@ class BikeForceRentReturnTest extends BikeSharingWebTestCase
         $this->assertArrayHasKey('error', $response, 'Response does not contain error key');
         $this->assertArrayHasKey('code', $response, 'Response does not contain code');
         $this->assertArrayHasKey('params', $response, 'Response does not contain params');
-        $this->assertSame(0, $response['error'], 'Response with error: ' . json_encode($response));
+        $this->assertFalse($response['error'], 'Response with error: ' . json_encode($response));
         $this->assertArrayHasKey('bikeNumber', $response['params'], 'Response params does not contain bikeNumber');
         $this->assertArrayHasKey('currentCode', $response['params'], 'Response params does not contain currentCode');
         $this->assertArrayHasKey('newCode', $response['params'], 'Response params does not contain newCode');
@@ -140,7 +140,7 @@ class BikeForceRentReturnTest extends BikeSharingWebTestCase
         $this->assertArrayHasKey('error', $response, 'Response does not contain error key');
         $this->assertArrayHasKey('code', $response, 'Response does not contain code');
         $this->assertArrayHasKey('params', $response, 'Response does not contain params');
-        $this->assertSame(0, $response['error'], 'Response with error: ' . $response['message']);
+        $this->assertFalse($response['error'], 'Response with error: ' . $response['message']);
         $this->assertSame($response['code'], 'bike.return.success', 'Invalid response code');
         $this->assertArrayHasKey('bikeNumber', $response['params'], 'Response params does not contain bikeNumber');
         $this->assertArrayHasKey('standName', $response['params'], 'Response params does not contain standName');

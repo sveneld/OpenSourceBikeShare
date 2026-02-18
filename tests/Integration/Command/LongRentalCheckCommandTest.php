@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BikeShare\Test\Integration\Command;
 
 use BikeShare\Mail\MailSenderInterface;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\UserRepository;
 use BikeShare\SmsConnector\SmsConnectorInterface;
@@ -35,7 +36,7 @@ class LongRentalCheckCommandTest extends BikeSharingKernelTestCase
         $admin = self::getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
 
-        self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,
@@ -49,7 +50,7 @@ class LongRentalCheckCommandTest extends BikeSharingKernelTestCase
     {
         $admin = self::getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
-        self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,
@@ -71,7 +72,7 @@ class LongRentalCheckCommandTest extends BikeSharingKernelTestCase
 
         $user = self::getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::USER_PHONE_NUMBER);
-        self::getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        self::getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->rentBike($user['userId'], self::BIKE_NUMBER);
 
         static::mockTime('+' . $_ENV['WATCHES_LONG_RENTAL'] . ' hours 15 minutes');

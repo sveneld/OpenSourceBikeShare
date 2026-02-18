@@ -6,6 +6,7 @@ namespace BikeShare\Controller\Api;
 
 use BikeShare\Db\DbInterface;
 use BikeShare\Enum\Action;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\HistoryRepository;
@@ -83,7 +84,7 @@ class BikeController extends AbstractController
             return $this->json([], Response::HTTP_BAD_REQUEST);
         }
 
-        $response = $rentSystemFactory->getRentSystem('web')->rentBike(
+        $response = $rentSystemFactory->getRentSystem(RentSystemType::WEB)->rentBike(
             $this->getUser()->getUserId(),
             (int)$bikeNumber
         );
@@ -109,7 +110,7 @@ class BikeController extends AbstractController
             return $this->json([], Response::HTTP_BAD_REQUEST);
         }
 
-        $response = $rentSystemFactory->getRentSystem('web')->returnBike(
+        $response = $rentSystemFactory->getRentSystem(RentSystemType::WEB)->returnBike(
             $this->getUser()->getUserId(),
             (int)$bikeNumber,
             $standName,
@@ -135,7 +136,7 @@ class BikeController extends AbstractController
             return $this->json([], Response::HTTP_BAD_REQUEST);
         }
 
-        $response = $rentSystemFactory->getRentSystem('web')->rentBike(
+        $response = $rentSystemFactory->getRentSystem(RentSystemType::WEB)->rentBike(
             $this->getUser()->getUserId(),
             (int)$bikeNumber,
             true // Force rent
@@ -162,7 +163,7 @@ class BikeController extends AbstractController
             return $this->json([], Response::HTTP_BAD_REQUEST);
         }
 
-        $response = $rentSystemFactory->getRentSystem('web')->returnBike(
+        $response = $rentSystemFactory->getRentSystem(RentSystemType::WEB)->returnBike(
             $this->getUser()->getUserId(),
             (int)$bikeNumber,
             $standName,
@@ -236,7 +237,7 @@ class BikeController extends AbstractController
             return $this->json([], Response::HTTP_BAD_REQUEST);
         }
 
-        $response = $rentSystemFactory->getRentSystem('web')->revertBike(
+        $response = $rentSystemFactory->getRentSystem(RentSystemType::WEB)->revertBike(
             $this->getUser()->getUserId(),
             (int)$bikeNumber,
         );

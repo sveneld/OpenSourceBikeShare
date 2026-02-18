@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace BikeShare\Test\Unit\SmsCommand;
 
 use BikeShare\App\Entity\User;
+use BikeShare\Rent\DTO\RentSystemResult;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemInterface;
 use BikeShare\SmsCommand\ReturnCommand;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -44,7 +46,7 @@ class ReturnCommandTest extends TestCase
             ->expects($this->once())
             ->method('returnBike')
             ->with($userId, $bikeNumber, $standName, $note)
-            ->willReturn(['message' => $expectedMessage]);
+            ->willReturn(new RentSystemResult(false, $expectedMessage, 'bike.return.success', [], RentSystemType::SMS));
 
         $this->assertSame($expectedMessage, ($this->command)($userMock, $bikeNumber, $standName, $note));
     }

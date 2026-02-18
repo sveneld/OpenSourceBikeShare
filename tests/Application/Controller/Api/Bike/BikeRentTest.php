@@ -7,6 +7,7 @@ namespace BikeShare\Test\Application\Controller\Api\Bike;
 use BikeShare\App\Security\UserProvider;
 use BikeShare\Db\DbInterface;
 use BikeShare\Event\BikeRentEvent;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\UserRepository;
@@ -30,7 +31,7 @@ class BikeRentTest extends BikeSharingWebTestCase
         $admin = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
 
-        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,
@@ -44,7 +45,7 @@ class BikeRentTest extends BikeSharingWebTestCase
     {
         $admin = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
-        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('web')
+        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::WEB)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,
@@ -83,7 +84,7 @@ class BikeRentTest extends BikeSharingWebTestCase
         $this->assertArrayHasKey('error', $response, 'Response does not contain error key');
         $this->assertArrayHasKey('code', $response, 'Response does not contain code');
         $this->assertArrayHasKey('params', $response, 'Response does not contain params');
-        $this->assertSame(0, $response['error'], 'Response with error: ' . json_encode($response));
+        $this->assertFalse($response['error'], 'Response with error: ' . json_encode($response));
         $this->assertSame($response['code'], 'bike.rent.success', 'Invalid response code');
         $this->assertArrayHasKey('bikeNumber', $response['params'], 'Response params does not contain bikeNumber');
         $this->assertArrayHasKey('currentCode', $response['params'], 'Response params does not contain currentCode');

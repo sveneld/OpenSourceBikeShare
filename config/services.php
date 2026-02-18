@@ -74,6 +74,8 @@ return static function (ContainerConfigurator $container): void {
             '../src/Event',
             '../src/Command/LoadFixturesCommand.php',
             '../src/SmsCommand/*Command.php',
+            '../src/Rent/DTO',
+            '../src/Rent/Enum',
         ]);
 
     $services->get(\BikeShare\App\Security\ApiTokenAuthenticator::class)
@@ -111,7 +113,10 @@ return static function (ContainerConfigurator $container): void {
         ->bind('$commandLocator', tagged_locator('smsCommand', null, 'getName'));
 
     $services->load('BikeShare\\SmsCommand\\', '../src/SmsCommand/*Command.php')
-        ->bind(RentSystemInterface::class, expr('service("BikeShare\\\Rent\\\RentSystemFactory").getRentSystem("sms")'))
+        ->bind(
+            RentSystemInterface::class,
+            expr('service("BikeShare\\\Rent\\\RentSystemFactory").getRentSystem(constant("BikeShare\\\\Rent\\\\Enum\\\\RentSystemType::SMS"))')
+        )
         ->bind('$forceStack', env('bool:FORCE_STACK'))
     ;
 
@@ -164,6 +169,10 @@ return static function (ContainerConfigurator $container): void {
         ->bind('$violationFee', env('float:CREDIT_SYSTEM_VIOLATION_FEE'));
 
     $services->load('BikeShare\\Rent\\', '../src/Rent')
+        ->exclude([
+            '../src/Rent/DTO',
+            '../src/Rent/Enum',
+        ])
         ->bind(
             '$watchesConfig',
             [

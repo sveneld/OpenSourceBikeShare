@@ -6,6 +6,7 @@ namespace BikeShare\Test\Application\Controller\SmsRequestController;
 
 use BikeShare\Db\DbInterface;
 use BikeShare\Event\BikeRentEvent;
+use BikeShare\Rent\Enum\RentSystemType;
 use BikeShare\Rent\RentSystemFactory;
 use BikeShare\Repository\BikeRepository;
 use BikeShare\Repository\UserRepository;
@@ -30,7 +31,7 @@ class RentCommandTest extends BikeSharingWebTestCase
         $admin = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
 
-        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('sms')
+        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::SMS)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,
@@ -44,7 +45,7 @@ class RentCommandTest extends BikeSharingWebTestCase
     {
         $admin = $this->client->getContainer()->get(UserRepository::class)
             ->findItemByPhoneNumber(self::ADMIN_PHONE_NUMBER);
-        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem('sms')
+        $this->client->getContainer()->get(RentSystemFactory::class)->getRentSystem(RentSystemType::SMS)
             ->returnBike(
                 $admin['userId'],
                 self::BIKE_NUMBER,

@@ -19,7 +19,7 @@ class RentSystemCompilerPass implements CompilerPassInterface
 
         $rentSystems = [];
         foreach (array_keys($rentSystemServiceIds) as $id) {
-            $rentSystems[$id::getType()] = new Reference($id);
+            $rentSystems[$id::getType()->value] = new Reference($id);
         }
 
         $factory->setArgument('$locator', ServiceLocatorTagPass::register($container, $rentSystems, 'rentSystems'));

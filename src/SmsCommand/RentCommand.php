@@ -23,7 +23,7 @@ class RentCommand extends AbstractCommand implements SmsCommandInterface
     {
         $response = $this->rentSystem->rentBike($user->getUserId(), $bikeNumber);
 
-        return $response['message'];
+        return $response->getMessage();
     }
 
     public function getHelpMessage(): string
