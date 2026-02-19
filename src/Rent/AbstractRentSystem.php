@@ -96,7 +96,10 @@ abstract class AbstractRentSystem implements RentSystemInterface
                 );
             }
 
-            $result = $this->db->query("SELECT count(*) as countRented FROM bikes where currentUser=$userId");
+            $result = $this->db->query(
+                'SELECT count(*) as countRented FROM bikes where currentUser = :userId',
+                ['userId' => $userId]
+            );
             $row = $result->fetchAssoc();
             $countRented = $row['countRented'];
 
@@ -120,12 +123,18 @@ abstract class AbstractRentSystem implements RentSystemInterface
             }
 
             if ($this->forceStack || $this->watchesConfig['stack']) {
-                $result = $this->db->query("SELECT currentStand FROM bikes WHERE bikeNum='$bikeId'");
+                $result = $this->db->query(
+                    'SELECT currentStand FROM bikes WHERE bikeNum = :bikeNum',
+                    ['bikeNum' => $bikeNum]
+                );
                 $row = $result->fetchAssoc();
                 $standid = $row['currentStand'];
                 $stacktopbike = $this->standRepository->findLastReturnedBikeOnStand((int)$standid);
 
-                $result = $this->db->query("SELECT serviceTag FROM stands WHERE standId='$standid'");
+                $result = $this->db->query(
+                    'SELECT serviceTag FROM stands WHERE standId = :standId',
+                    ['standId' => $standid]
+                );
                 $row = $result->fetchAssoc();
                 $serviceTag = $row['serviceTag'];
 
@@ -137,7 +146,10 @@ abstract class AbstractRentSystem implements RentSystemInterface
                 }
 
                 if ($this->watchesConfig['stack'] && $stacktopbike != $bikeId) {
-                    $result = $this->db->query("SELECT standName FROM stands WHERE standId='$standid'");
+                    $result = $this->db->query(
+                        'SELECT standName FROM stands WHERE standId = :standId',
+                        ['standId' => $standid]
+                    );
                     $row = $result->fetchAssoc();
                     $stand = $row['standName'];
                     $userName = $this->user->findUserName($userId);
@@ -166,7 +178,10 @@ abstract class AbstractRentSystem implements RentSystemInterface
         $result = $this->db->query("SELECT currentCode FROM bikes WHERE bikeNum = :bikeNum", ['bikeNum' => $bikeNum]);
         $row = $result->fetchAssoc();
         $currentCode = sprintf('%04d', $row['currentCode']);
-        $result = $this->db->query("SELECT note FROM notes WHERE bikeNum='$bikeNum' AND deleted IS NULL ORDER BY time DESC");
+        $result = $this->db->query(
+            'SELECT note FROM notes WHERE bikeNum = :bikeNum AND deleted IS NULL ORDER BY time DESC',
+            ['bikeNum' => $bikeNum]
+        );
         $note = '';
         while ($row = $result->fetchAssoc()) {
             $note .= $row['note'] . '; ';
@@ -187,7 +202,14 @@ abstract class AbstractRentSystem implements RentSystemInterface
             $params['note'] = $note;
         }
 
-        $result = $this->db->query("UPDATE bikes SET currentUser=$userId,currentCode=$newCode,currentStand=NULL WHERE bikeNum=$bikeNum");
+        $result = $this->db->query(
+            'UPDATE bikes SET currentUser = :userId, currentCode = :newCode, currentStand = NULL WHERE bikeNum = :bikeNum',
+            [
+                'userId' => $userId,
+                'newCode' => $newCode,
+                'bikeNum' => $bikeNum,
+            ]
+        );
         if ($force) {
 //            $this->success(
 //                $this->translator->trans(
@@ -223,7 +245,10 @@ abstract class AbstractRentSystem implements RentSystemInterface
         $bikeNum = intval($bikeId);
         $stand = strtoupper($standName);
 
-        $result = $this->db->query("SELECT standId FROM stands WHERE standName='$stand'");
+        $result = $this->db->query(
+            'SELECT standId FROM stands WHERE standName = :standName',
+            ['standName' => $stand]
+        );
         if (!$result->rowCount()) {
             return $this->error(
                 $this->translator->trans(
@@ -239,7 +264,13 @@ abstract class AbstractRentSystem implements RentSystemInterface
         $standId = $row["standId"];
 
         if ($force == false) {
-            $result = $this->db->query("SELECT bikeNum FROM bikes WHERE currentUser=$userId AND bikeNum=$bikeId ORDER BY bikeNum");
+            $result = $this->db->query(
+                'SELECT bikeNum FROM bikes WHERE currentUser = :userId AND bikeNum = :bikeNum ORDER BY bikeNum',
+                [
+                    'userId' => $userId,
+                    'bikeNum' => $bikeNum,
+                ]
+            );
             $bikenumber = $result->rowCount();
 
             if ($bikenumber == 0) {
@@ -251,24 +282,49 @@ abstract class AbstractRentSystem implements RentSystemInterface
         }
 
         if ($force == false) {
-            $result = $this->db->query("SELECT currentCode FROM bikes WHERE currentUser=$userId AND bikeNum=$bikeNum");
+            $result = $this->db->query(
+                'SELECT currentCode FROM bikes WHERE currentUser = :userId AND bikeNum = :bikeNum',
+                [
+                    'userId' => $userId,
+                    'bikeNum' => $bikeNum,
+                ]
+            );
         } else {
-            $result = $this->db->query("SELECT currentCode FROM bikes WHERE bikeNum=$bikeNum");
+            $result = $this->db->query(
+                'SELECT currentCode FROM bikes WHERE bikeNum = :bikeNum',
+                ['bikeNum' => $bikeNum]
+            );
         }
 
         $row = $result->fetchAssoc();
         $currentCode = sprintf('%04d', $row['currentCode']);
 
         if ($force == false) {
-            $result = $this->db->query("UPDATE bikes SET currentUser=NULL,currentStand=$standId WHERE bikeNum=$bikeNum and currentUser=$userId");
+            $result = $this->db->query(
+                'UPDATE bikes SET currentUser = NULL, currentStand = :standId WHERE bikeNum = :bikeNum AND currentUser = :userId',
+                [
+                    'standId' => $standId,
+                    'bikeNum' => $bikeNum,
+                    'userId' => $userId,
+                ]
+            );
         } else {
-            $result = $this->db->query("UPDATE bikes SET currentUser=NULL,currentStand=$standId WHERE bikeNum=$bikeNum");
+            $result = $this->db->query(
+                'UPDATE bikes SET currentUser = NULL, currentStand = :standId WHERE bikeNum = :bikeNum',
+                [
+                    'standId' => $standId,
+                    'bikeNum' => $bikeNum,
+                ]
+            );
         }
 
         if ($note) {
             $this->addNote($userId, $bikeNum, $note);
         } else {
-            $result = $this->db->query("SELECT note FROM notes WHERE bikeNum=$bikeNum AND deleted IS NULL ORDER BY time DESC LIMIT 1");
+            $result = $this->db->query(
+                'SELECT note FROM notes WHERE bikeNum = :bikeNum AND deleted IS NULL ORDER BY time DESC LIMIT 1',
+                ['bikeNum' => $bikeNum]
+            );
             $row = $result->fetchAssoc();
             $note = $row["note"] ?? '';
         }
@@ -326,7 +382,10 @@ abstract class AbstractRentSystem implements RentSystemInterface
         $bikeId = intval($bikeId);
 
         $standId = 0;
-        $result = $this->db->query("SELECT currentUser FROM bikes WHERE bikeNum=$bikeId AND currentUser IS NOT NULL");
+        $result = $this->db->query(
+            'SELECT currentUser FROM bikes WHERE bikeNum = :bikeNum AND currentUser IS NOT NULL',
+            ['bikeNum' => $bikeId]
+        );
         if (!$result->rowCount()) {
             return $this->error(
                 $this->translator->trans(
@@ -380,7 +439,14 @@ abstract class AbstractRentSystem implements RentSystemInterface
         }
 
         if ($standId && $code) {
-            $this->db->query("UPDATE bikes SET currentUser=NULL,currentStand=$standId,currentCode=$code WHERE bikeNum=$bikeId");
+            $this->db->query(
+                'UPDATE bikes SET currentUser = NULL, currentStand = :standId, currentCode = :code WHERE bikeNum = :bikeNum',
+                [
+                    'standId' => $standId,
+                    'code' => $code,
+                    'bikeNum' => $bikeId,
+                ]
+            );
 
             $this->db->query(
                 "INSERT INTO history SET userId = :userId, bikeNum = :bikeNum, action = :action, parameter = :parameter, time = :time",

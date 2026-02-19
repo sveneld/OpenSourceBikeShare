@@ -31,7 +31,10 @@ class RentSystemQR extends AbstractRentSystem implements RentSystemInterface
             );
         }
 
-        $result = $this->db->query("SELECT bikeNum FROM bikes WHERE currentUser=$userId ORDER BY bikeNum");
+        $result = $this->db->query(
+            'SELECT bikeNum FROM bikes WHERE currentUser = :userId ORDER BY bikeNum',
+            ['userId' => $userId]
+        );
         $bikeNumber = $result->rowCount();
 
         if ($bikeNumber === 0) {
