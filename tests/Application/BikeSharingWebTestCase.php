@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace BikeShare\Test\Application;
 
 use Monolog\Logger;
+use Monolog\Level;
+use Monolog\LogRecord;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -54,12 +56,12 @@ abstract class BikeSharingWebTestCase extends WebTestCase
         /**
          * Does a single log record satisfy one expectation?
          */
-        $matches = static function (array $record, array $expected): bool {
-            if ($record['level'] !== $expected['level']) {
+        $matches = static function (LogRecord $record, array $expected): bool {
+            if ($record->level->value !== (int)$expected['level']) {
                 return false;
             }
 
-            $message = $record['message'];
+            $message = $record->message;
 
             return \is_callable($expected['pattern'])
                 ? ($expected['pattern'])($message)
@@ -71,15 +73,15 @@ abstract class BikeSharingWebTestCase extends WebTestCase
          */
         foreach ($this->expected as $expected) {
             $found = $logHandler->hasRecordThatPasses(
-                fn(array $record) => $matches($record, $expected),
-                $expected['level'],
+                fn(LogRecord $record) => $matches($record, $expected),
+                Level::from((int)$expected['level']),
             );
 
             self::assertTrue(
                 $found,
                 sprintf(
                     'Expected %s log matching %s but did not find it.',
-                    Logger::getLevelName($expected['level']),
+                    Logger::getLevelName((int)$expected['level']),
                     \is_callable($expected['pattern']) ? 'closure' : $expected['pattern']
                 )
             );
@@ -91,7 +93,7 @@ abstract class BikeSharingWebTestCase extends WebTestCase
         $unexpected = [];
 
         foreach ($logHandler->getRecords() as $record) {
-            if ($record['level'] < Logger::WARNING) {
+            if ($record->level->value < Logger::WARNING) {
                 // only care about ERROR and above
                 continue;
             }
@@ -101,7 +103,6 @@ abstract class BikeSharingWebTestCase extends WebTestCase
                 $unexpected[] = $record;
             }
         }
-
         self::assertSame(
             [],
             $unexpected,
