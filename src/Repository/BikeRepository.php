@@ -65,6 +65,8 @@ class BikeRepository
             'SELECT
                     bikes.bikeNum,
                     currentUser as userId,
+                    LPAD(currentCode, 4, \'0\') as currentCode,
+                    currentStand,
                     userName,
                     standName,
                     (standName REGEXP \'SERVIS$\') AS isServiceStand,
@@ -312,5 +314,72 @@ class BikeRepository
                 'newCode' => $newCode,
             ]
         );
+    }
+
+    public function countRentedByUser(int $userId): int
+    {
+        $result = $this->db->query(
+            'SELECT count(*) as countRented FROM bikes WHERE currentUser = :userId',
+            ['userId' => $userId]
+        );
+
+        return (int)$result->fetchAssoc()['countRented'];
+    }
+
+    public function assignToUser(int $bikeNum, int $userId, string $newCode): void
+    {
+        $this->db->query(
+            'UPDATE bikes SET currentUser = :userId, currentCode = :newCode, currentStand = NULL
+             WHERE bikeNum = :bikeNum',
+            [
+                'userId' => $userId,
+                'newCode' => $newCode,
+                'bikeNum' => $bikeNum,
+            ]
+        );
+    }
+
+    public function returnToStand(int $bikeNum, int $standId, ?int $userId = null): void
+    {
+        if ($userId !== null) {
+            $this->db->query(
+                'UPDATE bikes SET currentUser = NULL, currentStand = :standId
+                 WHERE bikeNum = :bikeNum AND currentUser = :userId',
+                [
+                    'standId' => $standId,
+                    'bikeNum' => $bikeNum,
+                    'userId' => $userId,
+                ]
+            );
+        } else {
+            $this->db->query(
+                'UPDATE bikes SET currentUser = NULL, currentStand = :standId WHERE bikeNum = :bikeNum',
+                [
+                    'standId' => $standId,
+                    'bikeNum' => $bikeNum,
+                ]
+            );
+        }
+    }
+
+    public function revertToStand(int $bikeNum, int $standId, string $code): void
+    {
+        $this->db->query(
+            'UPDATE bikes SET currentUser = NULL, currentStand = :standId, currentCode = :code
+             WHERE bikeNum = :bikeNum',
+            [
+                'standId' => $standId,
+                'code' => $code,
+                'bikeNum' => $bikeNum,
+            ]
+        );
+    }
+
+    public function findRentedBikeNumsByUser(int $userId): array
+    {
+        return $this->db->query(
+            'SELECT bikeNum FROM bikes WHERE currentUser = :userId ORDER BY bikeNum',
+            ['userId' => $userId]
+        )->fetchAllAssoc();
     }
 }
